@@ -79,8 +79,21 @@ Spectral preprocessing checkpoints 1-9 are complete:
   `.codex/memory-bank/plans/2026-06-14-spectral-preprocessing.md`.
 - Spectral preprocessing plan checkpoints 1-9 are complete.
 
+PyTorch dataset checkpoint 1 is complete:
+
+- Added immutable tensor sample schemas for raw and spectral data.
+- Added raw and spectral batch schemas with tensor-only `.pin_memory()` and `.to()` operations.
+- Kept source metadata, channel names, method, scaling, and sampling-rate metadata outside device
+  transfer.
+- Reserved independent spectral and original-EOG length/mask fields because real blocks have
+  variable durations and spectral transforms produce method-specific time axes.
+- Stored the implementation plan in
+  `.codex/memory-bank/plans/2026-06-14-torch-datasets-gpu.md`.
+
 ## Next Actions
 
+- Review PyTorch dataset checkpoint 1.
+- Implement checkpoint 2: `TorchDataset`, raw padding/masks, tests, and the raw CUDA notebook.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
 - Benchmark full-corpus cache warmup only when operational timing is needed.

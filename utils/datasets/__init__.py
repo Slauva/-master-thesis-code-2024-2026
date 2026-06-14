@@ -9,6 +9,10 @@ from utils.datasets.schemas import (
     RandomSample,
     Sample,
     SpectralSample,
+    TorchSample,
+    TorchSampleBatch,
+    TorchSpectralBatch,
+    TorchSpectralSample,
 )
 
 __all__ = [
@@ -23,6 +27,10 @@ __all__ = [
     "SuperletDataset",
     "LoadedSample",
     "SpectralSample",
+    "TorchSample",
+    "TorchSampleBatch",
+    "TorchSpectralBatch",
+    "TorchSpectralSample",
     "Sample",
     "GeometricSample",
     "RandomSample",
