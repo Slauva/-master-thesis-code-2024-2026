@@ -1,8 +1,8 @@
 # PyTorch Datasets And GPU Verification Plan
 
-Status: in progress
+Status: completed
 Last updated: 2026-06-14
-Next checkpoint: 4 - integration
+Next checkpoint: complete
 
 ## Public Contract
 
@@ -68,12 +68,18 @@ Next checkpoint: 4 - integration
   forward/backward passes with finite gradients.
 - Ruff passed and the full suite reported 150 passed. Stop for user review before checkpoint 4.
 
-### 4. Integration - Pending
+### 4. Integration - Completed
 
-- Add automated checks that both notebooks are fully executed, error-free, use CUDA, and include
-  `Data_Train/exec` and `Data_Pattern/patt`.
-- Record final contracts and verification results in the memory bank.
-- Run final Ruff and full pytest verification.
+- Added automated integration checks for both PyTorch notebooks.
+- Tests require every code cell to be executed, no stored errors, an explicit CUDA requirement and
+  device, a stored `CUDA_VERIFIED` result, and both `Data_Train/exec` and `Data_Pattern/patt`.
+- The raw notebook is required to exercise `TorchDataset`, raw collation, and `Conv1d`.
+- The spectral notebook is required to exercise `TorchPreprocessedDataset`, spectral collation,
+  `Conv2d`, and FFT, Morlet, Superlet, and STFT.
+- Revalidated the complete public PyTorch dataset API through `utils.datasets`.
+- Updated active context, durable decisions, experiment notes, and this implementation plan.
+- Final Ruff passed and the full suite reported 152 passed. The only warnings are two existing
+  Python 3.13 multiprocessing `fork()` deprecation warnings from disk-cache tests.
 
 ## Acceptance Constraints
 
@@ -83,3 +89,6 @@ Next checkpoint: 4 - integration
 - Prediction targets, normalization, fixed windows, and leakage-safe evaluation splits remain
   outside this phase.
 - Implementation stops after every checkpoint for user review.
+
+Handoff state: checkpoints 1-4 are complete. The next project phase should define target semantics
+and leakage-safe evaluation splits before implementing training datasets or models.

@@ -79,7 +79,7 @@ Spectral preprocessing checkpoints 1-9 are complete:
   `.codex/memory-bank/plans/2026-06-14-spectral-preprocessing.md`.
 - Spectral preprocessing plan checkpoints 1-9 are complete.
 
-PyTorch dataset checkpoints 1-3 are complete:
+PyTorch dataset checkpoints 1-4 are complete:
 
 - Added immutable tensor sample schemas for raw and spectral data.
 - Added raw and spectral batch schemas with tensor-only `.pin_memory()` and `.to()` operations.
@@ -103,16 +103,22 @@ PyTorch dataset checkpoints 1-3 are complete:
 - Verified pinned host memory, non-blocking CUDA transfer, and finite `Conv2d` forward/backward
   passes for FFT, Morlet, Superlet, and STFT.
 - Added 33 focused PyTorch tests across raw and spectral adapters; Ruff passes and the full suite
-  reports 150 passed.
+  reports 150 passed before integration.
+- Added automated integration checks for both PyTorch notebooks: all code cells must be executed,
+  stored outputs must be error-free and contain `CUDA_VERIFIED`, and both canonical recording
+  families must be present.
+- Revalidated the complete public API and repository. Ruff passes and the full suite reports
+  152 passed; two existing Python 3.13 multiprocessing `fork()` deprecation warnings remain in
+  disk-cache tests.
 - Stored the implementation plan in
   `.codex/memory-bank/plans/2026-06-14-torch-datasets-gpu.md`.
+- PyTorch dataset plan checkpoints 1-4 are complete.
 
 ## Next Actions
 
-- Review PyTorch dataset checkpoint 3.
-- Implement checkpoint 4: automated notebook integration checks and final memory handoff.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
+- Define whether training examples are whole blocks or fixed windows after the split policy is set.
 - Benchmark full-corpus cache warmup only when operational timing is needed.
 
 ## Open Questions

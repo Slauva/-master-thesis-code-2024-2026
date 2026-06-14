@@ -148,3 +148,20 @@
 - Verification: all four notebook code cells executed without errors, covered all methods and both
   recording families, and emitted `CUDA_VERIFIED`; Ruff passed and the full suite reported
   150 passed.
+
+## 2026-06-14 - PyTorch dataset integration
+
+- Scope: public raw and spectral PyTorch dataset APIs, both executed CUDA notebooks, and automated
+  notebook acceptance checks.
+- Notebook contract: every code cell has an execution count, no output is an error,
+  `torch.cuda.is_available()` is required, the selected device is CUDA, and stored outputs contain
+  `CUDA_VERIFIED`.
+- Coverage: both notebooks include `Data_Train/exec` and `Data_Pattern/patt`; the raw notebook
+  exercises `TorchDataset`, raw collation, and `Conv1d`; the spectral notebook exercises
+  `TorchPreprocessedDataset`, spectral collation, `Conv2d`, and all four spectral methods.
+- Public API validation: raw/spectral sample and batch schemas, both adapters, and both collators
+  import successfully from `utils.datasets`.
+- Interpretation boundary: notebook tests prove the stored infrastructure demonstrations ran on
+  CUDA; they do not establish predictive validity, model quality, or an evaluation protocol.
+- Verification: Ruff passed and the full suite reported 152 passed. Two Python 3.13
+  multiprocessing `fork()` deprecation warnings remain in pre-existing disk-cache tests.
