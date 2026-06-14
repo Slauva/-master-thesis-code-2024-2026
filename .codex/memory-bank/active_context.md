@@ -79,7 +79,7 @@ Spectral preprocessing checkpoints 1-9 are complete:
   `.codex/memory-bank/plans/2026-06-14-spectral-preprocessing.md`.
 - Spectral preprocessing plan checkpoints 1-9 are complete.
 
-PyTorch dataset checkpoint 1 is complete:
+PyTorch dataset checkpoints 1-2 are complete:
 
 - Added immutable tensor sample schemas for raw and spectral data.
 - Added raw and spectral batch schemas with tensor-only `.pin_memory()` and `.to()` operations.
@@ -87,13 +87,21 @@ PyTorch dataset checkpoint 1 is complete:
   transfer.
 - Reserved independent spectral and original-EOG length/mask fields because real blocks have
   variable durations and spectral transforms produce method-specific time axes.
+- Added `TorchDataset` as a zero-copy map-style adapter over `NumpyDataset`.
+- Added strict raw collation with zero padding, lengths, valid-time masks, and EOG finite masks.
+- Preserved integer and canonical tuple indexing plus source `samples` and `source_map`.
+- Added and executed `notebooks/3.0-torch-dataset-gpu.ipynb` with a mixed canonical
+  `Data_Train/exec` and `Data_Pattern/patt` batch.
+- Verified pinned host memory, non-blocking CUDA transfer, and a finite `Conv1d` forward/backward
+  pass on the available CUDA device.
+- Added 12 focused tests; Ruff passes and the full suite reports 129 passed.
 - Stored the implementation plan in
   `.codex/memory-bank/plans/2026-06-14-torch-datasets-gpu.md`.
 
 ## Next Actions
 
-- Review PyTorch dataset checkpoint 1.
-- Implement checkpoint 2: `TorchDataset`, raw padding/masks, tests, and the raw CUDA notebook.
+- Review PyTorch dataset checkpoint 2.
+- Implement checkpoint 3: the spectral PyTorch adapter, spectral collation, tests, and CUDA notebook.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
 - Benchmark full-corpus cache warmup only when operational timing is needed.

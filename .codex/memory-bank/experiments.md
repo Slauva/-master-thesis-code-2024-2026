@@ -114,3 +114,19 @@
   counts, `.npy` headers, and observed canonical manifest sizes. Filesystem block and directory
   allocation overhead are excluded, so provision slightly more than 3.45 GB.
 - Verification: `uv run ruff check .` passed and `uv run pytest` reported 117 passed.
+
+## 2026-06-14 - Raw PyTorch dataset CUDA verification
+
+- Scope: `TorchDataset`, raw variable-length collation, and
+  `notebooks/3.0-torch-dataset-gpu.ipynb`.
+- Inputs: canonical block `(1, 1, 1)` from `Data_Train/exec` and `Data_Pattern/patt`.
+- Batch result: EEG shape `(2, 63, 26001)` with observed lengths 16,001 and 26,001 samples;
+  shorter-sample padding was zero and the valid-time mask reproduced both lengths.
+- EOG result: source NaNs were preserved, padding was excluded, and `eog_finite_mask` matched
+  `isfinite` over every observed sample.
+- GPU result: custom DataLoader batch tensors were pinned, non-blocking transfer reached CUDA,
+  and a small `Conv1d` model completed forward/backward with finite output, loss, and gradients.
+- Interpretation boundary: this is an infrastructure smoke test, not a trained model or scientific
+  performance result. No target or data split was introduced.
+- Verification: all four notebook code cells executed without errors and emitted
+  `CUDA_VERIFIED`; Ruff passed and the full suite reported 129 passed.

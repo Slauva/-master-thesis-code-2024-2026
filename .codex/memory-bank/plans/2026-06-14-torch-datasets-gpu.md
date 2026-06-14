@@ -2,7 +2,7 @@
 
 Status: in progress
 Last updated: 2026-06-14
-Next checkpoint: 2 - raw PyTorch dataset
+Next checkpoint: 3 - preprocessed PyTorch dataset
 
 ## Public Contract
 
@@ -32,15 +32,22 @@ Next checkpoint: 2 - raw PyTorch dataset
 - Saved this plan and updated the active project context.
 - Stop for user review before checkpoint 2.
 
-### 2. Raw PyTorch Dataset - Pending
+### 2. Raw PyTorch Dataset - Completed
 
-- Implement `TorchDataset` as a map-style adapter over `NumpyDataset`.
-- Implement raw collation with zero padding, lengths, valid-time masks, and EOG finite masks.
-- Preserve integer and canonical tuple indexing plus source index metadata.
-- Test dtype-preserving conversion, variable lengths, EOG NaNs, pinning, and CPU transfer.
-- Create and execute `notebooks/3.0-torch-dataset-gpu.ipynb` on canonical `exec` and `patt`
-  samples, including pinned transfer and a finite CUDA `Conv1d` forward/backward pass.
-- Run Ruff and the full test suite, then stop for user review.
+- Implemented `TorchDataset` as a map-style adapter over an already configured `NumpyDataset`.
+- Tensor conversion uses `torch.from_numpy`, preserves `float32`/`float64`, and shares source
+  array storage without adding another cache.
+- Implemented raw collation with zero padding, lengths, valid-time masks, and EOG finite masks.
+- Added strict validation for tensor shape, finite EEG, channel order, dtype, sampling frequency,
+  and CPU-only pre-collation storage.
+- Preserved integer and canonical tuple indexing plus `samples` and `source_map` proxies.
+- Added 12 focused tests covering conversion, storage sharing, variable lengths, EOG NaNs,
+  incompatible batches, custom batch pinning, and CPU transfer.
+- Created and executed `notebooks/3.0-torch-dataset-gpu.ipynb` on one canonical
+  `Data_Train/exec` sample and one canonical `Data_Pattern/patt` sample.
+- Verified a pinned batch with raw lengths 16,001 and 26,001, non-blocking CUDA transfer, and a
+  finite `Conv1d` forward/backward pass with finite parameter gradients.
+- Ruff passed and the full suite reported 129 passed. Stop for user review before checkpoint 3.
 
 ### 3. Preprocessed PyTorch Dataset - Pending
 

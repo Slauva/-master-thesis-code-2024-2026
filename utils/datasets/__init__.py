@@ -14,6 +14,7 @@ from utils.datasets.schemas import (
     TorchSpectralBatch,
     TorchSpectralSample,
 )
+from utils.datasets.torch_dataset import TorchDataset, collate_torch_samples
 
 __all__ = [
     "CacheWarmupError",
@@ -29,8 +30,10 @@ __all__ = [
     "SpectralSample",
     "TorchSample",
     "TorchSampleBatch",
+    "TorchDataset",
     "TorchSpectralBatch",
     "TorchSpectralSample",
+    "collate_torch_samples",
     "Sample",
     "GeometricSample",
     "RandomSample",
