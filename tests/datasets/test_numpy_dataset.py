@@ -1,4 +1,5 @@
 import json
+import os
 import warnings
 from pathlib import Path
 
@@ -85,7 +86,7 @@ def test_loads_fif_as_numpy_arrays(
     expected_dtype: np.dtype,
 ) -> None:
     _write_numpy_trial(tmp_path)
-    dataset = NumpyDataset(tmp_path, dtype=dtype)
+    dataset = NumpyDataset(tmp_path, dtype=dtype, cache_policy=None)
 
     loaded = dataset[0]
 
@@ -102,7 +103,7 @@ def test_loads_fif_as_numpy_arrays(
 
 def test_integer_and_tuple_indexing_load_same_sample(tmp_path: Path) -> None:
     _write_numpy_trial(tmp_path)
-    dataset = NumpyDataset(tmp_path)
+    dataset = NumpyDataset(tmp_path, cache_policy=None)
 
     by_position = dataset[1]
     by_key = dataset[1, 1, 2]
@@ -119,7 +120,7 @@ def test_filters_all_public_indexes_by_pattern_type(
     expected_block: int,
 ) -> None:
     _write_numpy_trial(tmp_path)
-    dataset = NumpyDataset(tmp_path, dataset_pattern_type=pattern_type)  # type: ignore[arg-type]
+    dataset = NumpyDataset(tmp_path, dataset_pattern_type=pattern_type, cache_policy=None)  # type: ignore[arg-type]
 
     assert len(dataset) == 1
     assert dataset[0].sample.block_index == expected_block
@@ -132,7 +133,7 @@ def test_filters_all_public_indexes_by_pattern_type(
 
 def test_iteration_loads_samples_in_stable_order(tmp_path: Path) -> None:
     _write_numpy_trial(tmp_path)
-    dataset = NumpyDataset(tmp_path)
+    dataset = NumpyDataset(tmp_path, cache_policy=None)
 
     assert [loaded.sample.block_index for loaded in dataset] == [1, 2]
 
@@ -142,12 +143,12 @@ def test_rejects_unsupported_dtype(tmp_path: Path, dtype: object) -> None:
     _write_numpy_trial(tmp_path)
 
     with pytest.raises((TypeError, ValueError), match="dtype|not understood"):
-        NumpyDataset(tmp_path, dtype=dtype)  # type: ignore[arg-type]
+        NumpyDataset(tmp_path, dtype=dtype, cache_policy=None)  # type: ignore[arg-type]
 
 
 def test_rejects_different_sample_counts(tmp_path: Path) -> None:
     _write_numpy_trial(tmp_path, eeg_n_times=8, eog_n_times=7)
-    dataset = NumpyDataset(tmp_path)
+    dataset = NumpyDataset(tmp_path, cache_policy=None)
 
     with pytest.raises(ValueError, match="sample counts differ"):
         dataset[0]
@@ -155,7 +156,7 @@ def test_rejects_different_sample_counts(tmp_path: Path) -> None:
 
 def test_rejects_different_sampling_frequencies(tmp_path: Path) -> None:
     _write_numpy_trial(tmp_path, eeg_sfreq=100.0, eog_sfreq=200.0)
-    dataset = NumpyDataset(tmp_path)
+    dataset = NumpyDataset(tmp_path, cache_policy=None)
 
     with pytest.raises(ValueError, match="sampling frequencies differ"):
         dataset[0]
@@ -163,7 +164,101 @@ def test_rejects_different_sampling_frequencies(tmp_path: Path) -> None:
 
 def test_rejects_invalid_key_type(tmp_path: Path) -> None:
     _write_numpy_trial(tmp_path)
-    dataset = NumpyDataset(tmp_path)
+    dataset = NumpyDataset(tmp_path, cache_policy=None)
 
     with pytest.raises(TypeError, match="must be an integer"):
         dataset[True]
+
+
+def test_disk_cache_writes_manifest_and_reuses_arrays(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    dataset_dir = tmp_path / "dataset"
+    cache_dir = tmp_path / "cache"
+    _write_numpy_trial(dataset_dir)
+    dataset = NumpyDataset(dataset_dir, cache_policy="disk", cache_dir=cache_dir)
+
+    first = dataset[0]
+    entry_dir = dataset.get_cache_entry_path(0)
+
+    assert (entry_dir / "eeg.npy").is_file()
+    assert (entry_dir / "eog.npy").is_file()
+    assert (entry_dir / "manifest.json").is_file()
+
+    def fail_if_fif_is_opened(*args: object, **kwargs: object) -> None:
+        raise AssertionError("FIF should not be opened on a cache hit")
+
+    monkeypatch.setattr(mne.io, "read_raw_fif", fail_if_fif_is_opened)
+    second = dataset[0]
+
+    np.testing.assert_array_equal(second.eeg, first.eeg)
+    np.testing.assert_array_equal(second.eog, first.eog)
+    assert second.sample == first.sample
+
+
+def test_disk_cache_is_invalidated_when_source_changes(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    dataset_dir = tmp_path / "dataset"
+    cache_dir = tmp_path / "cache"
+    _write_numpy_trial(dataset_dir)
+    dataset = NumpyDataset(dataset_dir, cache_policy="disk", cache_dir=cache_dir)
+    dataset[0]
+
+    sample = dataset.samples[0]
+    stat = sample.eeg_path.stat()
+    os.utime(sample.eeg_path, ns=(stat.st_atime_ns, stat.st_mtime_ns + 1_000_000_000))
+
+    original_reader = mne.io.read_raw_fif
+    opened_paths: list[Path] = []
+
+    def tracking_reader(path: Path, *args: object, **kwargs: object) -> mne.io.BaseRaw:
+        opened_paths.append(Path(path))
+        return original_reader(path, *args, **kwargs)
+
+    monkeypatch.setattr(mne.io, "read_raw_fif", tracking_reader)
+    dataset[0]
+
+    assert opened_paths == [sample.eeg_path, sample.eog_path]
+
+
+def test_incomplete_or_corrupt_cache_is_rebuilt(tmp_path: Path) -> None:
+    dataset_dir = tmp_path / "dataset"
+    cache_dir = tmp_path / "cache"
+    _write_numpy_trial(dataset_dir)
+    dataset = NumpyDataset(dataset_dir, cache_policy="disk", cache_dir=cache_dir)
+    expected = dataset[0]
+    entry_dir = dataset.get_cache_entry_path(0)
+
+    (entry_dir / "manifest.json").unlink()
+    (entry_dir / "eeg.npy").write_bytes(b"not-a-valid-npy")
+
+    rebuilt = dataset[0]
+
+    np.testing.assert_array_equal(rebuilt.eeg, expected.eeg)
+    np.testing.assert_array_equal(rebuilt.eog, expected.eog)
+    with (entry_dir / "manifest.json").open(encoding="utf-8") as file:
+        manifest = json.load(file)
+    assert manifest["schema_version"] == NumpyDataset.CACHE_SCHEMA_VERSION
+
+
+def test_cache_manifest_contains_source_and_array_metadata(tmp_path: Path) -> None:
+    dataset_dir = tmp_path / "dataset"
+    cache_dir = tmp_path / "cache"
+    _write_numpy_trial(dataset_dir)
+    dataset = NumpyDataset(dataset_dir, cache_policy="disk", cache_dir=cache_dir)
+    loaded = dataset[0]
+
+    with (dataset.get_cache_entry_path(0) / "manifest.json").open(encoding="utf-8") as file:
+        manifest = json.load(file)
+
+    assert manifest["key"] == {"subject_id": 1, "trial_number": 1, "block_index": 1}
+    assert manifest["dtype"] == "float32"
+    assert manifest["arrays"]["eeg"] == {"shape": list(loaded.eeg.shape), "dtype": "float32"}
+    assert manifest["sources"]["eeg"]["size"] == loaded.sample.eeg_path.stat().st_size
+    assert manifest["sources"]["eog"]["mtime_ns"] == loaded.sample.eog_path.stat().st_mtime_ns
+
+
+def test_default_cache_path_is_inside_project_artifacts() -> None:
+    dataset = NumpyDataset(Path("data/Data_Train"))
+
+    assert dataset.cache_dir == (
+        Path.cwd() / "artifacts" / "cache" / "Data_Train" / "exec" / "float32"
+    ).resolve()
+    assert not dataset.get_cache_entry_path(0).exists()

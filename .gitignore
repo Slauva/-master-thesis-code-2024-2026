@@ -17,3 +17,6 @@ wheels/
 data/**
 
 .vscode/
+
+# Generated dataset cache.
+artifacts/cache/
