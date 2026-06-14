@@ -27,11 +27,7 @@ class DatasetBase(DatasetProto):
             raise NotADirectoryError(f"Dataset directory does not exist: {self.dataset_dir}")
 
         source_map, samples = self._build_index()
-        self.source_map = source_map
-        self.samples = samples
-        self._sample_by_key = MappingProxyType(
-            {(sample.subject_id, sample.trial_number, sample.block_index): sample for sample in samples}
-        )
+        self._set_index(source_map, samples)
 
     def __getitem__(self, key: SampleKey) -> Sample:
         if not isinstance(key, tuple) or len(key) != 3:
@@ -47,6 +43,20 @@ class DatasetBase(DatasetProto):
 
     def __len__(self) -> int:
         return len(self.samples)
+
+    def _set_index(self, source_map: SourceMap, samples: tuple[Sample, ...]) -> None:
+        self.source_map = source_map
+        self.samples = samples
+        self._sample_by_key = MappingProxyType(
+            {(sample.subject_id, sample.trial_number, sample.block_index): sample for sample in samples}
+        )
+
+    def _filter_index(self, samples: tuple[Sample, ...]) -> None:
+        source_map: SourceMap = {}
+        for sample in samples:
+            trial_map = source_map.setdefault(sample.subject_id, {}).setdefault(sample.trial_number, {})
+            trial_map[sample.block_index] = sample
+        self._set_index(source_map, samples)
 
     def _build_index(self) -> tuple[SourceMap, tuple[Sample, ...]]:
         source_map: SourceMap = {}

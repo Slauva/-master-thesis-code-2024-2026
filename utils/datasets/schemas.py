@@ -1,6 +1,9 @@
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Annotated, Literal, Union
+from typing import Annotated, Any, Literal, Union
 
+import numpy as np
+from numpy.typing import NDArray
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -30,3 +33,13 @@ Sample = Annotated[Union[GeometricSample, RandomSample], Field(discriminator="ty
 
 class LabelModel(BaseModel):
     blocks: list[Sample]
+
+
+@dataclass(frozen=True, slots=True)
+class LoadedSample:
+    sample: Sample
+    eeg: NDArray[np.floating[Any]]
+    eog: NDArray[np.floating[Any]]
+    sfreq: float
+    eeg_channels: tuple[str, ...]
+    eog_channels: tuple[str, ...]
