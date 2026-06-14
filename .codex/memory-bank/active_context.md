@@ -79,7 +79,7 @@ Spectral preprocessing checkpoints 1-9 are complete:
   `.codex/memory-bank/plans/2026-06-14-spectral-preprocessing.md`.
 - Spectral preprocessing plan checkpoints 1-9 are complete.
 
-PyTorch dataset checkpoints 1-2 are complete:
+PyTorch dataset checkpoints 1-3 are complete:
 
 - Added immutable tensor sample schemas for raw and spectral data.
 - Added raw and spectral batch schemas with tensor-only `.pin_memory()` and `.to()` operations.
@@ -94,14 +94,23 @@ PyTorch dataset checkpoints 1-2 are complete:
   `Data_Train/exec` and `Data_Pattern/patt` batch.
 - Verified pinned host memory, non-blocking CUDA transfer, and a finite `Conv1d` forward/backward
   pass on the available CUDA device.
-- Added 12 focused tests; Ruff passes and the full suite reports 129 passed.
+- Added `TorchPreprocessedDataset` as a zero-copy adapter over all four spectral dataset classes.
+- FFT batches stack without a time axis; Morlet, Superlet, and STFT use padded per-sample time
+  coordinates, spectral lengths, and spectral time masks.
+- Original EOG uses independent padding, lengths, time masks, and finite-value masks.
+- Added and executed `notebooks/3.1-torch-preprocessed-dataset-gpu.ipynb` for all four methods and
+  both canonical recording families.
+- Verified pinned host memory, non-blocking CUDA transfer, and finite `Conv2d` forward/backward
+  passes for FFT, Morlet, Superlet, and STFT.
+- Added 33 focused PyTorch tests across raw and spectral adapters; Ruff passes and the full suite
+  reports 150 passed.
 - Stored the implementation plan in
   `.codex/memory-bank/plans/2026-06-14-torch-datasets-gpu.md`.
 
 ## Next Actions
 
-- Review PyTorch dataset checkpoint 2.
-- Implement checkpoint 3: the spectral PyTorch adapter, spectral collation, tests, and CUDA notebook.
+- Review PyTorch dataset checkpoint 3.
+- Implement checkpoint 4: automated notebook integration checks and final memory handoff.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
 - Benchmark full-corpus cache warmup only when operational timing is needed.

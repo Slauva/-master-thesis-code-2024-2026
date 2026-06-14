@@ -130,3 +130,21 @@
   performance result. No target or data split was introduced.
 - Verification: all four notebook code cells executed without errors and emitted
   `CUDA_VERIFIED`; Ruff passed and the full suite reported 129 passed.
+
+## 2026-06-14 - Spectral PyTorch datasets CUDA verification
+
+- Scope: `TorchPreprocessedDataset`, method-aware spectral collation, and
+  `notebooks/3.1-torch-preprocessed-dataset-gpu.ipynb`.
+- Inputs: canonical block `(1, 1, 1)` from both `Data_Train/exec` and `Data_Pattern/patt` for FFT,
+  Morlet, Superlet, and STFT, loaded through existing validated spectral caches.
+- FFT batch: power shape `(2, 63, 39)` with no spectral time metadata.
+- Morlet batch: padded power shape `(2, 63, 39, 92)` with spectral lengths 53 and 92.
+- Superlet batch: padded power shape `(2, 63, 39, 89)` with spectral lengths 50 and 89.
+- STFT batch: padded power shape `(2, 63, 39, 94)` with spectral lengths 55 and 94.
+- GPU result: all custom batches were pinned, transferred non-blocking to CUDA, and completed a
+  method-specific `Conv2d` forward/backward pass with finite outputs, losses, and gradients.
+- Interpretation boundary: these are infrastructure checks over cached features, not learned models
+  or evidence that one spectral representation is scientifically superior.
+- Verification: all four notebook code cells executed without errors, covered all methods and both
+  recording families, and emitted `CUDA_VERIFIED`; Ruff passed and the full suite reported
+  150 passed.

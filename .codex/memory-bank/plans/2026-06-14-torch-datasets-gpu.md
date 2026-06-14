@@ -2,7 +2,7 @@
 
 Status: in progress
 Last updated: 2026-06-14
-Next checkpoint: 3 - preprocessed PyTorch dataset
+Next checkpoint: 4 - integration
 
 ## Public Contract
 
@@ -49,14 +49,24 @@ Next checkpoint: 3 - preprocessed PyTorch dataset
   finite `Conv1d` forward/backward pass with finite parameter gradients.
 - Ruff passed and the full suite reported 129 passed. Stop for user review before checkpoint 3.
 
-### 3. Preprocessed PyTorch Dataset - Pending
+### 3. Preprocessed PyTorch Dataset - Completed
 
-- Implement `TorchPreprocessedDataset` over all four spectral dataset classes.
-- Implement FFT stacking and TFR time-axis padding with independent spectral/EOG masks.
-- Test all methods, incompatible batches, padding, pinning, and device transfer.
-- Create and execute `notebooks/3.1-torch-preprocessed-dataset-gpu.ipynb`, including finite CUDA
-  `Conv2d` forward/backward checks for small canonical batches.
-- Run Ruff and the full test suite, then stop for user review.
+- Implemented `TorchPreprocessedDataset` over an already configured `PreprocessedDataset`.
+- Tensor conversion uses `torch.from_numpy` for power, original EOG, frequencies, and optional
+  times without adding preprocessing or cache ownership.
+- FFT batches stack as `(batch, channel, frequency)` with no spectral time metadata.
+- Morlet, Superlet, and STFT pad only their final time axis; padded `times` use
+  `(batch, time)` and are disambiguated by `spectral_lengths` and `spectral_time_mask`.
+- Original EOG is padded independently with its own lengths, valid-time mask, and finite-value mask.
+- Added strict validation for method, scaling, channel order, sampling rates, dtypes, frequency
+  grids, shape, finite non-negative power, and monotonic axes.
+- Added 21 focused tests covering all four methods, storage sharing, padding, incompatible batches,
+  custom pinning, and device transfer.
+- Created and executed `notebooks/3.1-torch-preprocessed-dataset-gpu.ipynb` on canonical
+  `Data_Train/exec` and `Data_Pattern/patt` cache entries for all four methods.
+- Verified pinned batches, non-blocking CUDA transfer, and finite method-specific `Conv2d`
+  forward/backward passes with finite gradients.
+- Ruff passed and the full suite reported 150 passed. Stop for user review before checkpoint 4.
 
 ### 4. Integration - Pending
 

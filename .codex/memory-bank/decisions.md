@@ -78,3 +78,15 @@
 - Treat full-corpus spectral storage calculations as logical-size estimates based on actual corpus
   duration groups, transform time-axis formulas, NumPy array headers, and observed manifest sizes.
   Report filesystem allocation overhead separately rather than implying byte-exact disk usage.
+- Keep PyTorch datasets as zero-copy map-style adapters over configured `NumpyDataset` and
+  `PreprocessedDataset` instances. They must not duplicate FIF loading, preprocessing, or cache
+  configuration.
+- Keep individual dataset samples on CPU and move only collated batches to accelerators. Custom
+  batch classes own pinned-memory and device-transfer behavior while source metadata remains on CPU.
+- Pad raw EEG/EOG and spectral time axes with zeros and provide explicit lengths and masks.
+  Preserve source EOG NaNs and distinguish them from padding through a separate finite-value mask.
+- Stack FFT as `(batch, channel, frequency)` without time metadata. Pad Morlet, Superlet, and STFT
+  as `(batch, channel, frequency, time)` and store their padded per-sample time coordinates as
+  `(batch, time)` with a spectral mask.
+- Reject mixed-method or scientifically incompatible spectral batches, including mismatched
+  scaling, channels, sampling rates, dtypes, or frequency grids.
