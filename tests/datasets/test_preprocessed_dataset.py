@@ -8,7 +8,7 @@ import mne
 import numpy as np
 import pytest
 
-from preprocessors import FFTConfig, SpectralTransformResult, load_preprocessing_config
+from preprocessors import FFTConfig, MorletConfig, SpectralTransformResult, load_preprocessing_config
 from utils.datasets import (
     FFTDataset,
     MorletDataset,
@@ -98,6 +98,9 @@ class SyntheticFFTDataset(PreprocessedDataset):
 
 
 class SyntheticTimeFrequencyDataset(SyntheticFFTDataset):
+    METHOD = "morlet"
+    CONFIG_TYPE = MorletConfig
+
     def _transform(self, loaded: LoadedSample) -> SpectralTransformResult:
         self.transform_calls += 1
         frequencies = np.array([2.0, 3.0, 4.0])
@@ -107,6 +110,33 @@ class SyntheticTimeFrequencyDataset(SyntheticFFTDataset):
             eeg_power=power,
             frequencies=frequencies,
             times=times,
+            analysis_sfreq=self.config.analysis_sfreq,
+            scaling=self.config.scaling,
+        )
+
+
+class InvalidFFTTimeFrequencyDataset(SyntheticFFTDataset):
+    def _transform(self, loaded: LoadedSample) -> SpectralTransformResult:
+        frequencies = np.array([2.0, 3.0, 4.0])
+        times = np.array([0.0, 0.25])
+        power = np.ones((loaded.eeg.shape[0], frequencies.size, times.size))
+        return SpectralTransformResult(
+            eeg_power=power,
+            frequencies=frequencies,
+            times=times,
+            analysis_sfreq=self.config.analysis_sfreq,
+            scaling=self.config.scaling,
+        )
+
+
+class InvalidMorletFrequencyOnlyDataset(SyntheticTimeFrequencyDataset):
+    def _transform(self, loaded: LoadedSample) -> SpectralTransformResult:
+        frequencies = np.array([2.0, 3.0, 4.0])
+        power = np.ones((loaded.eeg.shape[0], frequencies.size))
+        return SpectralTransformResult(
+            eeg_power=power,
+            frequencies=frequencies,
+            times=None,
             analysis_sfreq=self.config.analysis_sfreq,
             scaling=self.config.scaling,
         )
@@ -168,6 +198,33 @@ def test_rejects_non_finite_source_eeg(tmp_path: Path) -> None:
     )
 
     with pytest.raises(ValueError, match="Source EEG contains non-finite"):
+        dataset[0]
+
+
+@pytest.mark.parametrize(
+    ("dataset_type", "message"),
+    [
+        (InvalidFFTTimeFrequencyDataset, r"FFT power must have shape \(channel, frequency\)"),
+        (
+            InvalidMorletFrequencyOnlyDataset,
+            r"MORLET power must have shape \(channel, frequency, time\)",
+        ),
+    ],
+)
+def test_enforces_method_specific_output_dimensions(
+    tmp_path: Path,
+    dataset_type: type[PreprocessedDataset],
+    message: str,
+) -> None:
+    _write_trial(tmp_path)
+    dataset = dataset_type(
+        tmp_path,
+        config_overrides={"f_max": 4.0},
+        cache_policy=None,
+        source_cache_policy=None,
+    )
+
+    with pytest.raises(ValueError, match=message):
         dataset[0]
 
 

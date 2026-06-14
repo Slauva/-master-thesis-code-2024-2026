@@ -72,3 +72,9 @@
   frequency-cell overlap. Share the power-preserving density rebinning implementation with FFT;
   selecting every second native bin is invalid because it does not preserve integrated power.
 - Require `window_seconds * analysis_sfreq` to be an integer number of samples in STFT configs.
+- Enforce method-specific output dimensionality at the `PreprocessedDataset` boundary: FFT must
+  return `(channel, frequency)`, while Morlet, Superlet, and STFT must return
+  `(channel, frequency, time)`.
+- Treat full-corpus spectral storage calculations as logical-size estimates based on actual corpus
+  duration groups, transform time-axis formulas, NumPy array headers, and observed manifest sizes.
+  Report filesystem allocation overhead separately rather than implying byte-exact disk usage.

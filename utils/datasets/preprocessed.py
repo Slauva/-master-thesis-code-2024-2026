@@ -128,6 +128,10 @@ class PreprocessedDataset(ABC):
         loaded: LoadedSample,
         transformed: SpectralTransformResult,
     ) -> SpectralSample:
+        expected_ndim = 2 if self.METHOD == "fft" else 3
+        if transformed.eeg_power.ndim != expected_ndim:
+            expected_shape = "(channel, frequency)" if expected_ndim == 2 else "(channel, frequency, time)"
+            raise ValueError(f"{self.METHOD.upper()} power must have shape {expected_shape}")
         if transformed.eeg_power.shape[0] != len(loaded.eeg_channels):
             raise ValueError("The transformed EEG channel axis does not match the source EEG channels")
         if transformed.scaling != self.config.scaling:

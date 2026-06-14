@@ -1,8 +1,8 @@
 # EEG Spectral Preprocessing Plan
 
-Status: active
+Status: completed
 Last updated: 2026-06-14
-Next checkpoint: 9 - Integration
+Next checkpoint: complete
 
 ## Documentation Rule
 
@@ -84,8 +84,8 @@ Before using a new library API:
   axes, validation, dataset integration, and cache reuse.
 - Verified the complete repository with Ruff and 105 passing tests.
 
-Handoff state: checkpoints 1-8 are complete. Continue in a new chat from checkpoint 9 without
-reimplementing or revalidating individual transforms unless their contracts are changed.
+Handoff state: checkpoints 1-9 are complete. The next project phase should define prediction
+targets and leakage-safe evaluation splits before model development.
 
 ### 7. STFT - Completed
 
@@ -114,13 +114,17 @@ reimplementing or revalidating individual transforms unless their contracts are 
 - Validated FFT global peaks and all time-frequency burst locations before plotting real data.
 - Verified the complete repository with Ruff and 110 passing tests.
 
-### 9. Integration - Pending
+### 9. Integration - Completed
 
-- Enforce FFT shape `(channel, frequency)` and TFR shape `(channel, frequency, time)`.
-- Validate one `exec` and one `patt` block in every method notebook and the comparison notebook
-  without processing the full corpus.
-- Run `uv run ruff check .` and `uv run pytest`.
-- Update the memory bank and estimate full artifact storage.
+- Enforced FFT shape `(channel, frequency)` and TFR shape
+  `(channel, frequency, time)` at the dataset boundary.
+- Added automated checks that every method notebook and the comparison notebook are executed,
+  error-free, and include both canonical recording families.
+- Revalidated one `exec` and one `patt` cache entry for every method through the public dataset
+  classes without processing the full corpus.
+- Estimated logical storage for all four methods across 1,800 blocks at about 3.214 GiB
+  (3.451 GB), excluding filesystem allocation overhead.
+- Verified the complete repository with Ruff and 117 passing tests.
 
 ## Scientific Constraints
 

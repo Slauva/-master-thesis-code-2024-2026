@@ -91,3 +91,26 @@
 - Interpretation boundary: native PSD and wavelet-power amplitudes were shown only in
   method-specific panels. Shared relative-dB maps and peak-normalized time marginals were
   presentation-only and were not written to artifacts.
+
+## 2026-06-14 - Spectral preprocessing integration
+
+- Scope: final checkpoint across FFT, Morlet, Superlet, STFT, notebooks `2.1` through `2.5`, and
+  canonical key `(1, 1, 1)` in both recording families.
+- Code contract: `PreprocessedDataset` now rejects 3D FFT output and rejects 2D Morlet, Superlet,
+  or STFT output. The common transform schema continues to validate either representation before
+  the method-specific dataset boundary is applied.
+- Canonical artifact validation: all eight entries loaded through public dataset classes with the
+  expected shapes, `float32` dtype, exact 2-40 Hz grid, correct PSD/wavelet-power scaling, and no
+  cached `eog.npy`.
+- Notebook validation: all code cells in `notebooks/2.1-fft.ipynb` through
+  `notebooks/2.5-spectral-methods-comparison.ipynb` have execution counts, no error outputs, and
+  explicit `Data_Train/exec` plus `Data_Pattern/patt` demonstrations.
+- Corpus duration groups used for storage estimation: 1,200 `exec` blocks at 16.000 s, 59 at
+  15.499 s, one at 15.414 s, and 540 `patt` blocks at 26.000 s.
+- Estimated logical artifact sizes: FFT 22,120,560 bytes (21.10 MiB), Morlet 1,148,894,408 bytes
+  (1.070 GiB), Superlet 1,095,727,808 bytes (1.020 GiB), and STFT 1,184,183,408 bytes
+  (1.103 GiB). Total: 3,450,926,184 bytes, about 3.214 GiB or 3.451 GB.
+- Estimate assumptions: 63 channels, 39 frequencies, `float32`, actual duration-group time-bin
+  counts, `.npy` headers, and observed canonical manifest sizes. Filesystem block and directory
+  allocation overhead are excluded, so provision slightly more than 3.45 GB.
+- Verification: `uv run ruff check .` passed and `uv run pytest` reported 117 passed.

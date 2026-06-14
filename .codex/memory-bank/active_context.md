@@ -12,7 +12,7 @@ Dataset API stages 0-6 are implemented:
 - Registered the standalone Data Analytics semantic layer
   `eeg-dataset-ml-experiments-semantic-layer` for dataset and experiment interpretation.
 
-Spectral preprocessing checkpoints 1-8 are complete:
+Spectral preprocessing checkpoints 1-9 are complete:
 
 - `notebooks/2.0-dataset-overview.ipynb` is executed top-to-bottom.
 - Full-corpus FIF metadata were audited for all 1,800 canonical blocks.
@@ -67,15 +67,20 @@ Spectral preprocessing checkpoints 1-8 are complete:
   use explicitly display-only per-method normalization.
 - The comparison reports output shape, axis resolution, direct single-channel runtime, and
   full 63-channel cache size without treating runtime as a scientific quality ranking.
+- Added method-specific dimensionality enforcement at the dataset boundary: FFT is strictly 2D;
+  Morlet, Superlet, and STFT are strictly 3D.
+- Added automated integration checks that notebooks `2.1` through `2.5` are executed, contain no
+  error outputs, and include both `exec` and `patt` canonical demonstrations.
+- Revalidated all eight canonical cached outputs through the public dataset classes. Shapes,
+  frequency grids, dtypes, scaling contracts, source keys, and non-duplication of EOG all passed.
+- Estimated logical full-corpus storage for 1,800 blocks as 21.10 MiB FFT, 1.070 GiB Morlet,
+  1.020 GiB Superlet, and 1.103 GiB STFT; all four methods total about 3.214 GiB (3.451 GB).
 - The current implementation plan is stored in
   `.codex/memory-bank/plans/2026-06-14-spectral-preprocessing.md`.
-- Checkpoint 8 is complete; the next chat should start directly with checkpoint 9 (integration).
+- Spectral preprocessing plan checkpoints 1-9 are complete.
 
 ## Next Actions
 
-- Complete checkpoint 9 integration validation and estimate full-corpus artifact storage.
-- Reconfirm every method notebook and the comparison notebook against one canonical `exec` and
-  `patt` block without warming the full corpus.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
 - Benchmark full-corpus cache warmup only when operational timing is needed.
