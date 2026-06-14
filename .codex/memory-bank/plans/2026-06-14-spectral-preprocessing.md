@@ -2,7 +2,7 @@
 
 Status: active
 Last updated: 2026-06-14
-Next checkpoint: 8 - Comparative Visualization Notebook
+Next checkpoint: 9 - Integration
 
 ## Documentation Rule
 
@@ -84,7 +84,7 @@ Before using a new library API:
   axes, validation, dataset integration, and cache reuse.
 - Verified the complete repository with Ruff and 105 passing tests.
 
-Handoff state: checkpoints 1-7 are complete. Continue in a new chat from checkpoint 8 without
+Handoff state: checkpoints 1-8 are complete. Continue in a new chat from checkpoint 9 without
 reimplementing or revalidating individual transforms unless their contracts are changed.
 
 ### 7. STFT - Completed
@@ -100,20 +100,19 @@ reimplementing or revalidating individual transforms unless their contracts are 
   integration, and cache reuse.
 - Verified the complete repository with Ruff and 110 passing tests.
 
-### 8. Comparative Visualization Notebook - Pending
+### 8. Comparative Visualization Notebook - Completed
 
-- Create and execute `notebooks/2.5-spectral-methods-comparison.ipynb` after all four transforms
-  are implemented.
-- Apply FFT, Morlet, Superlet, and STFT to the same deterministic synthetic signal, one `exec`
-  block, and one `patt` block.
-- Show the source trace, global FFT PSD, Morlet/Superlet/STFT time-frequency maps, frequency
-  marginals, time marginals, output shapes, axis resolution, runtime, and artifact size.
-- Use the same EEG channel and time interval across methods. Keep native values available in
-  method-specific panels.
-- For shared visual panels, use explicitly labelled per-method display normalization because
-  PSD and wavelet power have different scales; never treat normalized display values as stored
-  ML features.
-- Validate known synthetic frequencies and burst intervals before interpreting real-data plots.
+- Created and executed `notebooks/2.5-spectral-methods-comparison.ipynb`.
+- Applied all four methods to the same deterministic 10 Hz/25 Hz burst signal and canonical
+  `(1, 1, 1)` blocks from both recording families.
+- Included source traces, global FFT PSD, all three time-frequency maps, native frequency
+  marginals, display-normalized time marginals, output shapes, axis resolution, direct
+  single-channel runtime, and full cached artifact size.
+- Used `Fp1` and the common 2-14 s interval for every real-data method panel.
+- Kept native PSD and wavelet-power values in method-specific panels; shared relative-dB maps and
+  peak-normalized curves are explicitly labelled as presentation-only.
+- Validated FFT global peaks and all time-frequency burst locations before plotting real data.
+- Verified the complete repository with Ruff and 110 passing tests.
 
 ### 9. Integration - Pending
 

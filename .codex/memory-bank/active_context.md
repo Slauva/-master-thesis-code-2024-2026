@@ -12,7 +12,7 @@ Dataset API stages 0-6 are implemented:
 - Registered the standalone Data Analytics semantic layer
   `eeg-dataset-ml-experiments-semantic-layer` for dataset and experiment interpretation.
 
-Spectral preprocessing checkpoints 1-7 are complete:
+Spectral preprocessing checkpoints 1-8 are complete:
 
 - `notebooks/2.0-dataset-overview.ipynb` is executed top-to-bottom.
 - Full-corpus FIF metadata were audited for all 1,800 canonical blocks.
@@ -58,17 +58,24 @@ Spectral preprocessing checkpoints 1-7 are complete:
 - Real STFT outputs have shapes `(63, 39, 55)` for the demonstrated `exec` block and
   `(63, 39, 94)` for the demonstrated `patt` block, with a 0.256 s time step.
 - Demonstrated STFT cache entries occupy about 531 KiB for `exec` and 905 KiB for `patt`.
-- Planned `notebooks/2.5-spectral-methods-comparison.ipynb` as the shared visual comparison of all
-  four transforms after their implementations are complete.
+- Added and executed `notebooks/2.5-spectral-methods-comparison.ipynb` on one shared synthetic
+  signal and canonical key `(1, 1, 1)` from both recording families.
+- The comparison validates global FFT peaks at 10 Hz and 25 Hz plus correct burst-frequency and
+  burst-interval localization for Morlet, Superlet, and STFT.
+- Real-data panels use the same `Fp1` channel and 2-14 s interval across methods. Native
+  method-specific marginals remain in PSD or wavelet-power units; shared maps and time marginals
+  use explicitly display-only per-method normalization.
+- The comparison reports output shape, axis resolution, direct single-channel runtime, and
+  full 63-channel cache size without treating runtime as a scientific quality ranking.
 - The current implementation plan is stored in
   `.codex/memory-bank/plans/2026-06-14-spectral-preprocessing.md`.
-- Checkpoint 7 is complete; the next chat should start directly with checkpoint 8 (comparison).
+- Checkpoint 8 is complete; the next chat should start directly with checkpoint 9 (integration).
 
 ## Next Actions
 
-- Implement and execute `notebooks/2.5-spectral-methods-comparison.ipynb` for checkpoint 8.
-- Use identical synthetic and real inputs across all four methods and keep cross-method display
-  normalization explicitly separate from stored features.
+- Complete checkpoint 9 integration validation and estimate full-corpus artifact storage.
+- Reconfirm every method notebook and the comparison notebook against one canonical `exec` and
+  `patt` block without warming the full corpus.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
 - Benchmark full-corpus cache warmup only when operational timing is needed.

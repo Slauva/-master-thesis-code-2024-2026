@@ -70,3 +70,24 @@
 - Verification: `uv run ruff check .` passed and `uv run pytest` reported 110 passed.
 - Interpretation boundary: this validates time-frequency localization, density scaling, border
   handling, and storage contracts only; logarithmic display values are not cached features.
+
+## 2026-06-14 - Spectral methods comparison
+
+- Artifact: executed `notebooks/2.5-spectral-methods-comparison.ipynb`.
+- Data: one shared synthetic signal with 10 Hz and 25 Hz bursts plus `Fp1`, 2-14 s, from canonical
+  key `(1, 1, 1)` in both `Data_Train/exec` and `Data_Pattern/patt`.
+- Synthetic validation: FFT recovered 10 Hz and 25 Hz as its two largest bins. Morlet, Superlet,
+  and STFT recovered each generating frequency at the burst center and placed peak time inside the
+  correct generating interval.
+- Shared axes: every method returned 2-40 Hz in 1 Hz steps at 125 Hz analysis rate. Morlet,
+  Superlet, and STFT each used a 0.256 s output step but retained different valid time supports.
+- Illustrative single-channel timings on this machine were roughly 1 ms for FFT, 3-5 ms for
+  Morlet, 2-3 ms for STFT, and 36-52 ms for Superlet on the canonical real blocks. These timings
+  exclude cache I/O and are not a scientific quality ranking.
+- Full cached artifact sizes remained about 12 KiB for FFT, 512/886 KiB for Morlet, 483/857 KiB
+  for Superlet, and 531/905 KiB for STFT on the demonstrated `exec`/`patt` blocks.
+- Verification: all seven code cells executed without warnings or errors; `uv run ruff check .`
+  passed and `uv run pytest` reported 110 passed.
+- Interpretation boundary: native PSD and wavelet-power amplitudes were shown only in
+  method-specific panels. Shared relative-dB maps and peak-normalized time marginals were
+  presentation-only and were not written to artifacts.
