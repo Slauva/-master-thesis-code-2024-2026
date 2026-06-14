@@ -40,3 +40,9 @@
   as disposable and rebuild them.
 - Store the project memory bank under `.codex/memory-bank/`; this supersedes its original root-level
   location.
+- Resample EEG to the configured FFT analysis rate with `scipy.signal.resample_poly` before spectral
+  estimation; preserve original EOG and its source sampling rate separately.
+- Compute FFT density PSD as `abs(rfft(x * window)) ** 2 / (fs * sum(window ** 2))`, doubling only
+  one-sided bins that have negative-frequency partners.
+- Rebin native FFT density bins onto configured output frequencies by overlap between frequency-cell
+  edges. Divide integrated overlap power by the output-bin width so band power is preserved.

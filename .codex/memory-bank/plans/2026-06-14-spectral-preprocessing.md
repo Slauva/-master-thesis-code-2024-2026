@@ -46,12 +46,17 @@ Before using a new library API:
   schema, transform class, or transform-version changes.
 - Incomplete, corrupt, or structurally inconsistent entries are rebuilt automatically.
 
-### 4. FFT - Pending
+### 4. FFT - Completed
 
-- Use `scipy.fft.rfft` and `rfftfreq` with channel-wise demeaning and a periodic Hann window.
-- Produce correctly scaled one-sided PSD and aggregate bins onto a 2-40 Hz, 1 Hz grid.
-- Create and execute `notebooks/2.1-fft.ipynb`.
-- Test peak frequency, PSD scaling, shape, dtype, indexing, and cache behavior.
+- Implemented `scipy.signal.resample_poly`, `scipy.fft.rfft`, and `rfftfreq` with channel-wise
+  demeaning and a periodic Hann window.
+- Produced correctly scaled one-sided density PSD and power-preserving overlap rebinning onto the
+  exact 2-40 Hz, 1 Hz grid.
+- Created and executed `notebooks/2.1-fft.ipynb` on synthetic tones and one canonical block from
+  each recording family.
+- Tested peak frequency, integrated PSD scaling, demeaning, validation, shape, dtype, indexing, and
+  cache reuse.
+- Verified the complete repository with Ruff and 97 passing tests.
 
 ### 5. Morlet - Pending
 

@@ -12,7 +12,7 @@ Dataset API stages 0-5 are implemented:
 - Registered the standalone Data Analytics semantic layer
   `eeg-dataset-ml-experiments-semantic-layer` for dataset and experiment interpretation.
 
-Spectral preprocessing checkpoints 1-3 are complete:
+Spectral preprocessing checkpoints 1-4 are complete:
 
 - `notebooks/2.0-dataset-overview.ipynb` is executed top-to-bottom.
 - Full-corpus FIF metadata were audited for all 1,800 canonical blocks.
@@ -24,16 +24,23 @@ Spectral preprocessing checkpoints 1-3 are complete:
   original EOG continues to come from `NumpyDataset` and is not duplicated.
 - Spectral cache identity covers resolved config, source dtype, schema, transform class, and
   transform version; manifests additionally validate both source FIF signatures.
+- Implemented FFT preprocessing with polyphase resampling to 125 Hz, channel-wise demeaning, a
+  periodic Hann window, one-sided density scaling, and power-preserving overlap rebinning onto the
+  exact 2-40 Hz, 1 Hz grid.
+- Added and executed `notebooks/2.1-fft.ipynb` with synthetic 10 Hz and 23 Hz validation plus one
+  canonical `exec` block and one canonical `patt` block.
+- FFT outputs have shape `(channel, frequency)`, use `float32`, have no time axis, and occupy about
+  12 KiB per demonstrated 63-channel block including the manifest.
 - Planned `notebooks/2.5-spectral-methods-comparison.ipynb` as the shared visual comparison of all
   four transforms after their implementations are complete.
 - The current implementation plan is stored in
   `.codex/memory-bank/plans/2026-06-14-spectral-preprocessing.md`.
-- Implementation is paused for user review before FFT is implemented.
+- Implementation is paused for user review before Morlet is implemented.
 
 ## Next Actions
 
-- Review checkpoint 3 and approve the FFT stage.
-- Implement and demonstrate the FFT power spectral density representation.
+- Review checkpoint 4 and approve the Morlet stage.
+- Implement and demonstrate the Morlet time-frequency representation.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
 - Benchmark full-corpus cache warmup only when operational timing is needed.
