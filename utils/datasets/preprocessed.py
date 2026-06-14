@@ -23,6 +23,7 @@ from preprocessors.config import (
 from preprocessors.fft import compute_fft_psd
 from preprocessors.morlet import compute_morlet_power
 from preprocessors.schemas import SpectralTransformResult
+from preprocessors.superlet import compute_superlet_power
 from utils.datasets.base import SampleKey, SourceMap
 from utils.datasets.numpy_dataset import NumpyDataset
 from utils.datasets.schemas import LoadedSample, Sample, SpectralSample
@@ -418,7 +419,11 @@ class SuperletDataset(PreprocessedDataset):
     CONFIG_TYPE = SuperletConfig
 
     def _transform(self, loaded: LoadedSample) -> SpectralTransformResult:
-        raise NotImplementedError("Superlet transform is implemented at spectral preprocessing checkpoint 6")
+        return compute_superlet_power(
+            loaded.eeg,
+            source_sfreq=loaded.sfreq,
+            config=self.config,
+        )
 
 
 class STFTDataset(PreprocessedDataset):

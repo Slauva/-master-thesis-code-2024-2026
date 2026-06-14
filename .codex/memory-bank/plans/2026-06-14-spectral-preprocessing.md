@@ -2,6 +2,7 @@
 
 Status: active
 Last updated: 2026-06-14
+Next checkpoint: 7 - STFT
 
 ## Documentation Rule
 
@@ -70,13 +71,21 @@ Before using a new library API:
   dataset integration, and cache reuse.
 - Verified the complete repository with Ruff and 101 passing tests.
 
-### 6. Superlet - Pending
+### 6. Superlet - Completed
 
-- Type and validate the existing implementation and document its provenance/license.
-- Use adaptive Superlet with `order_min=1`, `order_max=10`, and `c_1=3`.
-- Store `abs(coefficients) ** 2`, trim edges, and aggregate to a 0.256 s time step.
-- Create and execute `notebooks/2.3-superlet.ipynb`.
-- Test shape, finite non-negative output, and close-frequency separation.
+- Reworked the existing fractional adaptive implementation into a typed, validated module while
+  preserving its coefficients to numerical precision.
+- Documented the exact `tensionhead/Superlets` source revision and copied its MIT license notice.
+- Used adaptive order 1-10 with `c_1=3`, stored `abs(coefficients) ** 2`, trimmed 199 samples per
+  side from the longest contributing fractional-order wavelet, and averaged centered 32-sample bins.
+- Created and executed `notebooks/2.3-superlet.ipynb` on a synthetic 20/24 Hz pair and one canonical
+  block from each recording family.
+- Tested adaptive orders, shape, finite non-negative output, close-frequency separation, edge/time
+  axes, validation, dataset integration, and cache reuse.
+- Verified the complete repository with Ruff and 105 passing tests.
+
+Handoff state: checkpoints 1-6 are complete. Continue in a new chat from checkpoint 7 without
+reimplementing or revalidating Superlet unless its contract is changed.
 
 ### 7. STFT - Pending
 

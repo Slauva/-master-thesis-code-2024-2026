@@ -1,405 +1,352 @@
-# -*- coding: utf-8 -*-
-#
-# Time-frequency analysis with superlets
-# Based on 'Time-frequency super-resolution with superlets'
-# by Moca et al., 2021 Nature Communications
-#
-# Implementation by Gregor Mönke: github.com/tensionhead
-#
+"""Adaptive Superlet transform and project-specific power wrapper.
 
+The core transform is adapted from Gregor Mönke's Python implementation in
+https://github.com/tensionhead/Superlets at commit
+20f6bfdf31b783b4d8254546effa8f27784118a2. That repository is a fork of the
+reference Superlets repository from the Transylvanian Institute of
+Neuroscience and is distributed under the MIT License. See
+``preprocessors/SUPERLET_LICENSE.txt``.
+
+Algorithm reference:
+Moca et al. (2021), "Time-frequency super-resolution with superlets",
+Nature Communications.
+
+SPDX-License-Identifier: MIT
+"""
+
+from dataclasses import dataclass
 
 import numpy as np
+from numpy.typing import ArrayLike, NDArray
 from scipy.signal import fftconvolve
+
+from preprocessors._signal import prepare_eeg
+from preprocessors._time_frequency import trim_and_bin_power
+from preprocessors.config import SuperletConfig, build_frequency_grid
+from preprocessors.schemas import SpectralTransformResult
+
+
+@dataclass(frozen=True, slots=True)
+class SuperletMorlet:
+    cycles: float
+    gaussian_sd: float = 5.0
+
+    def __call__(
+        self,
+        time: NDArray[np.float64],
+        scale: float,
+    ) -> NDArray[np.complex128]:
+        scaled_time = time / scale
+        normalization = self.gaussian_sd / (
+            scale * self.cycles * (2.0 * np.pi) ** 1.5
+        )
+        oscillation = np.exp(1j * scaled_time)
+        envelope = np.exp(
+            -0.5
+            * (
+                self.gaussian_sd
+                * scaled_time
+                / (2.0 * np.pi * self.cycles)
+            )
+            ** 2
+        )
+        return normalization * oscillation * envelope
+
+
+def compute_superlet_power(
+    eeg: ArrayLike,
+    *,
+    source_sfreq: float,
+    config: SuperletConfig,
+) -> SpectralTransformResult:
+    """Compute edge-trimmed, time-binned adaptive Superlet power."""
+    signal = prepare_eeg(
+        eeg,
+        source_sfreq=source_sfreq,
+        target_sfreq=config.analysis_sfreq,
+    )
+    frequencies = build_frequency_grid(config)
+    scales = scale_from_period(1.0 / frequencies)
+    edge_samples = superlet_edge_samples(
+        frequencies,
+        sfreq=config.analysis_sfreq,
+        order_min=config.order_min,
+        order_max=config.order_max,
+        c_1=config.c_1,
+    )
+    minimum_samples = 2 * edge_samples + config.time_bin_samples
+    if signal.shape[-1] < minimum_samples:
+        raise ValueError(
+            "Superlet preprocessing requires at least "
+            f"{minimum_samples} resampled samples for edge trimming and one time bin"
+        )
+
+    coefficients = superlet(
+        signal.T,
+        samplerate=config.analysis_sfreq,
+        scales=scales,
+        order_max=config.order_max,
+        order_min=config.order_min,
+        c_1=config.c_1,
+        adaptive=config.adaptive,
+    )
+    power = np.square(np.abs(coefficients)).transpose(2, 0, 1)
+    binned_power, times = trim_and_bin_power(
+        power,
+        sfreq=config.analysis_sfreq,
+        edge_samples=edge_samples,
+        bin_samples=config.time_bin_samples,
+        method="Superlet",
+    )
+    output_dtype = np.dtype(config.dtype)
+    return SpectralTransformResult(
+        eeg_power=binned_power.astype(output_dtype, copy=False),
+        frequencies=frequencies.astype(output_dtype, copy=False),
+        times=times.astype(output_dtype, copy=False),
+        analysis_sfreq=config.analysis_sfreq,
+        scaling=config.scaling,
+    )
 
 
 def superlet(
-    data_arr,
-    samplerate,
-    scales,
-    order_max,
-    order_min=1,
-    c_1=3,
-    adaptive=False,
-):
+    data: ArrayLike,
+    samplerate: float,
+    scales: ArrayLike,
+    order_max: int,
+    order_min: int = 1,
+    c_1: int = 3,
+    adaptive: bool = False,
+) -> NDArray[np.complex128]:
+    """Compute a multiplicative or fractional adaptive Superlet transform.
+
+    The first input dimension is time. For input shape ``(time, channel)``,
+    the output shape is ``(frequency, time, channel)``.
     """
-    Performs Superlet Transform (SLT) according to Moca et al. [1]_
-    Both multiplicative SLT and fractional adaptive SLT are available.
-    The former is recommended for a narrow frequency band of interest,
-    whereas the  is better suited for the analysis of a broad range
-    of frequencies.
-
-    A superlet (SL) is a set of Morlet wavelets with increasing number
-    of cycles within the Gaussian envelope. Hence the bandwith
-    is constrained more and more with more cycles yielding a sharper
-    frequency resolution. Complementary the low cycle numbers will give a
-    high time resolution. The SLT then is the geometric mean
-    of the set of individual wavelet transforms, combining both wide
-    and narrow-bandwidth wavelets into a super-resolution estimate.
-
-    Parameters
-    ----------
-    data_arr : nD :class:`numpy.ndarray`
-        Uniformly sampled time-series data
-        The 1st dimension is interpreted as the time axis
-    samplerate : float
-        Samplerate of the time-series in Hz
-    scales : 1D :class:`numpy.ndarray`
-        Set of scales to use in wavelet transform.
-        Note that for the SL Morlet the relationship
-        between scale and frequency simply is s(f) = 1/(2*pi*f)
-        Need to be ordered high to low for `adaptive=True`
-    order_max : int
-        Maximal order of the superlet set. Controls the maximum
-        number of cycles within a SL together
-        with the `c_1` parameter: c_max = c_1 * order_max
-    order_min : Minimal order of the superlet set. Controls
-        the minimal number of cycles within a SL together
-        with the `c_1` parameter: c_min = c_1 * order_min
-        Note that for admissability reasons c_min should be at least 3!
-    c_1 : int
-        Number of cycles of the base Morlet wavelet. If set to lower
-        than 3 increase `order_min` as to never have less than 3 cycles
-        in a wavelet!
-    adaptive : bool
-        Wether to perform multiplicative SLT or fractional adaptive SLT.
-        If set to True, the order of the wavelet set will increase
-        linearly with the frequencies of interest from `order_min`
-        to `order_max`. If set to False the same SL will be used for
-        all frequencies.
-
-    Returns
-    -------
-    gmean_spec : :class:`numpy.ndarray`
-        Complex time-frequency representation of the input data.
-        Shape is (len(scales), data_arr.shape[0], data_arr.shape[1]).
-
-    Notes
-    -----
-    .. [1] Moca, Vasile V., et al. "Time-frequency super-resolution with superlets."
-       Nature communications 12.1 (2021): 1-18.
-
-
-    """
-
-    # adaptive SLT
+    signal = np.asarray(data, dtype=np.float64)
+    scale_array = np.asarray(scales, dtype=np.float64)
+    _validate_superlet_inputs(
+        signal,
+        samplerate=samplerate,
+        scales=scale_array,
+        order_min=order_min,
+        order_max=order_max,
+        c_1=c_1,
+    )
     if adaptive:
-        gmean_spec = FASLT(data_arr, samplerate, scales, order_max, order_min, c_1)
+        return fractional_adaptive_superlet_transform(
+            signal,
+            samplerate=samplerate,
+            scales=scale_array,
+            order_min=order_min,
+            order_max=order_max,
+            c_1=c_1,
+        )
+    return multiplicative_superlet_transform(
+        signal,
+        samplerate=samplerate,
+        scales=scale_array,
+        order_min=order_min,
+        order_max=order_max,
+        c_1=c_1,
+    )
 
-    # multiplicative SLT
-    else:
-        gmean_spec = multiplicativeSLT(data_arr, samplerate, scales, order_max, order_min, c_1)
 
-    return gmean_spec
-
-
-def multiplicativeSLT(data_arr, samplerate, scales, order_max, order_min=1, c_1=3):
-
-    dt = 1 / samplerate
-    # create the complete multiplicative set spanning
-    # order_min - order_max
+def multiplicative_superlet_transform(
+    data: NDArray[np.float64],
+    *,
+    samplerate: float,
+    scales: NDArray[np.float64],
+    order_min: int,
+    order_max: int,
+    c_1: int,
+) -> NDArray[np.complex128]:
+    dt = 1.0 / samplerate
     cycles = c_1 * np.arange(order_min, order_max + 1)
-    order_num = order_max + 1 - order_min  # number of different orders
-    SL = [MorletSL(c) for c in cycles]
+    order_count = order_max - order_min + 1
+    wavelets = [SuperletMorlet(float(cycle_count)) for cycle_count in cycles]
 
-    # lowest order
-    gmean_spec = cwtSL(data_arr, SL[0], scales, dt)
-    gmean_spec = np.power(gmean_spec, 1 / order_num)
-
-    for wavelet in SL[1:]:
-        spec = cwtSL(data_arr, wavelet, scales, dt)
-        gmean_spec *= np.power(spec, 1 / order_num)
-
-    return gmean_spec
+    geometric_mean = continuous_wavelet_transform(data, wavelets[0], scales, dt)
+    geometric_mean = np.power(geometric_mean, 1.0 / order_count)
+    for wavelet in wavelets[1:]:
+        coefficients = continuous_wavelet_transform(data, wavelet, scales, dt)
+        geometric_mean *= np.power(coefficients, 1.0 / order_count)
+    return geometric_mean
 
 
-def FASLT(data_arr, samplerate, scales, order_max, order_min=1, c_1=3):
-    """Fractional adaptive SL transform
+def fractional_adaptive_superlet_transform(
+    data: NDArray[np.float64],
+    *,
+    samplerate: float,
+    scales: NDArray[np.float64],
+    order_min: int,
+    order_max: int,
+    c_1: int,
+) -> NDArray[np.complex128]:
+    dt = 1.0 / samplerate
+    frequencies = 1.0 / (2.0 * np.pi * scales)
+    orders = compute_adaptive_order(frequencies, order_min, order_max)
+    integer_orders = np.floor(orders).astype(np.int32)
+    cycles = c_1 * np.unique(integer_orders)
+    wavelets = [SuperletMorlet(float(cycle_count)) for cycle_count in cycles]
+    exponents = 1.0 / (orders - order_min + 1.0)
+    order_jumps = np.flatnonzero(np.diff(integer_orders))
+    fractions = orders - integer_orders
 
-    For non-integer orders fractional SLTs are
-    calculated in the interval [order, order+1) via:
-
-    R(o_f) = R_1 * R_2 * ... * R_i * R_i+1 ** alpha
-    with o_f = o_i + alpha
-    """
-
-    dt = 1 / samplerate
-    # frequencies of interest
-    # from the scales for the SL Morlet
-    fois = 1 / (2 * np.pi * scales)
-    orders = compute_adaptive_order(fois, order_min, order_max)
-
-    # create the complete superlet set from
-    # all enclosed integer orders
-    orders_int = np.int32(np.floor(orders))
-    cycles = c_1 * np.unique(orders_int)
-    SL = [MorletSL(c) for c in cycles]
-
-    # every scale needs a different exponent
-    # for the geometric mean
-    exponents = 1 / (orders - order_min + 1)
-
-    # which frequencies/scales use the same integer orders SL
-    order_jumps = np.where(np.diff(orders_int))[0]
-    # each frequency/scale will have its own multiplicative SL
-    # which overlap -> higher orders have all the lower orders
-
-    # the fractions
-    alphas = orders % orders_int
-
-    # 1st order
-    # lowest order is needed for all scales/frequencies
-    gmean_spec = cwtSL(data_arr, SL[0], scales, dt)  # 1st order <-> order_min
-    # Geometric normalization according to scale dependent order
-    gmean_spec = np.power(gmean_spec.T, exponents).T
-
-    # we go to the next scale and order in any case..
-    # but for order_max == 1 for which order_jumps is empty
+    geometric_mean = continuous_wavelet_transform(data, wavelets[0], scales, dt)
+    geometric_mean = _frequency_power(geometric_mean, exponents)
     last_jump = 1
 
-    for i, jump in enumerate(order_jumps):
-        # relevant scales for the next order
-        scales_o = scales[last_jump:]
-        # order + 1 spec
-        next_spec = cwtSL(data_arr, SL[i + 1], scales_o, dt)
+    for wavelet_index, jump in enumerate(order_jumps):
+        remaining_scales = scales[last_jump:]
+        next_coefficients = continuous_wavelet_transform(
+            data,
+            wavelets[wavelet_index + 1],
+            remaining_scales,
+            dt,
+        )
 
-        # which fractions for the current next_spec
-        # in the interval [order, order+1)
-        scale_span = slice(last_jump, jump + 1)
-        gmean_spec[scale_span, :] *= np.power(
-            next_spec[: jump - last_jump + 1].T,
-            alphas[scale_span] * exponents[scale_span],
-        ).T
-
-        # multiply non-fractional next_spec for
-        # all remaining scales/frequencies
-        gmean_spec[jump + 1 :] *= np.power(next_spec[jump - last_jump + 1 :].T, exponents[jump + 1 :]).T
-
-        # go to the next [order, order+1) interval
+        fractional_span = slice(last_jump, jump + 1)
+        fractional_count = jump - last_jump + 1
+        geometric_mean[fractional_span] *= _frequency_power(
+            next_coefficients[:fractional_count],
+            fractions[fractional_span] * exponents[fractional_span],
+        )
+        geometric_mean[jump + 1 :] *= _frequency_power(
+            next_coefficients[fractional_count:],
+            exponents[jump + 1 :],
+        )
         last_jump = jump + 1
-
-    return gmean_spec
-
-
-class MorletSL:
-    def __init__(self, c_i=3, k_sd=5):
-        """The Morlet formulation according to
-        Moca et al. shifts the admissability criterion from
-        the central frequency to the number of cycles c_i
-        within the Gaussian envelope which has a constant
-        standard deviation of k_sd.
-        """
-
-        self.c_i = c_i
-        self.k_sd = k_sd
-
-    def __call__(self, *args, **kwargs):
-        return self.time(*args, **kwargs)
-
-    def time(self, t, s=1.0):
-        """
-        Complext Morlet wavelet in the SL formulation.
-
-        Parameters
-        ----------
-        t : float
-            Time. If s is not specified, this can be used as the
-            non-dimensional time t/s.
-        s : float
-            Scaling factor. Default is 1.
-
-        Returns
-        -------
-        out : complex
-            Value of the Morlet wavelet at the given time
-
-        """
-
-        ts = t / s
-        # scaled time spread parameter
-        # also includes scale normalisation!
-        B_c = self.k_sd / (s * self.c_i * (2 * np.pi) ** 1.5)
-
-        output = B_c * np.exp(1j * ts)
-        output *= np.exp(-0.5 * (self.k_sd * ts / (2 * np.pi * self.c_i)) ** 2)
-
-        return output
+    return geometric_mean
 
 
-def fourier_period(scale):
-    """
-    This is the approximate Morlet fourier period
-    as used in the source publication of Moca et al. 2021
-
-    Note that w0 (central frequency) is always 1 in this
-    Morlet formulation, hence the scales are not compatible
-    to the standard Wavelet definitions!
-    """
-
-    return 2 * np.pi * scale
-
-
-def scale_from_period(period):
-
-    return period / (2 * np.pi)
-
-
-def cwtSL(data, wavelet, scales, dt):
-    """
-    The continuous Wavelet transform specifically
-    for Morlets with the Superlet formulation
-    of Moca et al. 2021.
-
-    - Morlet support gets adjusted by number of cycles
-    - normalisation is with 1/(scale * 4pi)
-    - this way the norm of the spectrum (modulus)
-      at the corresponding harmonic frequency is the
-      harmonic signal's amplitude
-
-    Notes
-    -----
-
-    The time axis is expected to be along the 1st dimension.
-    """
-
-    # wavelets can be complex so output is complex
-    output = np.zeros((len(scales),) + data.shape, dtype=np.complex64)
-
-    # this checks if really a Superlet Wavelet is being used
-    if not isinstance(wavelet, MorletSL):
-        raise ValueError("Wavelet is not of MorletSL type!")
-
-    # 1st axis is time
-    slices = [None for _ in data.shape]
-    slices[0] = slice(None)
-
-    # compute in time
-    for ind, scale in enumerate(scales):
-        t = _get_superlet_support(scale, dt, wavelet.c_i)
-        # sample wavelet and normalise
-        norm = dt**0.5 / (4 * np.pi)
-        wavelet_data = norm * wavelet(t, scale)  # this is an 1d array for sure!
-        output[ind, :] = fftconvolve(data, wavelet_data[tuple(slices)], mode="same")
-
+def continuous_wavelet_transform(
+    data: NDArray[np.float64],
+    wavelet: SuperletMorlet,
+    scales: NDArray[np.float64],
+    dt: float,
+) -> NDArray[np.complex128]:
+    output = np.empty((scales.size, *data.shape), dtype=np.complex128)
+    wavelet_axes = (slice(None),) + (None,) * (data.ndim - 1)
+    for index, scale in enumerate(scales):
+        support = superlet_support(float(scale), dt, wavelet.cycles)
+        normalization = np.sqrt(dt) / (4.0 * np.pi)
+        sampled_wavelet = normalization * wavelet(support, float(scale))
+        output[index] = fftconvolve(
+            data,
+            sampled_wavelet[wavelet_axes],
+            mode="same",
+            axes=0,
+        )
     return output
 
 
-def _get_superlet_support(scale, dt, cycles):
-    """
-    Effective support for the convolution is here not only
-    scale but also cycle dependent.
-    """
-
-    # number of points needed to capture wavelet
-    M = 10 * scale * cycles / dt
-    # times to use, centred at zero
-    t = np.arange((-M + 1) / 2.0, (M + 1) / 2.0) * dt
-
-    return t
-
-
-def compute_adaptive_order(freq, order_min, order_max):
-    """
-    Computes the superlet order for a given frequency of interest
-    for the fractional adaptive SLT (FASLT) according to
-    equation 7 of Moca et al. 2021.
-
-    This is a simple linear mapping between the minimal
-    and maximal order onto the respective minimal and maximal
-    frequencies.
-
-    Note that `freq` should be ordered low to high.
-    """
-
-    f_min, f_max = freq[0], freq[-1]
-
-    assert f_min < f_max
-
-    order = (order_max - order_min) * (freq - f_min) / (f_max - f_min)
-
-    # return np.int32(order_min + np.rint(order))
-    return order_min + order
+def compute_adaptive_order(
+    frequencies: ArrayLike,
+    order_min: int,
+    order_max: int,
+) -> NDArray[np.float64]:
+    frequency_array = np.asarray(frequencies, dtype=np.float64)
+    if frequency_array.ndim != 1 or frequency_array.size < 2:
+        raise ValueError(
+            "Adaptive Superlet frequencies must be a one-dimensional array "
+            "with at least two values"
+        )
+    if not np.isfinite(frequency_array).all() or np.any(np.diff(frequency_array) <= 0):
+        raise ValueError("Adaptive Superlet frequencies must be finite and strictly increasing")
+    frequency_min = frequency_array[0]
+    frequency_max = frequency_array[-1]
+    scaled_order = (order_max - order_min) * (
+        frequency_array - frequency_min
+    ) / (frequency_max - frequency_min)
+    return order_min + scaled_order
 
 
-# ---------------------------------------------------------
-# Some test data akin to figure 3 of the source publication
-# ---------------------------------------------------------
-
-
-def gen_superlet_testdata(freqs=[20, 40, 60], cycles=11, fs=1000, eps=0):
-    """
-    Harmonic superposition of multiple
-    few-cycle oscillations akin to the
-    example of Figure 3 in Moca et al. 2021 NatComm
-    """
-
-    signal = []
-    for freq in freqs:
-        # 10 cycles of f1
-        tvec = np.arange(cycles / freq, step=1 / fs)
-
-        harmonic = np.cos(2 * np.pi * freq * tvec)
-        f_neighbor = np.cos(2 * np.pi * (freq + 10) * tvec)
-        packet = harmonic + f_neighbor
-
-        # 2 cycles time neighbor
-        delta_t = np.zeros(int(2 / freq * fs))
-
-        # 5 cycles break
-        pad = np.zeros(int(5 / freq * fs))
-
-        signal.extend([pad, packet, delta_t, harmonic])
-
-    # stack the packets together with some padding
-    signal.append(pad)
-    signal = np.concatenate(signal)
-
-    # additive white noise
-    if eps > 0:
-        signal = np.random.randn(len(signal)) * eps + signal
-
-    return signal
-
-
-if __name__ == "__main__":
-    # to get sth for the eyes ;)
-    import matplotlib.pyplot as ppl
-
-    fs = 1000  # sampling frequency
-    A = 10  # amplitude
-    signal = A * gen_superlet_testdata(fs=fs, eps=0)  # 20Hz, 40Hz and 60Hz
-
-    # frequencies of interest in Hz
-    foi = np.linspace(1, 100, 50)
-    scales = scale_from_period(1 / foi)
-
-    spec = superlet(
-        signal,
-        samplerate=fs,
-        scales=scales,
-        order_max=30,
-        order_min=1,
-        c_1=5,
-        adaptive=True,
+def superlet_edge_samples(
+    frequencies: ArrayLike,
+    *,
+    sfreq: float,
+    order_min: int,
+    order_max: int,
+    c_1: int,
+) -> int:
+    frequency_array = np.asarray(frequencies, dtype=np.float64)
+    orders = compute_adaptive_order(frequency_array, order_min, order_max)
+    scales = scale_from_period(1.0 / frequency_array)
+    longest_support = max(
+        superlet_support(
+            float(scale),
+            1.0 / sfreq,
+            float(c_1 * np.ceil(order)),
+        ).size
+        for scale, order in zip(scales, orders, strict=True)
     )
+    return longest_support // 2
 
-    # amplitude scalogram
-    ampls = np.abs(spec)
 
-    fig, (ax1, ax2) = ppl.subplots(2, 1, sharex=True, gridspec_kw={"height_ratios": [1, 3]}, figsize=(6, 6))
+def superlet_support(
+    scale: float,
+    dt: float,
+    cycles: float,
+) -> NDArray[np.float64]:
+    sample_span = 10.0 * scale * cycles / dt
+    return np.arange(
+        (-sample_span + 1.0) / 2.0,
+        (sample_span + 1.0) / 2.0,
+        dtype=np.float64,
+    ) * dt
 
-    ax1.plot(np.arange(signal.size) / fs, signal, c="cornflowerblue")
-    ax1.set_ylabel("signal (a.u.)")
 
-    extent = [0, len(signal) / fs, foi[0], foi[-1]]
-    im = ax2.imshow(ampls, cmap="magma", aspect="auto", extent=extent, origin="lower")
+def fourier_period(scale: ArrayLike) -> NDArray[np.float64]:
+    return 2.0 * np.pi * np.asarray(scale, dtype=np.float64)
 
-    ppl.colorbar(im, ax=ax2, orientation="horizontal", shrink=0.7, pad=0.2, label="amplitude (a.u.)")
 
-    ax2.plot([0, len(signal) / fs], [20, 20], "--", c="0.5")
-    ax2.plot([0, len(signal) / fs], [40, 40], "--", c="0.5")
-    ax2.plot([0, len(signal) / fs], [60, 60], "--", c="0.5")
+def scale_from_period(period: ArrayLike) -> NDArray[np.float64]:
+    return np.asarray(period, dtype=np.float64) / (2.0 * np.pi)
 
-    ax2.set_xlabel("time (s)")
-    ax2.set_ylabel("frequency (Hz)")
 
-    fig.tight_layout()
+def _frequency_power(
+    values: NDArray[np.complex128],
+    exponents: NDArray[np.float64],
+) -> NDArray[np.complex128]:
+    exponent_shape = (exponents.size,) + (1,) * (values.ndim - 1)
+    return np.power(values, exponents.reshape(exponent_shape))
+
+
+def _validate_superlet_inputs(
+    data: NDArray[np.float64],
+    *,
+    samplerate: float,
+    scales: NDArray[np.float64],
+    order_min: int,
+    order_max: int,
+    c_1: int,
+) -> None:
+    if data.ndim < 1 or data.shape[0] < 2:
+        raise ValueError("Superlet input must have a time axis with at least two samples")
+    if not np.isfinite(data).all():
+        raise ValueError("Superlet input must contain only finite values")
+    if not np.isfinite(samplerate) or samplerate <= 0:
+        raise ValueError("Superlet samplerate must be finite and positive")
+    if scales.ndim != 1 or scales.size < 2:
+        raise ValueError("Superlet scales must be a one-dimensional array with at least two values")
+    if not np.isfinite(scales).all() or np.any(scales <= 0):
+        raise ValueError("Superlet scales must be finite and positive")
+    if order_min < 1 or order_max < order_min:
+        raise ValueError("Superlet orders must satisfy 1 <= order_min <= order_max")
+    if c_1 < 1 or c_1 * order_min < 3:
+        raise ValueError("The minimum Superlet cycle count must be at least 3")
+
+
+__all__ = [
+    "SuperletMorlet",
+    "compute_adaptive_order",
+    "compute_superlet_power",
+    "continuous_wavelet_transform",
+    "fourier_period",
+    "fractional_adaptive_superlet_transform",
+    "multiplicative_superlet_transform",
+    "scale_from_period",
+    "superlet",
+    "superlet_edge_samples",
+    "superlet_support",
+]

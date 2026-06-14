@@ -2,7 +2,7 @@
 
 ## Current Focus
 
-Dataset API stages 0-5 are implemented:
+Dataset API stages 0-6 are implemented:
 
 - Strict FIF/label indexing by subject, trial, and block.
 - Lazy MNE loading into typed NumPy samples.
@@ -12,7 +12,7 @@ Dataset API stages 0-5 are implemented:
 - Registered the standalone Data Analytics semantic layer
   `eeg-dataset-ml-experiments-semantic-layer` for dataset and experiment interpretation.
 
-Spectral preprocessing checkpoints 1-5 are complete:
+Spectral preprocessing checkpoints 1-6 are complete:
 
 - `notebooks/2.0-dataset-overview.ipynb` is executed top-to-bottom.
 - Full-corpus FIF metadata were audited for all 1,800 canonical blocks.
@@ -38,16 +38,26 @@ Spectral preprocessing checkpoints 1-5 are complete:
 - Real Morlet outputs have shapes `(63, 39, 53)` for the demonstrated `exec` block and
   `(63, 39, 92)` for the demonstrated `patt` block, with a 0.256 s time step.
 - Demonstrated Morlet cache entries occupy about 512 KiB for `exec` and 886 KiB for `patt`.
+- Reworked the existing Superlet implementation into a typed fractional adaptive transform pinned
+  to the documented upstream revision and accompanied by its MIT license notice.
+- Default Superlet uses adaptive order 1-10 with `c_1=3`, stores coefficient magnitude squared,
+  trims 199 samples per side from the longest contributing fractional-order support, and averages
+  centered 32-sample power bins.
+- Added and executed `notebooks/2.3-superlet.ipynb`; stationary 20 Hz and 24 Hz tones were resolved
+  as separate local maxima with a lower 22 Hz midpoint.
+- Real Superlet outputs have shapes `(63, 39, 50)` for the demonstrated `exec` block and
+  `(63, 39, 89)` for the demonstrated `patt` block, with a 0.256 s time step.
+- Demonstrated Superlet cache entries occupy about 483 KiB for `exec` and 857 KiB for `patt`.
 - Planned `notebooks/2.5-spectral-methods-comparison.ipynb` as the shared visual comparison of all
   four transforms after their implementations are complete.
 - The current implementation plan is stored in
   `.codex/memory-bank/plans/2026-06-14-spectral-preprocessing.md`.
-- Implementation is paused for user review before Superlet is implemented.
+- Checkpoint 6 is complete; the next chat should start directly with checkpoint 7 (STFT).
 
 ## Next Actions
 
-- Review checkpoint 5 and approve the Superlet stage.
-- Implement and demonstrate the adaptive Superlet time-frequency representation.
+- Implement and demonstrate checkpoint 7: the STFT time-frequency representation.
+- Create and execute `notebooks/2.4-stft.ipynb`, then stop for review before the comparison notebook.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
 - Benchmark full-corpus cache warmup only when operational timing is needed.

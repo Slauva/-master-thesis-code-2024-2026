@@ -52,3 +52,15 @@
   For the default 125 Hz, 2-40 Hz configuration this is 149 samples per side.
 - Center the largest complete set of non-overlapping 32-sample bins within the valid trimmed Morlet
   interval. Store bin-center times derived from actual sample indices.
+- Keep the project Superlet core as a typed adaptation of Gregor Mönke's implementation from
+  `tensionhead/Superlets` commit `20f6bfdf31b783b4d8254546effa8f27784118a2`; retain the copied MIT
+  license notice and upstream attribution beside the module.
+- Use fractional adaptive Superlet order 1-10 with `c_1=3` and store coefficient magnitude squared
+  as wavelet power.
+- Define the common Superlet edge trim from the longest integer-order wavelet that contributes to
+  each fractional order. For the default grid, the limiting six-cycle wavelet at 3 Hz has 398
+  samples of support, producing a 199-sample trim per side.
+- Share centered edge-trimmed 32-sample power binning between Morlet and Superlet so both methods
+  derive time coordinates from the same sample-index contract.
+- Do not make cache-path tests depend on whether generated artifacts already exist; notebook
+  execution and normal dataset access may legitimately populate default cache locations.

@@ -261,7 +261,6 @@ def test_default_cache_path_is_inside_project_artifacts() -> None:
     assert dataset.cache_dir == (
         Path.cwd() / "artifacts" / "cache" / "Data_Train" / "exec" / "float32"
     ).resolve()
-    assert not dataset.get_cache_entry_path(0).exists()
 
 
 def test_memory_cache_reuses_loaded_sample(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

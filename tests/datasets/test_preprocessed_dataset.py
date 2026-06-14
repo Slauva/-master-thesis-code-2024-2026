@@ -191,7 +191,6 @@ def test_rejects_config_and_loading_options_together(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     ("dataset_type", "method", "checkpoint"),
     [
-        (SuperletDataset, "superlet", 6),
         (STFTDataset, "stft", 7),
     ],
 )
@@ -299,6 +298,57 @@ def test_morlet_dataset_supports_time_axis_and_cache_reuse(
 
     monkeypatch.setattr(MorletDataset, "_transform", fail_transform)
     cached_dataset = MorletDataset(
+        dataset_dir,
+        config_overrides={"analysis_sfreq": sfreq},
+        cache_dir=cache_dir,
+        source_cache_policy=None,
+    )
+    cached = cached_dataset[0]
+
+    np.testing.assert_array_equal(cached.eeg_power, by_index.eeg_power)
+    np.testing.assert_array_equal(cached.times, by_index.times)
+
+
+def test_superlet_dataset_supports_time_axis_and_cache_reuse(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    dataset_dir = tmp_path / "dataset"
+    cache_dir = tmp_path / "spectral-cache"
+    sfreq = 100.0
+    time = np.arange(800, dtype=np.float64) / sfreq
+    eeg = np.stack(
+        (
+            np.sin(2.0 * np.pi * 10.0 * time),
+            np.sin(2.0 * np.pi * 20.0 * time),
+        )
+    )
+    _write_trial(dataset_dir, eeg=eeg)
+    dataset = SuperletDataset(
+        dataset_dir,
+        config_overrides={"analysis_sfreq": sfreq},
+        cache_dir=cache_dir,
+        source_cache_policy=None,
+    )
+
+    by_index = dataset[0]
+    by_key = dataset[1, 1, 1]
+
+    assert by_index.eeg_power.shape == (2, 39, 15)
+    assert by_index.eeg_power.dtype == np.float32
+    assert by_index.frequencies.dtype == np.float32
+    assert by_index.times is not None
+    assert by_index.times.dtype == np.float32
+    assert by_index.method == "superlet"
+    assert by_index.scaling == "wavelet_power"
+    np.testing.assert_array_equal(by_key.eeg_power, by_index.eeg_power)
+    np.testing.assert_array_equal(by_key.times, by_index.times)
+
+    def fail_transform(self: SuperletDataset, loaded: LoadedSample) -> SpectralTransformResult:
+        raise AssertionError("Superlet transform should not run when the disk cache is valid")
+
+    monkeypatch.setattr(SuperletDataset, "_transform", fail_transform)
+    cached_dataset = SuperletDataset(
         dataset_dir,
         config_overrides={"analysis_sfreq": sfreq},
         cache_dir=cache_dir,
