@@ -28,6 +28,17 @@ import pytest
             ),
             "FEATURE_DATASET_EXPORT_VERIFIED",
         ),
+        (
+            "4.3-scientific-feature-validation.ipynb",
+            (
+                "Data_Pattern",
+                '"patt"',
+                "extract_feature_set",
+                "window_seconds",
+                "compute_lndp_codes",
+            ),
+            "SCIENTIFIC_FEATURE_VALIDATION_VERIFIED",
+        ),
     ],
 )
 def test_feature_notebook_is_executed_and_validated(

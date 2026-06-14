@@ -131,7 +131,8 @@ EEG feature extraction:
 - Stage 1, contracts and configuration, is completed.
 - Stage 2, classical time, spectral, and spatial features, is completed.
 - Stage 3, Jaiswal-Banka local patterns, is completed.
-- Stage 4, dataset cache and sklearn export, is implemented and awaiting review.
+- Stage 4, dataset cache and sklearn export, is completed.
+- Stage 5, final scientific validation, is implemented and awaiting explicit final review.
 - Added strict feature configuration, exact imagery crop/window layouts, modular feature schemas,
   stable flattening, and versioned config hashing.
 - Verified the default `[0.5, 15.5)` crop on canonical `exec` and `patt` samples; both produce
@@ -157,12 +158,21 @@ EEG feature extraction:
 - Added and executed `notebooks/4.2-feature-dataset-export.ipynb`. With 5 s windows and 2 s stride,
   each family exports six rows and 17,829 `time+spectral+lndp` columns while preserving parent
   keys, indices, and bounds; a cache hit is demonstrated without source-array loading.
-- Ruff passes and the full suite reports 211 passed and 2 skipped.
+- Added and executed `notebooks/4.3-scientific-feature-validation.ipynb` with integrated synthetic
+  and canonical `Data_Pattern/patt` validation, four visually inspected figures, one full 15 s
+  crop, and six complete 5 s windows.
+- Synthetic alpha/beta powers were 2.001444 and 0.501091; designed alpha correlation was 0.994901.
+  Canonical Fp1 alpha power was 0.00043554 for the full crop and 0.00023185-0.00098232 across
+  windows. Mean absolute correlation-grain difference was 0.011463 and maximum Fp1 LNDP L1
+  distance from the full histogram was 0.395448.
+- The source FIF declares volts but the canonical Fp1 crop has an atypically large 0.665 V
+  peak-to-peak scale. Feature extraction preserves this source scale; physical-unit provenance
+  must be resolved before physiological amplitude or power interpretation.
+- Ruff passes and the full suite reports 212 passed and 2 skipped.
 
 ## Next Actions
 
-- Obtain explicit review approval for feature-extraction stage 4 before starting final scientific
-  validation.
+- Obtain explicit final approval for EEG feature-extraction Stage 5, then mark the plan completed.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
 - Define whether training examples are whole blocks or fixed windows after the split policy is set.

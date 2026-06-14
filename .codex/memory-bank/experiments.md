@@ -205,3 +205,28 @@
   CUDA; they do not establish predictive validity, model quality, or an evaluation protocol.
 - Verification: Ruff passed and the full suite reported 152 passed. Two Python 3.13
   multiprocessing `fork()` deprecation warnings remain in pre-existing disk-cache tests.
+
+## 2026-06-14 - Integrated EEG feature validation
+
+- Artifact: executed `notebooks/4.3-scientific-feature-validation.ipynb`.
+- Inputs: deterministic 15 s synthetic tones and correlated channels plus canonical
+  `Data_Pattern/patt` key `(1, 1, 1)`, cropped to `[0.5, 15.5)` and resampled to 125 Hz.
+- Temporal comparison: one full 15 s epoch versus six complete overlapping 5 s windows with a
+  2 s stride. Every window retains the same parent block and is not an independent split unit.
+- Synthetic results: amplitude-2 10 Hz alpha power `2.001444`, amplitude-1 20 Hz beta power
+  `0.501091`, and designed alpha-channel correlation `0.994901`.
+- Real-data results: Fp1 full-crop alpha power `0.00043554`; window range
+  `0.00023185-0.00098232`; mean absolute full/window-average correlation difference `0.011463`;
+  maximum Fp1 LNDP L1 distance from the full histogram `0.395448`.
+- Unit caveat: MNE reports source EEG units as volts, while the canonical Fp1 crop spans
+  0.665228 V peak-to-peak, which is atypically large for physiological EEG. No unit correction,
+  normalization, or physiological amplitude interpretation was introduced.
+- Local-pattern contract: probability histograms sum to one and the paper examples reproduce
+  LNDP code `7` and 1D-LGP code `224`.
+- Visual QA: signal/band-power, synthetic correlation, real correlation, and LNDP figures were
+  inspected after final execution; labels, scales, legends, and stated grouping boundaries were
+  readable and consistent.
+- Interpretation boundary: extraction validation only. No target, model, learned transform,
+  split, condition effect, classification result, or reproduction of article accuracy is claimed.
+- Verification: eight code cells executed with no errors, four PNG outputs were stored, Ruff
+  passed, `git diff --check` passed, and the full suite reported 212 passed and 2 skipped.

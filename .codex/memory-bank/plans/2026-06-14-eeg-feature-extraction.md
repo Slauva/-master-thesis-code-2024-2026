@@ -2,7 +2,7 @@
 
 Status: in_progress
 Last updated: 2026-06-14
-Next stage: 4 - Dataset Cache And Sklearn Export (Awaiting Review)
+Next stage: 5 - Scientific Validation (Awaiting Review)
 
 ## Goal
 
@@ -141,7 +141,7 @@ Verification:
 - `uv run pytest`: 202 passed, 2 skipped; two existing Python 3.13 multiprocessing `fork()`
   deprecation warnings remain.
 
-### 4. Dataset Cache And Sklearn Export - Awaiting Review
+### 4. Dataset Cache And Sklearn Export - Completed
 
 - Objective: Integrate feature extraction with `NumpyDataset`, atomic modular caches, and deterministic matrix export.
 - Deliverables: `FeatureDataset`, cache manifests, `build_feature_matrix`.
@@ -191,7 +191,7 @@ Verification:
 - `uv run pytest`: 211 passed, 2 skipped; two existing Python 3.13 multiprocessing `fork()`
   deprecation warnings remain.
 
-### 5. Scientific Validation - Pending
+### 5. Scientific Validation - Awaiting Review
 
 - Objective: Validate synthetic behavior and inspect one real imagery sample.
 - Deliverables: executed notebook with signal, spectral, covariance, and local-pattern visualizations.
@@ -199,6 +199,38 @@ Verification:
 - Verification: execute notebook top-to-bottom, run Ruff and full pytest suite.
 - Completion criteria: notebook checks pass, results are recorded, and repository verification is green.
 - Review gate: Stop and wait for explicit user approval.
+
+Implemented:
+
+- Added and executed `notebooks/4.3-scientific-feature-validation.ipynb`, integrating the
+  production extractor across deterministic synthetic signals and canonical
+  `Data_Pattern/patt` key `(1, 1, 1)`.
+- Compared one full 15 s imagery crop with six complete 5 s windows at a 2 s stride without
+  treating overlapping windows as independent split units.
+- Added signal, band-power, OAS-correlation, correlation-difference, and LNDP-distribution
+  visualizations. All four stored figures were visually inspected.
+- Recorded the source-unit caveat: the FIF metadata declares volts, but the observed Fp1 crop has
+  an atypically large 0.665 V peak-to-peak scale. Extraction preserves the source scale and does
+  not silently normalize or reinterpret it.
+- Added notebook integration coverage requiring execution counts, no error outputs, the canonical
+  imagery source, configurable windows, local-pattern validation, and the final verification marker.
+
+Verification:
+
+- Synthetic amplitude-2 10 Hz and amplitude-1 20 Hz tones produced alpha/beta powers
+  `2.001444` and `0.501091`; the designed correlated alpha pair produced correlation `0.994901`.
+- Canonical Fp1 alpha power was `0.00043554` for the full crop and ranged from `0.00023185` to
+  `0.00098232` across windows.
+- Mean absolute correlation difference between the average window matrix and full-epoch matrix was
+  `0.011463`; maximum Fp1 LNDP L1 distance from the full histogram was `0.395448`.
+- Every configured full/windowed feature block is finite; local-pattern probability histograms
+  sum to one; paper examples still reproduce LNDP `7` and 1D-LGP `224`.
+- The notebook executed eight code cells, stored four PNG figures, contained no error outputs, and
+  emitted `SCIENTIFIC_FEATURE_VALIDATION_VERIFIED`.
+- `uv run ruff check .`: passed.
+- `uv run pytest`: 212 passed, 2 skipped; two existing Python 3.13 multiprocessing `fork()`
+  deprecation warnings remain.
+- `git diff --check`: passed.
 
 ## Decisions And Assumptions
 
@@ -218,6 +250,8 @@ Verification:
 - 2026-06-14: User explicitly approved implementation of the proposed plan.
 - 2026-06-14: Stage 1 started.
 - 2026-06-14: Stage 1 implemented and verified; awaiting explicit user approval.
+- 2026-06-14: User explicitly approved Stage 4 and Stage 5 started.
+- 2026-06-14: Stage 5 implemented and verified; awaiting explicit final user approval.
 - 2026-06-14: User approved stage 1; stage 2 started.
 - 2026-06-14: Stage 2 implemented and verified; awaiting explicit user approval.
 - 2026-06-14: User requested and approved an executed demonstration notebook before continuing.
@@ -229,3 +263,4 @@ Verification:
   awaiting explicit user approval before stage 5.
 - 2026-06-14: User requested a stage 4 notebook; the FeatureDataset/cache/export tutorial was
   executed, inspected, and added to automated notebook acceptance tests.
+- 2026-06-14: User approved stage 4 and requested continuation; stage 5 started.
