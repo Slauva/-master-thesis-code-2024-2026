@@ -12,8 +12,18 @@ Dataset API stages 0-5 are implemented:
 - Registered the standalone Data Analytics semantic layer
   `eeg-dataset-ml-experiments-semantic-layer` for dataset and experiment interpretation.
 
+Spectral preprocessing checkpoint 1 is complete:
+
+- `notebooks/2.0-dataset-overview.ipynb` is executed top-to-bottom.
+- Full-corpus FIF metadata were audited for all 1,800 canonical blocks.
+- Signal-level PSD, EOG quality, and topographies use a documented deterministic 16-block sample.
+- The current implementation plan is stored in
+  `memory-bank/plans/2026-06-14-spectral-preprocessing.md`.
+- Implementation is paused for user review before the common preprocessing API is added.
+
 ## Next Actions
 
+- Review checkpoint 1 and approve the common preprocessing API/configuration stage.
 - Define preprocessing and windowing above `LoadedSample`.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
