@@ -3,7 +3,7 @@
 ## 2026-06-10
 
 - Store project operating instructions in `Agent.md`.
-- Store persistent project context in `memory-bank/`.
+- Store persistent project context in the project memory bank.
 - Store project-local skills under `.codex/skills/`.
 - Keep `python_optimization_prompt.md` content in `.codex/skills/python-optimization-panel/references/python_optimization_prompt.md` so the prompt survives deletion of the root file.
 - Keep `optimization_methods.pdf` and a compact markdown summary in `.codex/skills/python-optimization-panel/references/` so the optimization handout survives deletion of the root file.
@@ -30,3 +30,13 @@
 - Compare FFT, Morlet, Superlet, and STFT in a dedicated executed notebook using identical synthetic
   and real inputs. Any cross-method display normalization is presentation-only because PSD and
   wavelet-power amplitudes are not directly comparable.
+- Store spectral cache entries under
+  `artifacts/preprocessed/<dataset>/<family>/<method>/<config-hash>/S_*/Trial_*/Block_*/`.
+- Cache only `eeg_power.npy`, `frequencies.npy`, optional `times.npy`, and `manifest.json`; retrieve
+  current EOG from `NumpyDataset` instead of duplicating it in spectral artifacts.
+- Include resolved preprocessing config, source dtype, schema version, transform class, and transform
+  version in spectral cache identity. Validate both EEG and EOG source signatures on every cache hit.
+- Use atomic per-array writes and write the spectral manifest last; treat incomplete or corrupt entries
+  as disposable and rebuild them.
+- Store the project memory bank under `.codex/memory-bank/`; this supersedes its original root-level
+  location.

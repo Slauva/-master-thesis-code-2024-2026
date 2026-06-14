@@ -17,9 +17,9 @@ Prioritize scientific validity, reproducibility, leakage control, and readable r
 
 At the start of substantive work:
 
-1. Read `memory-bank/project_brief.md`.
-2. Read `memory-bank/active_context.md`.
-3. Check `memory-bank/decisions.md` for constraints that should not be rediscovered.
+1. Read `.codex/memory-bank/project_brief.md`.
+2. Read `.codex/memory-bank/active_context.md`.
+3. Check `.codex/memory-bank/decisions.md` for constraints that should not be rediscovered.
 4. Inspect only the files needed for the current task.
 
 ## Local Skills
@@ -55,9 +55,9 @@ Use these project-local skills when their descriptions match the task:
 
 Update the memory bank after meaningful discoveries or decisions:
 
-- Use `memory-bank/active_context.md` for current focus and next actions.
-- Use `memory-bank/decisions.md` for durable architectural, scientific, and evaluation choices.
-- Use `memory-bank/experiments.md` for experiment runs, metrics, and observations.
-- Use `memory-bank/glossary.md` for project-specific terminology.
+- Use `.codex/memory-bank/active_context.md` for current focus and next actions.
+- Use `.codex/memory-bank/decisions.md` for durable architectural, scientific, and evaluation choices.
+- Use `.codex/memory-bank/experiments.md` for experiment runs, metrics, and observations.
+- Use `.codex/memory-bank/glossary.md` for project-specific terminology.
 
 Do not store API keys, credentials, private personal data, or raw sensitive labels in memory files.

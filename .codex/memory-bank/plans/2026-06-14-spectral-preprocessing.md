@@ -36,13 +36,15 @@ Before using a new library API:
 - Added validation for output dimensions, finite non-negative power, exact frequency axes, method
   scaling, and non-finite source EEG.
 
-### 3. Spectral Artifact Cache - Pending
+### 3. Spectral Artifact Cache - Completed
 
-- Store derived entries under
+- Stored derived entries under
   `artifacts/preprocessed/<dataset>/<family>/<method>/<config-hash>/S_*/Trial_*/Block_*/`.
-- Save `eeg_power.npy`, `frequencies.npy`, optional `times.npy`, and `manifest.json`.
-- Read original EOG through `NumpyDataset` rather than duplicating it.
-- Use atomic writes and invalidate on source FIF, config, schema, or transform-version changes.
+- Entries contain `eeg_power.npy`, `frequencies.npy`, optional `times.npy`, and `manifest.json`.
+- Original EOG is read through `NumpyDataset` rather than duplicated.
+- Writes are atomic and entries are invalidated on either source FIF, resolved config, source dtype,
+  schema, transform class, or transform-version changes.
+- Incomplete, corrupt, or structurally inconsistent entries are rebuilt automatically.
 
 ### 4. FFT - Pending
 

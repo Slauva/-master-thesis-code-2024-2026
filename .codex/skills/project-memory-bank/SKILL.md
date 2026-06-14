@@ -7,11 +7,11 @@ description: Use when reading, updating, or relying on this repository's memory 
 
 ## Files
 
-- `memory-bank/project_brief.md`: stable project purpose and baseline context.
-- `memory-bank/active_context.md`: current focus, immediate next actions, and open questions.
-- `memory-bank/decisions.md`: durable scientific and engineering decisions.
-- `memory-bank/experiments.md`: experiment runs, metrics, observations, and failures.
-- `memory-bank/glossary.md`: project-specific terms and abbreviations.
+- `.codex/memory-bank/project_brief.md`: stable project purpose and baseline context.
+- `.codex/memory-bank/active_context.md`: current focus, immediate next actions, and open questions.
+- `.codex/memory-bank/decisions.md`: durable scientific and engineering decisions.
+- `.codex/memory-bank/experiments.md`: experiment runs, metrics, observations, and failures.
+- `.codex/memory-bank/glossary.md`: project-specific terms and abbreviations.
 
 ## Workflow
 
