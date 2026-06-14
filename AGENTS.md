@@ -27,6 +27,8 @@ At the start of substantive work:
 Use these project-local skills when their descriptions match the task:
 
 - `.codex/skills/eeg-ml-research/SKILL.md` for EEG/MNE/ML research workflows.
+- `.codex/skills/manage-staged-plans/SKILL.md` for staged plans with approval gates, durable
+  progress tracking, and Jupyter result visualization.
 - `.codex/skills/project-memory-bank/SKILL.md` for reading and updating project memory.
 - `.codex/skills/python-optimization-panel/SKILL.md` for strict review, refactor, hardening, and optimization workflows based on the saved prompt.
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Staged Plan Manager"
+  short_description: "Plan work in reviewable, memory-backed stages"
+  default_prompt: "Use $manage-staged-plans to create a staged implementation plan with approval gates and durable progress tracking."

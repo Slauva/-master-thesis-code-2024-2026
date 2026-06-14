@@ -114,6 +114,16 @@ PyTorch dataset checkpoints 1-4 are complete:
   `.codex/memory-bank/plans/2026-06-14-torch-datasets-gpu.md`.
 - PyTorch dataset plan checkpoints 1-4 are complete.
 
+Project planning workflow:
+
+- Added the project-local `manage-staged-plans` skill.
+- New substantial plans are split into reviewable stages and saved under
+  `.codex/memory-bank/plans/` only after explicit user approval.
+- Every implemented stage stops in `Awaiting Review`; it becomes `Completed` only after explicit
+  user approval, with progress and relevant decisions or experiments written back to memory.
+- Quantitative or scientific results that benefit from visualization use the
+  `data-analytics:jupyter-notebooks` workflow and an executed notebook under `notebooks/`.
+
 ## Next Actions
 
 - Define canonical train/validation/test split policy.

@@ -90,3 +90,11 @@
   `(batch, time)` with a spectral mask.
 - Reject mixed-method or scientifically incompatible spectral batches, including mismatched
   scaling, channels, sampling rates, dtypes, or frequency grids.
+- Use the project-local `manage-staged-plans` skill for substantial staged implementation or
+  research plans.
+- Persist a new plan under `.codex/memory-bank/plans/` only after explicit user approval.
+- Stop after every implemented stage for user review. Mark the stage completed only after explicit
+  approval, and update the plan plus the smallest relevant memory files before continuing.
+- Use the `data-analytics:jupyter-notebooks` workflow for reproducible visualization of
+  quantitative or scientific stage results; execute notebooks top-to-bottom before treating their
+  outputs as evidence.
