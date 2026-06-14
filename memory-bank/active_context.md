@@ -2,19 +2,20 @@
 
 ## Current Focus
 
-Initial project agent setup:
+Dataset API stages 0-5 are implemented:
 
-- Create a project-level agent guide.
-- Add a memory bank that can be updated during future work.
-- Add local skills for EEG/ML research, project memory, and Python optimization/review.
-- Preserve the contents of `python_optimization_prompt.md` inside a skill reference before that source file is removed.
+- Strict FIF/label indexing by subject, trial, and block.
+- Lazy MNE loading into typed NumPy samples.
+- Versioned atomic disk cache and bounded in-process LRU cache.
+- Explicit sequential or multiprocessing disk-cache warmup with structured reports.
+- Executed tutorial notebooks `notebooks/1.0` through `notebooks/1.4`.
 
 ## Next Actions
 
-- Build or review a dataset index for `data/`.
+- Define preprocessing and windowing above `LoadedSample`.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
-- Add a minimal test strategy once dataset utilities exist.
+- Benchmark full-corpus cache warmup only when operational timing is needed.
 
 ## Open Questions
 

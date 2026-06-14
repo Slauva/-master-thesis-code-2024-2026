@@ -1,8 +1,11 @@
 import json
 import os
 import tempfile
+import time
 from collections import OrderedDict
 from collections.abc import Iterator
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
@@ -11,7 +14,52 @@ import numpy as np
 from numpy.typing import DTypeLike
 
 from utils.datasets.base import DatasetBase, SampleKey
-from utils.datasets.schemas import LoadedSample, Sample
+from utils.datasets.schemas import CacheWarmupError, CacheWarmupReport, LoadedSample, Sample
+
+
+@dataclass(frozen=True, slots=True)
+class _WarmCacheConfig:
+    dataset_dir: Path
+    dataset_step_type: Literal["exec", "patt"]
+    dataset_pattern_type: Literal["geometric", "random"] | None
+    dtype: str
+    cache_dir: Path
+    exclude_samples: dict[str, list[str]]
+
+
+@dataclass(frozen=True, slots=True)
+class _WarmCacheResult:
+    key: SampleKey
+    status: Literal["processed", "cached", "failed"]
+    error_type: str | None = None
+    message: str | None = None
+
+
+_WARM_CACHE_WORKER_DATASET: "NumpyDataset | None" = None
+
+
+def _initialize_warm_cache_worker(config: _WarmCacheConfig) -> None:
+    global _WARM_CACHE_WORKER_DATASET
+    _WARM_CACHE_WORKER_DATASET = NumpyDataset(
+        dataset_dir=config.dataset_dir,
+        dataset_step_type=config.dataset_step_type,
+        dataset_pattern_type=config.dataset_pattern_type,
+        dtype=config.dtype,
+        cache_policy="disk",
+        cache_dir=config.cache_dir,
+        exclude_samples=config.exclude_samples,
+    )
+
+
+def _warm_cache_worker(key: SampleKey) -> _WarmCacheResult:
+    if _WARM_CACHE_WORKER_DATASET is None:
+        return _WarmCacheResult(
+            key=key,
+            status="failed",
+            error_type="RuntimeError",
+            message="Cache worker was not initialized",
+        )
+    return _WARM_CACHE_WORKER_DATASET._ensure_disk_cache(key)
 
 
 class NumpyDataset(DatasetBase):
@@ -30,7 +78,6 @@ class NumpyDataset(DatasetBase):
         cache_policy: Literal["none", "memory", "disk", "both"] | None = "disk",
         cache_dir: Path | None = None,
         memory_cache_bytes: int = 1 << 30,
-        preload: bool = False,
         exclude_samples: dict[str, list[str]] | None = None,
     ):
         super().__init__(
@@ -55,7 +102,6 @@ class NumpyDataset(DatasetBase):
             tuple[LoadedSample, dict[str, dict[str, int | str]]],
         ] = OrderedDict()
         self._memory_cache_current_bytes = 0
-        self.preload = preload
 
         self.dataset_pattern_type = dataset_pattern_type
         if dataset_pattern_type is not None:
@@ -111,6 +157,119 @@ class NumpyDataset(DatasetBase):
     def clear_memory_cache(self) -> None:
         self._memory_cache.clear()
         self._memory_cache_current_bytes = 0
+
+    def warm_cache(self, *, max_workers: int | None = None, fail_fast: bool = True) -> CacheWarmupReport:
+        if not self._uses_disk_cache or self.cache_dir is None:
+            raise ValueError("`warm_cache()` requires cache_policy='disk' or cache_policy='both'")
+
+        worker_count = self._resolve_worker_count(max_workers)
+        keys = tuple(self._sample_key(sample) for sample in self.samples)
+        started_at = time.perf_counter()
+
+        if worker_count == 1:
+            results = self._warm_cache_sequential(keys, fail_fast=fail_fast)
+        else:
+            results = self._warm_cache_parallel(keys, max_workers=worker_count, fail_fast=fail_fast)
+
+        errors = tuple(
+            CacheWarmupError(
+                key=result.key,
+                error_type=result.error_type or "UnknownError",
+                message=result.message or "Unknown cache warmup error",
+            )
+            for result in results
+            if result.status == "failed"
+        )
+        processed = sum(result.status == "processed" for result in results)
+        cached = sum(result.status == "cached" for result in results)
+        failed = len(errors)
+        skipped = len(keys) - processed - cached - failed
+        return CacheWarmupReport(
+            processed=processed,
+            cached=cached,
+            skipped=skipped,
+            failed=failed,
+            errors=errors,
+            max_workers=worker_count,
+            duration_seconds=time.perf_counter() - started_at,
+        )
+
+    def _warm_cache_sequential(self, keys: tuple[SampleKey, ...], *, fail_fast: bool) -> list[_WarmCacheResult]:
+        results: list[_WarmCacheResult] = []
+        for key in keys:
+            result = self._ensure_disk_cache(key)
+            results.append(result)
+            if fail_fast and result.status == "failed":
+                break
+        return results
+
+    def _warm_cache_parallel(
+        self,
+        keys: tuple[SampleKey, ...],
+        *,
+        max_workers: int,
+        fail_fast: bool,
+    ) -> list[_WarmCacheResult]:
+        config = _WarmCacheConfig(
+            dataset_dir=self.dataset_dir,
+            dataset_step_type=self.dataset_step_type,
+            dataset_pattern_type=self.dataset_pattern_type,
+            dtype=self.dtype.name,
+            cache_dir=self.cache_dir,
+            exclude_samples={subject: sorted(trials) for subject, trials in self.exclude_samples.items()},
+        )
+        results: list[_WarmCacheResult] = []
+        executor = ProcessPoolExecutor(
+            max_workers=max_workers,
+            initializer=_initialize_warm_cache_worker,
+            initargs=(config,),
+        )
+        futures = {executor.submit(_warm_cache_worker, key): key for key in keys}
+        try:
+            for future in as_completed(futures):
+                key = futures[future]
+                try:
+                    result = future.result()
+                except Exception as error:
+                    result = _WarmCacheResult(
+                        key=key,
+                        status="failed",
+                        error_type=type(error).__name__,
+                        message=str(error),
+                    )
+                results.append(result)
+                if fail_fast and result.status == "failed":
+                    for pending in futures:
+                        pending.cancel()
+                    break
+        finally:
+            executor.shutdown(wait=True, cancel_futures=fail_fast)
+        return results
+
+    def _ensure_disk_cache(self, key: SampleKey) -> _WarmCacheResult:
+        try:
+            sample = self._get_sample(key)
+            if self._load_disk_cache(sample) is not None:
+                return _WarmCacheResult(key=key, status="cached")
+
+            loaded = self._load_sample(sample)
+            self._write_disk_cache(loaded)
+            return _WarmCacheResult(key=key, status="processed")
+        except Exception as error:
+            return _WarmCacheResult(
+                key=key,
+                status="failed",
+                error_type=type(error).__name__,
+                message=str(error),
+            )
+
+    @staticmethod
+    def _resolve_worker_count(max_workers: int | None) -> int:
+        if max_workers is None:
+            return min(4, os.cpu_count() or 1)
+        if isinstance(max_workers, bool) or not isinstance(max_workers, int) or max_workers < 1:
+            raise ValueError("`max_workers` must be a positive integer or None")
+        return max_workers
 
     def _get_sample(self, key: int | SampleKey) -> Sample:
         if isinstance(key, bool):

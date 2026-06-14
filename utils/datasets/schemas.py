@@ -43,3 +43,25 @@ class LoadedSample:
     sfreq: float
     eeg_channels: tuple[str, ...]
     eog_channels: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class CacheWarmupError:
+    key: tuple[int, int, int]
+    error_type: str
+    message: str
+
+
+@dataclass(frozen=True, slots=True)
+class CacheWarmupReport:
+    processed: int
+    cached: int
+    skipped: int
+    failed: int
+    errors: tuple[CacheWarmupError, ...]
+    max_workers: int
+    duration_seconds: float
+
+    @property
+    def total(self) -> int:
+        return self.processed + self.cached + self.skipped + self.failed

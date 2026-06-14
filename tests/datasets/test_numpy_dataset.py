@@ -386,3 +386,96 @@ def test_rejects_invalid_memory_cache_limit(tmp_path: Path, memory_cache_bytes: 
             cache_policy="memory",
             memory_cache_bytes=memory_cache_bytes,  # type: ignore[arg-type]
         )
+
+
+def test_warm_cache_sequential_builds_then_reuses_disk_entries(tmp_path: Path) -> None:
+    dataset_dir = tmp_path / "dataset"
+    cache_dir = tmp_path / "cache"
+    _write_numpy_trial(dataset_dir)
+    dataset = NumpyDataset(
+        dataset_dir,
+        cache_policy="both",
+        cache_dir=cache_dir,
+    )
+
+    first_report = dataset.warm_cache(max_workers=1)
+    second_report = dataset.warm_cache(max_workers=1)
+
+    assert first_report.processed == 2
+    assert first_report.cached == 0
+    assert first_report.skipped == 0
+    assert first_report.failed == 0
+    assert first_report.total == 2
+    assert first_report.max_workers == 1
+    assert not first_report.errors
+    assert second_report.processed == 0
+    assert second_report.cached == 2
+    assert second_report.total == 2
+    assert dataset.memory_cache_items == 0
+
+
+def test_warm_cache_multiprocessing_builds_entries(tmp_path: Path) -> None:
+    dataset_dir = tmp_path / "dataset"
+    cache_dir = tmp_path / "cache"
+    _write_numpy_trial(dataset_dir)
+    dataset = NumpyDataset(dataset_dir, cache_policy="disk", cache_dir=cache_dir)
+
+    report = dataset.warm_cache(max_workers=2)
+
+    assert report.processed == 2
+    assert report.cached == 0
+    assert report.skipped == 0
+    assert report.failed == 0
+    assert report.total == 2
+    assert report.max_workers == 2
+    assert all((dataset.get_cache_entry_path(index) / "manifest.json").is_file() for index in range(2))
+
+
+def test_warm_cache_collects_errors_and_continues(tmp_path: Path) -> None:
+    dataset_dir = tmp_path / "dataset"
+    _write_numpy_trial(dataset_dir)
+    (dataset_dir / "S_1" / "Trial_1" / "exec_EEG_1.fif").write_bytes(b"invalid-fif")
+    dataset = NumpyDataset(dataset_dir, cache_policy="disk", cache_dir=tmp_path / "cache")
+
+    report = dataset.warm_cache(max_workers=1, fail_fast=False)
+
+    assert report.processed == 1
+    assert report.cached == 0
+    assert report.skipped == 0
+    assert report.failed == 1
+    assert report.total == 2
+    assert report.errors[0].key == (1, 1, 1)
+    assert report.errors[0].error_type
+    assert report.errors[0].message
+
+
+def test_warm_cache_fail_fast_marks_remaining_samples_skipped(tmp_path: Path) -> None:
+    dataset_dir = tmp_path / "dataset"
+    _write_numpy_trial(dataset_dir)
+    (dataset_dir / "S_1" / "Trial_1" / "exec_EEG_1.fif").write_bytes(b"invalid-fif")
+    dataset = NumpyDataset(dataset_dir, cache_policy="disk", cache_dir=tmp_path / "cache")
+
+    report = dataset.warm_cache(max_workers=1, fail_fast=True)
+
+    assert report.processed == 0
+    assert report.cached == 0
+    assert report.skipped == 1
+    assert report.failed == 1
+    assert report.total == 2
+
+
+def test_warm_cache_requires_disk_policy(tmp_path: Path) -> None:
+    _write_numpy_trial(tmp_path)
+    dataset = NumpyDataset(tmp_path, cache_policy="memory")
+
+    with pytest.raises(ValueError, match="requires cache_policy"):
+        dataset.warm_cache()
+
+
+@pytest.mark.parametrize("max_workers", [0, -1, 1.5, True])
+def test_warm_cache_rejects_invalid_worker_count(tmp_path: Path, max_workers: object) -> None:
+    _write_numpy_trial(tmp_path)
+    dataset = NumpyDataset(tmp_path, cache_policy="disk", cache_dir=tmp_path / "cache")
+
+    with pytest.raises(ValueError, match="positive integer"):
+        dataset.warm_cache(max_workers=max_workers)  # type: ignore[arg-type]
