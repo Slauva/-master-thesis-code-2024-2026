@@ -5,7 +5,6 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "aiofiles>=25.1.0",
     "jupyter>=1.1.1",
     "matplotlib>=3.10.8",
     "mne>=1.11.0",
@@ -13,10 +12,6 @@ dependencies = [
     "omegaconf>=2.3.0",
     "pandas>=3.0.2",
     "pydantic>=2.12.5",
-    "pytest>=9.1.0",
-    "pytest-asyncio>=1.4.0",
-    "pytest-cov>=7.1.0",
-    "pytest-xdist>=3.8.0",
     "scikit-learn>=1.9.0",
     "scipy>=1.17.1",
     "torch>=2.12.0",
@@ -51,5 +46,8 @@ addopts = [
 
 [dependency-groups]
 dev = [
+    "pytest>=9.1.0",
+    "pytest-cov>=7.1.0",
+    "pytest-xdist>=3.8.0",
     "ruff>=0.15.17",
 ]
