@@ -1,6 +1,7 @@
 import json
 import os
 import tempfile
+from collections import OrderedDict
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, Literal
@@ -28,6 +29,7 @@ class NumpyDataset(DatasetBase):
         dtype: DTypeLike = np.float32,
         cache_policy: Literal["none", "memory", "disk", "both"] | None = "disk",
         cache_dir: Path | None = None,
+        memory_cache_bytes: int = 1 << 30,
         preload: bool = False,
         exclude_samples: dict[str, list[str]] | None = None,
     ):
@@ -43,8 +45,16 @@ class NumpyDataset(DatasetBase):
 
         if cache_policy not in (None, "none", "memory", "disk", "both"):
             raise ValueError(f"Unsupported cache policy: {cache_policy!r}")
+        if isinstance(memory_cache_bytes, bool) or not isinstance(memory_cache_bytes, int) or memory_cache_bytes < 0:
+            raise ValueError("`memory_cache_bytes` must be a non-negative integer")
         self.cache_policy = cache_policy
         self.cache_dir = self._resolve_cache_dir(cache_dir) if self._uses_disk_cache else cache_dir
+        self.memory_cache_bytes = memory_cache_bytes
+        self._memory_cache: OrderedDict[
+            SampleKey,
+            tuple[LoadedSample, dict[str, dict[str, int | str]]],
+        ] = OrderedDict()
+        self._memory_cache_current_bytes = 0
         self.preload = preload
 
         self.dataset_pattern_type = dataset_pattern_type
@@ -54,14 +64,24 @@ class NumpyDataset(DatasetBase):
 
     def __getitem__(self, key: int | SampleKey) -> LoadedSample:
         sample = self._get_sample(key)
+        sample_key = self._sample_key(sample)
+        if self._uses_memory_cache:
+            cached = self._load_memory_cache(sample_key, sample)
+            if cached is not None:
+                return cached
+
         if self._uses_disk_cache:
             cached = self._load_disk_cache(sample)
             if cached is not None:
+                if self._uses_memory_cache:
+                    self._store_memory_cache(sample_key, cached)
                 return cached
 
         loaded = self._load_sample(sample)
         if self._uses_disk_cache:
             self._write_disk_cache(loaded)
+        if self._uses_memory_cache:
+            self._store_memory_cache(sample_key, loaded)
         return loaded
 
     def __iter__(self) -> Iterator[LoadedSample]:
@@ -72,12 +92,65 @@ class NumpyDataset(DatasetBase):
     def _uses_disk_cache(self) -> bool:
         return self.cache_policy in ("disk", "both")
 
+    @property
+    def _uses_memory_cache(self) -> bool:
+        return self.cache_policy in ("memory", "both")
+
+    @property
+    def memory_cache_current_bytes(self) -> int:
+        return self._memory_cache_current_bytes
+
+    @property
+    def memory_cache_items(self) -> int:
+        return len(self._memory_cache)
+
+    @property
+    def memory_cache_keys(self) -> tuple[SampleKey, ...]:
+        return tuple(self._memory_cache)
+
+    def clear_memory_cache(self) -> None:
+        self._memory_cache.clear()
+        self._memory_cache_current_bytes = 0
+
     def _get_sample(self, key: int | SampleKey) -> Sample:
         if isinstance(key, bool):
             raise TypeError("NumpyDataset key must be an integer or a (subject_id, trial_number, block_index) tuple")
         if isinstance(key, int):
             return self.samples[key]
         return super().__getitem__(key)
+
+    def _load_memory_cache(self, key: SampleKey, sample: Sample) -> LoadedSample | None:
+        cache_entry = self._memory_cache.get(key)
+        if cache_entry is None:
+            return None
+
+        loaded, source_signatures = cache_entry
+        current_signatures = self._sample_source_signatures(sample)
+        if source_signatures != current_signatures:
+            self._remove_memory_cache_entry(key)
+            return None
+
+        self._memory_cache.move_to_end(key)
+        return loaded
+
+    def _store_memory_cache(self, key: SampleKey, loaded: LoadedSample) -> None:
+        loaded_bytes = self._loaded_sample_nbytes(loaded)
+        if loaded_bytes > self.memory_cache_bytes:
+            return
+
+        if key in self._memory_cache:
+            self._remove_memory_cache_entry(key)
+
+        while self._memory_cache and self._memory_cache_current_bytes + loaded_bytes > self.memory_cache_bytes:
+            oldest_key = next(iter(self._memory_cache))
+            self._remove_memory_cache_entry(oldest_key)
+
+        self._memory_cache[key] = (loaded, self._sample_source_signatures(loaded.sample))
+        self._memory_cache_current_bytes += loaded_bytes
+
+    def _remove_memory_cache_entry(self, key: SampleKey) -> None:
+        loaded, _ = self._memory_cache.pop(key)
+        self._memory_cache_current_bytes -= self._loaded_sample_nbytes(loaded)
 
     def _load_sample(self, sample: Sample) -> LoadedSample:
         eeg_raw = mne.io.read_raw_fif(sample.eeg_path, preload=False, verbose="ERROR")
@@ -180,10 +253,7 @@ class NumpyDataset(DatasetBase):
             },
             "dataset_step_type": self.dataset_step_type,
             "dtype": self.dtype.name,
-            "sources": {
-                "eeg": self._source_signature(sample.eeg_path),
-                "eog": self._source_signature(sample.eog_path),
-            },
+            "sources": self._sample_source_signatures(sample),
             "arrays": {
                 "eeg": {"shape": list(loaded.eeg.shape), "dtype": loaded.eeg.dtype.name},
                 "eog": {"shape": list(loaded.eog.shape), "dtype": loaded.eog.dtype.name},
@@ -204,11 +274,7 @@ class NumpyDataset(DatasetBase):
             and manifest.get("key") == expected_key
             and manifest.get("dataset_step_type") == self.dataset_step_type
             and manifest.get("dtype") == self.dtype.name
-            and manifest.get("sources")
-            == {
-                "eeg": self._source_signature(sample.eeg_path),
-                "eog": self._source_signature(sample.eog_path),
-            }
+            and manifest.get("sources") == self._sample_source_signatures(sample)
         )
 
     def _manifest_matches_arrays(self, manifest: dict[str, Any], *, eeg: np.ndarray, eog: np.ndarray) -> bool:
@@ -230,6 +296,20 @@ class NumpyDataset(DatasetBase):
             "size": stat.st_size,
             "mtime_ns": stat.st_mtime_ns,
         }
+
+    def _sample_source_signatures(self, sample: Sample) -> dict[str, dict[str, int | str]]:
+        return {
+            "eeg": self._source_signature(sample.eeg_path),
+            "eog": self._source_signature(sample.eog_path),
+        }
+
+    @staticmethod
+    def _sample_key(sample: Sample) -> SampleKey:
+        return sample.subject_id, sample.trial_number, sample.block_index
+
+    @staticmethod
+    def _loaded_sample_nbytes(loaded: LoadedSample) -> int:
+        return loaded.eeg.nbytes + loaded.eog.nbytes
 
     @staticmethod
     def _atomic_save_array(path: Path, array: np.ndarray) -> None:
