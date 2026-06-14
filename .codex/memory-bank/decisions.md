@@ -46,3 +46,9 @@
   one-sided bins that have negative-frequency partners.
 - Rebin native FFT density bins onto configured output frequencies by overlap between frequency-cell
   edges. Divide integrated overlap power by the output-bin width so band power is preserved.
+- Use MNE Morlet power with `n_cycles=clip(frequency / 2, 3, 10)`, `zero_mean=True`, `use_fft=True`,
+  and `decim=1`; perform time reduction only after convolution and edge trimming.
+- Define the common Morlet edge trim from half the longest actual discrete wavelet returned by MNE.
+  For the default 125 Hz, 2-40 Hz configuration this is 149 samples per side.
+- Center the largest complete set of non-overlapping 32-sample bins within the valid trimmed Morlet
+  interval. Store bin-center times derived from actual sample indices.

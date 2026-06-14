@@ -58,14 +58,17 @@ Before using a new library API:
   cache reuse.
 - Verified the complete repository with Ruff and 97 passing tests.
 
-### 5. Morlet - Pending
+### 5. Morlet - Completed
 
-- Use `mne.time_frequency.tfr_array_morlet` with `output="power"`, `zero_mean=True`, and
-  `decim=1`.
-- Use `n_cycles=clip(freq / 2, 3, 10)`, trim wavelet-dependent edges, then average power over
-  32 samples for a 0.256 s time step.
-- Create and execute `notebooks/2.2-morlet.ipynb`.
-- Test synthetic burst frequency and timing localization.
+- Implemented `mne.time_frequency.tfr_array_morlet` with `output="power"`, `zero_mean=True`,
+  `use_fft=True`, and `decim=1`.
+- Used `n_cycles=clip(freq / 2, 3, 10)`, trimmed each side by half the longest actual wavelet, and
+  averaged centered power over 32 samples for a 0.256 s time step.
+- Created and executed `notebooks/2.2-morlet.ipynb` on synthetic bursts and one canonical block from
+  each recording family.
+- Tested cycle construction, frequency and timing localization, edge trimming, time axes, validation,
+  dataset integration, and cache reuse.
+- Verified the complete repository with Ruff and 101 passing tests.
 
 ### 6. Superlet - Pending
 

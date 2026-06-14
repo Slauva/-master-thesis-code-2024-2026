@@ -21,6 +21,7 @@ from preprocessors.config import (
     load_preprocessing_config,
 )
 from preprocessors.fft import compute_fft_psd
+from preprocessors.morlet import compute_morlet_power
 from preprocessors.schemas import SpectralTransformResult
 from utils.datasets.base import SampleKey, SourceMap
 from utils.datasets.numpy_dataset import NumpyDataset
@@ -405,7 +406,11 @@ class MorletDataset(PreprocessedDataset):
     CONFIG_TYPE = MorletConfig
 
     def _transform(self, loaded: LoadedSample) -> SpectralTransformResult:
-        raise NotImplementedError("Morlet transform is implemented at spectral preprocessing checkpoint 5")
+        return compute_morlet_power(
+            loaded.eeg,
+            source_sfreq=loaded.sfreq,
+            config=self.config,
+        )
 
 
 class SuperletDataset(PreprocessedDataset):

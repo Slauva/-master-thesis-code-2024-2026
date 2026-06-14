@@ -1,10 +1,9 @@
-from fractions import Fraction
-
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 from scipy.fft import rfft, rfftfreq
-from scipy.signal import get_window, resample_poly
+from scipy.signal import get_window
 
+from preprocessors._signal import prepare_eeg
 from preprocessors.config import FFTConfig, build_frequency_grid
 from preprocessors.schemas import SpectralTransformResult
 
@@ -16,17 +15,11 @@ def compute_fft_psd(
     config: FFTConfig,
 ) -> SpectralTransformResult:
     """Compute a channel-wise, one-sided FFT periodogram on the configured grid."""
-    signal = np.asarray(eeg, dtype=np.float64)
-    if signal.ndim != 2:
-        raise ValueError("`eeg` must have shape (channel, time)")
-    if signal.shape[1] < 2:
-        raise ValueError("FFT preprocessing requires at least two time samples")
-    if not np.isfinite(signal).all():
-        raise ValueError("`eeg` must contain only finite values")
-    if not np.isfinite(source_sfreq) or source_sfreq <= 0:
-        raise ValueError("`source_sfreq` must be finite and positive")
-
-    signal = _resample(signal, source_sfreq=source_sfreq, target_sfreq=config.analysis_sfreq)
+    signal = prepare_eeg(
+        eeg,
+        source_sfreq=source_sfreq,
+        target_sfreq=config.analysis_sfreq,
+    )
     if config.demean:
         signal = signal - signal.mean(axis=-1, keepdims=True)
 
@@ -55,24 +48,6 @@ def compute_fft_psd(
         analysis_sfreq=config.analysis_sfreq,
         scaling=config.scaling,
     )
-
-
-def _resample(
-    signal: NDArray[np.float64],
-    *,
-    source_sfreq: float,
-    target_sfreq: float,
-) -> NDArray[np.float64]:
-    if np.isclose(source_sfreq, target_sfreq, rtol=0.0, atol=1e-12):
-        return signal
-
-    ratio = (Fraction(str(target_sfreq)) / Fraction(str(source_sfreq))).limit_denominator(1_000_000)
-    effective_sfreq = source_sfreq * ratio.numerator / ratio.denominator
-    if not np.isclose(effective_sfreq, target_sfreq, rtol=1e-12, atol=1e-12):
-        raise ValueError(
-            f"Could not represent resampling ratio from {source_sfreq:g} Hz to {target_sfreq:g} Hz"
-        )
-    return resample_poly(signal, ratio.numerator, ratio.denominator, axis=-1)
 
 
 def _rebin_density(

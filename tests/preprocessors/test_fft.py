@@ -65,7 +65,7 @@ def test_fft_demeaning_removes_constant_offset_leakage() -> None:
     ("eeg", "message"),
     [
         (np.ones(8), "shape"),
-        (np.ones((2, 1)), "at least two"),
+        (np.ones((2, 1)), "at least 2"),
         (np.array([[0.0, np.nan]]), "finite"),
     ],
 )

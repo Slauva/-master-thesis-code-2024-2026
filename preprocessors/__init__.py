@@ -8,6 +8,7 @@ from preprocessors.config import (
     load_preprocessing_config,
 )
 from preprocessors.fft import compute_fft_psd
+from preprocessors.morlet import build_morlet_cycles, compute_morlet_power
 from preprocessors.schemas import SpectralTransformResult
 
 __all__ = [
@@ -18,6 +19,8 @@ __all__ = [
     "SpectralTransformResult",
     "SuperletConfig",
     "build_frequency_grid",
+    "build_morlet_cycles",
     "compute_fft_psd",
+    "compute_morlet_power",
     "load_preprocessing_config",
 ]

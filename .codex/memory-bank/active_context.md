@@ -12,7 +12,7 @@ Dataset API stages 0-5 are implemented:
 - Registered the standalone Data Analytics semantic layer
   `eeg-dataset-ml-experiments-semantic-layer` for dataset and experiment interpretation.
 
-Spectral preprocessing checkpoints 1-4 are complete:
+Spectral preprocessing checkpoints 1-5 are complete:
 
 - `notebooks/2.0-dataset-overview.ipynb` is executed top-to-bottom.
 - Full-corpus FIF metadata were audited for all 1,800 canonical blocks.
@@ -31,16 +31,23 @@ Spectral preprocessing checkpoints 1-4 are complete:
   canonical `exec` block and one canonical `patt` block.
 - FFT outputs have shape `(channel, frequency)`, use `float32`, have no time axis, and occupy about
   12 KiB per demonstrated 63-channel block including the manifest.
+- Implemented Morlet wavelet power with `n_cycles=clip(frequency / 2, 3, 10)`, zero-mean wavelets,
+  FFT convolution, a common 149-sample edge trim per side, and centered 32-sample power bins.
+- Added and executed `notebooks/2.2-morlet.ipynb`; synthetic 10 Hz and 25 Hz bursts were localized
+  at the correct frequencies with peak-time center errors below 0.06 s.
+- Real Morlet outputs have shapes `(63, 39, 53)` for the demonstrated `exec` block and
+  `(63, 39, 92)` for the demonstrated `patt` block, with a 0.256 s time step.
+- Demonstrated Morlet cache entries occupy about 512 KiB for `exec` and 886 KiB for `patt`.
 - Planned `notebooks/2.5-spectral-methods-comparison.ipynb` as the shared visual comparison of all
   four transforms after their implementations are complete.
 - The current implementation plan is stored in
   `.codex/memory-bank/plans/2026-06-14-spectral-preprocessing.md`.
-- Implementation is paused for user review before Morlet is implemented.
+- Implementation is paused for user review before Superlet is implemented.
 
 ## Next Actions
 
-- Review checkpoint 4 and approve the Morlet stage.
-- Implement and demonstrate the Morlet time-frequency representation.
+- Review checkpoint 5 and approve the Superlet stage.
+- Implement and demonstrate the adaptive Superlet time-frequency representation.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
 - Benchmark full-corpus cache warmup only when operational timing is needed.
