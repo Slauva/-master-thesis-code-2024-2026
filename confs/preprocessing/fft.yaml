@@ -1,0 +1,4 @@
+method: fft
+scaling: psd
+window: hann
+demean: true

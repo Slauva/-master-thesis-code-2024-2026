@@ -1,0 +1,8 @@
+method: morlet
+scaling: wavelet_power
+zero_mean: true
+use_fft: true
+n_cycles_divisor: 2.0
+n_cycles_min: 3.0
+n_cycles_max: 10.0
+time_bin_samples: 32

@@ -19,3 +19,14 @@
 - Keep reusable EEG dataset and experiment semantics in the standalone
   `eeg-dataset-ml-experiments-semantic-layer`; do not infer a scientific train/test split from
   `Data_Train` and `Data_Pattern` names.
+- Build spectral datasets as typed wrappers over `NumpyDataset`; preserve the canonical sample key and
+  original EOG while transforming EEG only.
+- Compose `confs/preprocessing/common.yaml` with one method YAML through OmegaConf, then validate the
+  resolved mapping with frozen Pydantic models that reject extra or unsupported fields.
+- Require every spectral transform to return the exact inclusive frequency grid defined by
+  `f_min`, `f_max`, and `frequency_step`.
+- Keep repeated filtering, notch filtering, rereferencing, EOG transformation, and dataset-wide
+  normalization disabled in the baseline spectral configs.
+- Compare FFT, Morlet, Superlet, and STFT in a dedicated executed notebook using identical synthetic
+  and real inputs. Any cross-method display normalization is presentation-only because PSD and
+  wavelet-power amplitudes are not directly comparable.

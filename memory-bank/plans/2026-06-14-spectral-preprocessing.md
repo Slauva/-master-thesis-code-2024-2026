@@ -23,16 +23,18 @@ Before using a new library API:
 - Confirmed 1,000 Hz input, 63 EEG channels, 5 EOG channels, and a stored EEG passband of 1-40 Hz.
 - Found 60 shortened `exec` blocks and missing `EOG_x`/`EOG_y` intervals in sampled `patt` blocks.
 
-### 2. Common API And Configuration - Pending
+### 2. Common API And Configuration - Completed
 
-- Implement `PreprocessedDataset` with `FFTDataset`, `MorletDataset`, `SuperletDataset`, and
+- Implemented `PreprocessedDataset` with `FFTDataset`, `MorletDataset`, `SuperletDataset`, and
   `STFTDataset`.
-- Add a typed `SpectralSample` carrying power, original EOG, axes, channels, sampling rates,
+- Added a typed `SpectralSample` carrying power, original EOG, axes, channels, sampling rates,
   method, scaling, and source metadata.
-- Load and validate `confs/preprocessing/{common,fft,morlet,superlet,stft}.yaml` with
+- Added and validated `confs/preprocessing/{common,fft,morlet,superlet,stft}.yaml` with
   OmegaConf and Pydantic.
-- Defaults: EEG-only transform, 125 Hz analysis rate, 2-40 Hz, `float32`, no repeated filter,
+- Defaults are EEG-only transform, 125 Hz analysis rate, 2-40 Hz, `float32`, no repeated filter,
   notch, reference, or dataset-wide normalization.
+- Added validation for output dimensions, finite non-negative power, exact frequency axes, method
+  scaling, and non-finite source EEG.
 
 ### 3. Spectral Artifact Cache - Pending
 
@@ -75,10 +77,26 @@ Before using a new library API:
 - Create and execute `notebooks/2.4-stft.ipynb`.
 - Test axes, PSD scaling, and synthetic burst localization.
 
-### 8. Integration - Pending
+### 8. Comparative Visualization Notebook - Pending
+
+- Create and execute `notebooks/2.5-spectral-methods-comparison.ipynb` after all four transforms
+  are implemented.
+- Apply FFT, Morlet, Superlet, and STFT to the same deterministic synthetic signal, one `exec`
+  block, and one `patt` block.
+- Show the source trace, global FFT PSD, Morlet/Superlet/STFT time-frequency maps, frequency
+  marginals, time marginals, output shapes, axis resolution, runtime, and artifact size.
+- Use the same EEG channel and time interval across methods. Keep native values available in
+  method-specific panels.
+- For shared visual panels, use explicitly labelled per-method display normalization because
+  PSD and wavelet power have different scales; never treat normalized display values as stored
+  ML features.
+- Validate known synthetic frequencies and burst intervals before interpreting real-data plots.
+
+### 9. Integration - Pending
 
 - Enforce FFT shape `(channel, frequency)` and TFR shape `(channel, frequency, time)`.
-- Validate one `exec` and one `patt` block in every notebook without processing the full corpus.
+- Validate one `exec` and one `patt` block in every method notebook and the comparison notebook
+  without processing the full corpus.
 - Run `uv run ruff check .` and `uv run pytest`.
 - Update the memory bank and estimate full artifact storage.
 
@@ -90,5 +108,6 @@ Before using a new library API:
 - Non-finite EEG is an error.
 - FFT/STFT use PSD scaling; Morlet/Superlet use wavelet power. Their absolute values are not
   directly comparable.
+- Cross-method plot normalization is presentation-only and must not be written back into artifacts.
 - `exec` and `patt` are recording families, not an inferred train/test split.
 - Implementation stops after each checkpoint for review.

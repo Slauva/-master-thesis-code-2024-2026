@@ -1,0 +1,7 @@
+method: stft
+scaling: psd
+window: hann
+window_seconds: 2.0
+hop_samples: 32
+mfft: 250
+fft_mode: onesided2X

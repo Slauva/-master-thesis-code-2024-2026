@@ -1,0 +1,10 @@
+analysis_sfreq: 125.0
+f_min: 2.0
+f_max: 40.0
+frequency_step: 1.0
+dtype: float32
+transform_eog: false
+filter_hz: null
+notch_hz: null
+reference: null
+normalization: none

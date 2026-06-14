@@ -46,6 +46,21 @@ class LoadedSample:
 
 
 @dataclass(frozen=True, slots=True)
+class SpectralSample:
+    sample: Sample
+    eeg_power: NDArray[np.floating[Any]]
+    eog: NDArray[np.floating[Any]]
+    frequencies: NDArray[np.floating[Any]]
+    times: NDArray[np.floating[Any]] | None
+    eeg_channels: tuple[str, ...]
+    eog_channels: tuple[str, ...]
+    source_sfreq: float
+    analysis_sfreq: float
+    method: Literal["fft", "morlet", "superlet", "stft"]
+    scaling: Literal["psd", "wavelet_power"]
+
+
+@dataclass(frozen=True, slots=True)
 class CacheWarmupError:
     key: tuple[int, int, int]
     error_type: str

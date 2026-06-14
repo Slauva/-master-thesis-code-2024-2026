@@ -1,0 +1,7 @@
+method: superlet
+scaling: wavelet_power
+adaptive: true
+order_min: 1
+order_max: 10
+c_1: 3
+time_bin_samples: 32
