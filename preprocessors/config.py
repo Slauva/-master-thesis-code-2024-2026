@@ -92,7 +92,10 @@ class STFTConfig(CommonPreprocessingConfig):
 
     @model_validator(mode="after")
     def validate_stft_lengths(self) -> Self:
-        window_samples = round(self.window_seconds * self.analysis_sfreq)
+        exact_window_samples = self.window_seconds * self.analysis_sfreq
+        window_samples = round(exact_window_samples)
+        if not np.isclose(exact_window_samples, window_samples, rtol=0.0, atol=1e-12):
+            raise ValueError("`window_seconds * analysis_sfreq` must be an integer number of samples")
         if self.hop_samples > window_samples:
             raise ValueError("`hop_samples` must not exceed the STFT window length")
         if self.mfft < window_samples:

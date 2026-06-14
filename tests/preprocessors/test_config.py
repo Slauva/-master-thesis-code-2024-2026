@@ -78,3 +78,8 @@ def test_rejects_invalid_or_unsupported_configuration(overrides: dict[str, objec
 def test_rejects_missing_config_directory(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError, match="common.yaml"):
         load_preprocessing_config("fft", config_dir=tmp_path)
+
+
+def test_rejects_stft_configuration_with_fractional_window_samples() -> None:
+    with pytest.raises(ValidationError):
+        load_preprocessing_config("stft", overrides={"window_seconds": 2.001})

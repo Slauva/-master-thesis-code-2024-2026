@@ -35,7 +35,12 @@ def _save_raw(
         raw.save(path, overwrite=True, verbose="ERROR")
 
 
-def _write_trial(dataset_dir: Path, *, eeg: np.ndarray | None = None) -> None:
+def _write_trial(
+    dataset_dir: Path,
+    *,
+    eeg: np.ndarray | None = None,
+    sfreq: float = 100.0,
+) -> None:
     trial_dir = dataset_dir / "S_1" / "Trial_1"
     trial_dir.mkdir(parents=True)
     (trial_dir / "labels.json").write_text(
@@ -60,14 +65,14 @@ def _write_trial(dataset_dir: Path, *, eeg: np.ndarray | None = None) -> None:
         data=eeg_data,
         channel_names=["Fz", "Cz"],
         channel_type="eeg",
-        sfreq=100.0,
+        sfreq=sfreq,
     )
     _save_raw(
         trial_dir / "exec_EOG_1.fif",
         data=eog_data,
         channel_names=["EOG_x"],
         channel_type="eog",
-        sfreq=100.0,
+        sfreq=sfreq,
     )
 
 
@@ -188,26 +193,6 @@ def test_rejects_config_and_loading_options_together(tmp_path: Path) -> None:
         )
 
 
-@pytest.mark.parametrize(
-    ("dataset_type", "method", "checkpoint"),
-    [
-        (STFTDataset, "stft", 7),
-    ],
-)
-def test_public_dataset_loads_its_config_and_marks_future_transform(
-    tmp_path: Path,
-    dataset_type: type[PreprocessedDataset],
-    method: str,
-    checkpoint: int,
-) -> None:
-    _write_trial(tmp_path)
-    dataset = dataset_type(tmp_path, cache_policy=None, source_cache_policy=None)
-
-    assert dataset.config.method == method
-    with pytest.raises(NotImplementedError, match=f"checkpoint {checkpoint}"):
-        dataset[0]
-
-
 def test_fft_dataset_supports_indexing_dtype_shape_and_cache_reuse(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -222,7 +207,7 @@ def test_fft_dataset_supports_indexing_dtype_shape_and_cache_reuse(
             np.sin(2.0 * np.pi * 20.0 * time),
         )
     )
-    _write_trial(dataset_dir, eeg=eeg)
+    _write_trial(dataset_dir, eeg=eeg, sfreq=sfreq)
     dataset = FFTDataset(
         dataset_dir,
         config_overrides={"analysis_sfreq": sfreq},
@@ -272,7 +257,7 @@ def test_morlet_dataset_supports_time_axis_and_cache_reuse(
             np.sin(2.0 * np.pi * 20.0 * time),
         )
     )
-    _write_trial(dataset_dir, eeg=eeg)
+    _write_trial(dataset_dir, eeg=eeg, sfreq=sfreq)
     dataset = MorletDataset(
         dataset_dir,
         config_overrides={"analysis_sfreq": sfreq},
@@ -351,6 +336,55 @@ def test_superlet_dataset_supports_time_axis_and_cache_reuse(
     cached_dataset = SuperletDataset(
         dataset_dir,
         config_overrides={"analysis_sfreq": sfreq},
+        cache_dir=cache_dir,
+        source_cache_policy=None,
+    )
+    cached = cached_dataset[0]
+
+    np.testing.assert_array_equal(cached.eeg_power, by_index.eeg_power)
+    np.testing.assert_array_equal(cached.times, by_index.times)
+
+
+def test_stft_dataset_supports_time_axis_and_cache_reuse(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    dataset_dir = tmp_path / "dataset"
+    cache_dir = tmp_path / "spectral-cache"
+    sfreq = 125.0
+    time = np.arange(1_000, dtype=np.float64) / sfreq
+    eeg = np.stack(
+        (
+            np.sin(2.0 * np.pi * 10.0 * time),
+            np.sin(2.0 * np.pi * 20.0 * time),
+        )
+    )
+    _write_trial(dataset_dir, eeg=eeg, sfreq=sfreq)
+    dataset = STFTDataset(
+        dataset_dir,
+        cache_dir=cache_dir,
+        source_cache_policy=None,
+    )
+
+    by_index = dataset[0]
+    by_key = dataset[1, 1, 1]
+
+    assert by_index.eeg_power.shape == (2, 39, 24)
+    assert by_index.eeg_power.dtype == np.float32
+    assert by_index.frequencies.dtype == np.float32
+    assert by_index.times is not None
+    assert by_index.times.dtype == np.float32
+    assert by_index.method == "stft"
+    assert by_index.scaling == "psd"
+    np.testing.assert_array_equal(by_key.eeg_power, by_index.eeg_power)
+    np.testing.assert_array_equal(by_key.times, by_index.times)
+
+    def fail_transform(self: STFTDataset, loaded: LoadedSample) -> SpectralTransformResult:
+        raise AssertionError("STFT transform should not run when the disk cache is valid")
+
+    monkeypatch.setattr(STFTDataset, "_transform", fail_transform)
+    cached_dataset = STFTDataset(
+        dataset_dir,
         cache_dir=cache_dir,
         source_cache_policy=None,
     )

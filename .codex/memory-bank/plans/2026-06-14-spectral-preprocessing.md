@@ -2,7 +2,7 @@
 
 Status: active
 Last updated: 2026-06-14
-Next checkpoint: 7 - STFT
+Next checkpoint: 8 - Comparative Visualization Notebook
 
 ## Documentation Rule
 
@@ -84,17 +84,21 @@ Before using a new library API:
   axes, validation, dataset integration, and cache reuse.
 - Verified the complete repository with Ruff and 105 passing tests.
 
-Handoff state: checkpoints 1-6 are complete. Continue in a new chat from checkpoint 7 without
-reimplementing or revalidating Superlet unless its contract is changed.
+Handoff state: checkpoints 1-7 are complete. Continue in a new chat from checkpoint 8 without
+reimplementing or revalidating individual transforms unless their contracts are changed.
 
-### 7. STFT - Pending
+### 7. STFT - Completed
 
-- Use `scipy.signal.ShortTimeFFT.from_window`.
-- Use a periodic 2 s Hann window, 32-sample hop, `mfft=250`, `fft_mode="onesided2X"`, and
-  PSD scaling.
-- Exclude padded border slices through `lower_border_end` and `upper_border_begin`.
-- Create and execute `notebooks/2.4-stft.ipynb`.
-- Test axes, PSD scaling, and synthetic burst localization.
+- Implemented `scipy.signal.ShortTimeFFT.from_window` with a periodic 2 s Hann window,
+  32-sample hop, `mfft=250`, `fft_mode="onesided2X"`, and PSD scaling.
+- Excluded padded border slices through `lower_border_end` and `upper_border_begin`.
+- Reused power-preserving density overlap rebinning to map the native 0.5 Hz STFT grid onto the
+  exact 2-40 Hz, 1 Hz project grid.
+- Created and executed `notebooks/2.4-stft.ipynb` on synthetic bursts, a stationary scaling check,
+  and one canonical block from each recording family.
+- Tested axes, minimum valid signal length, PSD integration, burst localization, dataset
+  integration, and cache reuse.
+- Verified the complete repository with Ruff and 110 passing tests.
 
 ### 8. Comparative Visualization Notebook - Pending
 

@@ -23,6 +23,7 @@ from preprocessors.config import (
 from preprocessors.fft import compute_fft_psd
 from preprocessors.morlet import compute_morlet_power
 from preprocessors.schemas import SpectralTransformResult
+from preprocessors.stft import compute_stft_psd
 from preprocessors.superlet import compute_superlet_power
 from utils.datasets.base import SampleKey, SourceMap
 from utils.datasets.numpy_dataset import NumpyDataset
@@ -431,4 +432,8 @@ class STFTDataset(PreprocessedDataset):
     CONFIG_TYPE = STFTConfig
 
     def _transform(self, loaded: LoadedSample) -> SpectralTransformResult:
-        raise NotImplementedError("STFT transform is implemented at spectral preprocessing checkpoint 7")
+        return compute_stft_psd(
+            loaded.eeg,
+            source_sfreq=loaded.sfreq,
+            config=self.config,
+        )

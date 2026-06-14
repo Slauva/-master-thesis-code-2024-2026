@@ -52,3 +52,21 @@
   in complex coefficients; Ruff passed and `uv run pytest` reported 105 passed.
 - Interpretation boundary: this validates close-frequency resolution and storage contracts only;
   display-relative dB values are not cached or treated as ML features.
+
+## 2026-06-14 - STFT checkpoint validation
+
+- Code/config: `preprocessors/stft.py`, `STFTDataset`, default `confs/preprocessing/stft.yaml`, and
+  executed `notebooks/2.4-stft.ipynb`.
+- Data: deterministic synthetic 10 Hz and 25 Hz bursts, a stationary 10 Hz sine, and canonical key
+  `(1, 1, 1)` from both `Data_Train/exec` and `Data_Pattern/patt`; no ML split or model was involved.
+- Preprocessing: resample to 125 Hz, periodic 2 s Hann, 32-sample hop, `mfft=250`,
+  `fft_mode="onesided2X"`, PSD scaling, exclusion of padded border slices, and power-preserving
+  overlap rebinning from the native 0.5 Hz grid to 2-40 Hz in 1 Hz steps.
+- Synthetic results: both bursts were recovered at the correct frequencies and inside their
+  generating intervals. Integrated PSD of an amplitude-2 stationary sine equaled its expected
+  mean square of 2.0 for every retained time slice.
+- Real outputs: `exec` produced `(63, 39, 55)` and `patt` produced `(63, 39, 94)` `float32` arrays
+  with a 0.256 s time step. Cache entries were about 531 KiB and 905 KiB, respectively.
+- Verification: `uv run ruff check .` passed and `uv run pytest` reported 110 passed.
+- Interpretation boundary: this validates time-frequency localization, density scaling, border
+  handling, and storage contracts only; logarithmic display values are not cached features.

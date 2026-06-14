@@ -64,3 +64,11 @@
   derive time coordinates from the same sample-index contract.
 - Do not make cache-path tests depend on whether generated artifacts already exist; notebook
   execution and normal dataset access may legitimately populate default cache locations.
+- Compute STFT PSD with `scipy.signal.ShortTimeFFT.from_window`, a periodic 2 s Hann window,
+  32-sample hop, `mfft=250`, `fft_mode="onesided2X"`, and `scale_to="psd"`.
+- Retain only STFT slices from `lower_border_end[1]` through
+  `upper_border_begin(n_samples)[1]`; padded border slices must not enter stored features.
+- Rebin STFT density from its native 0.5 Hz grid to the exact 2-40 Hz, 1 Hz output grid by
+  frequency-cell overlap. Share the power-preserving density rebinning implementation with FFT;
+  selecting every second native bin is invalid because it does not preserve integrated power.
+- Require `window_seconds * analysis_sfreq` to be an integer number of samples in STFT configs.

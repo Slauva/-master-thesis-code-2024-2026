@@ -12,7 +12,7 @@ Dataset API stages 0-6 are implemented:
 - Registered the standalone Data Analytics semantic layer
   `eeg-dataset-ml-experiments-semantic-layer` for dataset and experiment interpretation.
 
-Spectral preprocessing checkpoints 1-6 are complete:
+Spectral preprocessing checkpoints 1-7 are complete:
 
 - `notebooks/2.0-dataset-overview.ipynb` is executed top-to-bottom.
 - Full-corpus FIF metadata were audited for all 1,800 canonical blocks.
@@ -48,16 +48,27 @@ Spectral preprocessing checkpoints 1-6 are complete:
 - Real Superlet outputs have shapes `(63, 39, 50)` for the demonstrated `exec` block and
   `(63, 39, 89)` for the demonstrated `patt` block, with a 0.256 s time step.
 - Demonstrated Superlet cache entries occupy about 483 KiB for `exec` and 857 KiB for `patt`.
+- Implemented STFT PSD with a periodic 2 s Hann window, 32-sample hop, `mfft=250`,
+  `fft_mode="onesided2X"`, and exclusion of every slice affected by border padding.
+- Shared power-preserving density rebinning between FFT and STFT; STFT native 0.5 Hz bins are
+  rebinned onto the exact 2-40 Hz, 1 Hz output grid instead of being subsampled.
+- Added and executed `notebooks/2.4-stft.ipynb`; synthetic 10 Hz and 25 Hz bursts were localized
+  at the correct frequencies and intervals, while integrated stationary-sine PSD recovered the
+  expected mean square.
+- Real STFT outputs have shapes `(63, 39, 55)` for the demonstrated `exec` block and
+  `(63, 39, 94)` for the demonstrated `patt` block, with a 0.256 s time step.
+- Demonstrated STFT cache entries occupy about 531 KiB for `exec` and 905 KiB for `patt`.
 - Planned `notebooks/2.5-spectral-methods-comparison.ipynb` as the shared visual comparison of all
   four transforms after their implementations are complete.
 - The current implementation plan is stored in
   `.codex/memory-bank/plans/2026-06-14-spectral-preprocessing.md`.
-- Checkpoint 6 is complete; the next chat should start directly with checkpoint 7 (STFT).
+- Checkpoint 7 is complete; the next chat should start directly with checkpoint 8 (comparison).
 
 ## Next Actions
 
-- Implement and demonstrate checkpoint 7: the STFT time-frequency representation.
-- Create and execute `notebooks/2.4-stft.ipynb`, then stop for review before the comparison notebook.
+- Implement and execute `notebooks/2.5-spectral-methods-comparison.ipynb` for checkpoint 8.
+- Use identical synthetic and real inputs across all four methods and keep cross-method display
+  normalization explicitly separate from stored features.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
 - Benchmark full-corpus cache warmup only when operational timing is needed.
