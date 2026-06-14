@@ -124,8 +124,33 @@ Project planning workflow:
 - Quantitative or scientific results that benefit from visualization use the
   `data-analytics:jupyter-notebooks` workflow and an executed notebook under `notebooks/`.
 
+EEG feature extraction:
+
+- The approved staged implementation plan is stored in
+  `.codex/memory-bank/plans/2026-06-14-eeg-feature-extraction.md`.
+- Stage 1, contracts and configuration, is completed.
+- Stage 2, classical time, spectral, and spatial features, is completed.
+- Stage 3, Jaiswal-Banka local patterns, is implemented and awaiting review.
+- Added strict feature configuration, exact imagery crop/window layouts, modular feature schemas,
+  stable flattening, and versioned config hashing.
+- Verified the default `[0.5, 15.5)` crop on canonical `exec` and `patt` samples; both produce
+  `(63, 15000)` before resampling.
+- Added 13 time features, band-power/spectral summaries, OAS covariance, correlation, and
+  log-covariance with finite constant-signal handling.
+- Canonical `Data_Pattern/patt` extraction produces finite blocks with expected 63-channel shapes.
+- Added and executed `notebooks/4.0-classical-features.ipynb` with synthetic checks, spatial
+  matrices, and a full-epoch versus six-window real imagery demonstration.
+- Added vectorized per-channel LNDP, 1D-LGP, and 1D-LBP with count or probability histograms,
+  complete neighborhoods, and the paper's exact bit order.
+- Added and executed `notebooks/4.1-local-patterns.ipynb`; published examples reproduce LNDP code
+  7 and 1D-LGP code 224, while the canonical imagery block produces finite `(1/6, 63, 256)`
+  histograms.
+- Ruff passes and the full suite reports 202 passed and 2 skipped.
+
 ## Next Actions
 
+- Obtain explicit review approval for feature-extraction stage 3 before starting dataset/cache
+  integration.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
 - Define whether training examples are whole blocks or fixed windows after the split policy is set.

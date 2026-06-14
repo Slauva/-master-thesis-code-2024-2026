@@ -1,5 +1,26 @@
 # Experiments
 
+## 2026-06-14 - Classical and local-pattern feature validation
+
+- Artifacts: executed `notebooks/4.0-classical-features.ipynb` and
+  `notebooks/4.1-local-patterns.ipynb`.
+- Synthetic classical checks: amplitude-2 10 Hz and amplitude-1 20 Hz tones recovered alpha power
+  2.0 and beta power 0.5, with dominant frequencies at 10 Hz and 20 Hz. OAS covariance,
+  correlation, and log-covariance were finite and symmetric.
+- Article checks: the exact Fig. 3 segment produced LNDP code 7 and the exact Fig. 4 segment
+  produced 1D-LGP code 224 for `m=8`.
+- Local-pattern contract: complete neighborhoods only, 256-bin per-channel histograms, raw-count
+  support, and L1 probability mode by default. Synthetic codes were unchanged by a global offset.
+- Real data: canonical `Data_Pattern/patt` key `(1, 1, 1)` produced finite full-epoch blocks with
+  shapes `(1, 63, 13)`, `(1, 63, 14)`, three `(1, 63, 63)` matrices, and three
+  `(1, 63, 256)` local-pattern histograms. Five-second windows with 2 s stride produced six
+  windows for every family.
+- Verification: both notebooks executed without errors and were visually inspected;
+  `uv run ruff check .` passed and `uv run pytest` reported 202 passed and 2 skipped.
+- Interpretation boundary: this validates extraction mechanics and transfer to multi-channel
+  imagery EEG only. It does not reproduce the article's seizure-classification accuracy and does
+  not evaluate any predictive model.
+
 ## 2026-06-14 - FFT checkpoint validation
 
 - Code/config: `preprocessors/fft.py`, `FFTDataset`, default `confs/preprocessing/fft.yaml`, and

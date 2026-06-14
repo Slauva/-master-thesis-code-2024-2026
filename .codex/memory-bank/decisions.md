@@ -98,3 +98,39 @@
 - Use the `data-analytics:jupyter-notebooks` workflow for reproducible visualization of
   quantitative or scientific stage results; execute notebooks top-to-bottom before treating their
   outputs as evidence.
+- Configure EEG feature extraction through `confs/features/default.yaml`, resolve it with
+  OmegaConf, and validate it with a frozen Pydantic model that rejects unsupported fields.
+- Apply the canonical imagery crop as the half-open source interval `[0.5, 15.5)` before
+  resampling. Require crop and optional window boundaries to resolve to exact integer samples.
+- Treat `window_seconds=None` as one full-crop window. When windowing is enabled, require both
+  window length and stride, retain complete windows only, and never pad a partial trailing window.
+- Store extracted features as modular three-dimensional blocks: `(window, channel, feature/code)`
+  for per-channel values and histograms, or `(window, channel, channel)` for spatial matrices.
+- Flatten modular feature blocks in explicit block, channel, then feature/code order. Vectorize
+  symmetric channel matrices from the upper triangle and multiply off-diagonal entries by
+  `sqrt(2)` to preserve the Frobenius inner product.
+- Include the resolved feature configuration plus cache-schema and extractor versions in a
+  deterministic feature cache identity. Keep generated feature artifacts under
+  `artifacts/features/`.
+- Compute feature working arrays in float64 after applying the source-rate imagery crop and
+  polyphase resampling; cast only completed feature blocks to the configured output dtype.
+- Define normalized line length as the mean absolute first difference and zero-crossing rate as
+  the proportion of adjacent raw samples whose sign bit changes.
+- Compute skewness and excess kurtosis from population central moments. Return zero for undefined
+  ratios on constant signals, including Hjorth mobility/complexity.
+- Derive feature band powers from the established one-sided Hann density FFT on a 1 Hz grid.
+  Integrate frequency-cell overlap against half-open band intervals, normalize relative powers by
+  total configured-band-range power, and report normalized spectral entropy.
+- Estimate each window's spatial covariance with sklearn OAS using time samples as observations
+  and channels as features. Derive correlation from the OAS covariance and log-covariance through
+  a symmetric eigendecomposition with a relative eigenvalue floor.
+- Represent all-zero covariance, correlation, and log-covariance as finite zero matrices rather
+  than emitting undefined values.
+- Implement LNDP using chronological windows ordered as `P_m, ..., P_0`, including the center
+  sample in consecutive differences. Assign bit zero to `P_1 - P_0`, exactly as shown in Fig. 3
+  of Jaiswal and Banka (2017).
+- Implement 1D-LGP and 1D-LBP over the same chronological neighborhood, excluding the center from
+  the `m` neighbors and assigning bit zero to the rightmost neighbor `P_0`.
+- Generate local-pattern codes only where the complete `m/2` context exists on both sides; do not
+  pad signal boundaries. Use raw counts for paper-style reproduction and L1 probability
+  histograms by default so different window lengths remain comparable.

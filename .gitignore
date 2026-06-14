@@ -21,3 +21,4 @@ data/**
 # Generated dataset cache.
 artifacts/cache/
 artifacts/preprocessed/
+artifacts/features/
