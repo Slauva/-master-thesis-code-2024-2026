@@ -16,3 +16,6 @@
 - Use atomic per-sample `.npy` disk-cache writes plus an optional process-local bounded LRU.
 - Make cache warmup explicit through `warm_cache()`; constructors must not start heavy preload work.
 - Use process workers only for disk-cache generation. Parent-process RAM cache remains local and is populated by normal sample access.
+- Keep reusable EEG dataset and experiment semantics in the standalone
+  `eeg-dataset-ml-experiments-semantic-layer`; do not infer a scientific train/test split from
+  `Data_Train` and `Data_Pattern` names.

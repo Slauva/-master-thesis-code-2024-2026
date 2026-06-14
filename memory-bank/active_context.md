@@ -9,6 +9,8 @@ Dataset API stages 0-5 are implemented:
 - Versioned atomic disk cache and bounded in-process LRU cache.
 - Explicit sequential or multiprocessing disk-cache warmup with structured reports.
 - Executed tutorial notebooks `notebooks/1.0` through `notebooks/1.4`.
+- Registered the standalone Data Analytics semantic layer
+  `eeg-dataset-ml-experiments-semantic-layer` for dataset and experiment interpretation.
 
 ## Next Actions
 
