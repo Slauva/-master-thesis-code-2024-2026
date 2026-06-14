@@ -1,0 +1,19 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Local Codex configuration may contain secrets.
+.codex/config.toml
+
+.ruff_cache
+.pytest_cache
+data/**
+
+.vscode/
