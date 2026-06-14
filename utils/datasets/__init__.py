@@ -1,3 +1,5 @@
+from typing import Any
+
 from utils.datasets.base import DatasetBase
 from utils.datasets.numpy_dataset import NumpyDataset
 from utils.datasets.preprocessed import FFTDataset, MorletDataset, PreprocessedDataset, STFTDataset, SuperletDataset
@@ -21,6 +23,7 @@ __all__ = [
     "CacheWarmupError",
     "CacheWarmupReport",
     "DatasetBase",
+    "FeatureDataset",
     "FFTDataset",
     "MorletDataset",
     "NumpyDataset",
@@ -41,3 +44,11 @@ __all__ = [
     "GeometricSample",
     "RandomSample",
 ]
+
+
+def __getattr__(name: str) -> Any:
+    if name == "FeatureDataset":
+        from utils.datasets.feature_dataset import FeatureDataset
+
+        return FeatureDataset
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

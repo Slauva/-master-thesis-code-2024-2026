@@ -134,3 +134,17 @@
 - Generate local-pattern codes only where the complete `m/2` context exists on both sides; do not
   pad signal boundaries. Use raw counts for paper-style reproduction and L1 probability
   histograms by default so different window lengths remain comparable.
+- Keep `FeatureDataset` scoped to exactly one source `NumpyDataset` and one `exec` or `patt`
+  recording family. Do not accept a pooled multi-family input implicitly.
+- Store each extracted feature block as its own atomic `.npy` file and write the shared feature
+  manifest last. Isolate cache roots by dataset name, recording family, source dtype, and the
+  versioned resolved-feature-config hash.
+- Invalidate feature cache entries when schema/extractor version, resolved config, source dtype,
+  either FIF signature, source sampling rate, channel order, block schema, shape, or dtype differs.
+- Check the feature manifest and current FIF signatures before materializing source arrays.
+  Load through `NumpyDataset` only when the feature entry is absent, stale, incomplete, or corrupt.
+- Export sklearn rows at window grain while repeating the canonical parent
+  `(subject_id, trial_number, block_index)` key for every child window. Keep the recording family,
+  zero-based window index, and absolute bounds alongside `X`.
+- Keep scaling, PCA, feature selection, targets, and all learned transforms outside
+  `FeatureDataset` and `build_feature_matrix(...)`; fit them only within training folds.

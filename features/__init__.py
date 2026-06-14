@@ -14,6 +14,8 @@ from features.config import (
     build_feature_config_hash,
     load_feature_config,
 )
+from features.export import FeatureSetDataset, build_feature_matrix
+from features.extractor import extract_feature_set
 from features.local_patterns import (
     build_code_histograms,
     compute_lbp_codes,
@@ -21,7 +23,15 @@ from features.local_patterns import (
     compute_lndp_codes,
     extract_local_pattern_features,
 )
-from features.schemas import FeatureBlock, FeatureLayout, FeatureSet, flatten_feature_set
+from features.schemas import (
+    FeatureBlock,
+    FeatureLayout,
+    FeatureMatrix,
+    FeatureSet,
+    RecordingFamily,
+    SampleKey,
+    flatten_feature_set,
+)
 from features.windowing import CropResult, WindowLayout, build_window_layout, crop_eeg
 
 __all__ = [
@@ -30,12 +40,17 @@ __all__ = [
     "FeatureExtractionConfig",
     "FeatureGroup",
     "FeatureLayout",
+    "FeatureMatrix",
     "FeatureSet",
+    "FeatureSetDataset",
     "FrequencyBand",
     "HistogramMode",
     "PreparedFeatureWindows",
+    "RecordingFamily",
+    "SampleKey",
     "WindowLayout",
     "build_feature_config_hash",
+    "build_feature_matrix",
     "build_code_histograms",
     "build_window_layout",
     "compute_lbp_codes",
@@ -43,6 +58,7 @@ __all__ = [
     "compute_lndp_codes",
     "crop_eeg",
     "extract_classical_feature_blocks",
+    "extract_feature_set",
     "extract_local_pattern_features",
     "extract_spatial_features",
     "extract_spectral_features",

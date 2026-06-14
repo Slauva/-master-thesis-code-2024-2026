@@ -2,7 +2,7 @@
 
 Status: in_progress
 Last updated: 2026-06-14
-Next stage: 3 - Jaiswal-Banka Local Patterns (Awaiting Review)
+Next stage: 4 - Dataset Cache And Sklearn Export (Awaiting Review)
 
 ## Goal
 
@@ -106,7 +106,7 @@ Verification:
 - Notebook integration checks require stored execution counts, no error outputs, explicit imagery
   source/window configuration, and the `CLASSICAL_FEATURES_VERIFIED` marker.
 
-### 3. Jaiswal-Banka Local Patterns - Awaiting Review
+### 3. Jaiswal-Banka Local Patterns - Completed
 
 - Objective: Implement LNDP, 1D-LGP, and comparison 1D-LBP per channel.
 - Deliverables: vectorized code generation, count/probability histograms, paper-example tests.
@@ -141,7 +141,7 @@ Verification:
 - `uv run pytest`: 202 passed, 2 skipped; two existing Python 3.13 multiprocessing `fork()`
   deprecation warnings remain.
 
-### 4. Dataset Cache And Sklearn Export - Pending
+### 4. Dataset Cache And Sklearn Export - Awaiting Review
 
 - Objective: Integrate feature extraction with `NumpyDataset`, atomic modular caches, and deterministic matrix export.
 - Deliverables: `FeatureDataset`, cache manifests, `build_feature_matrix`.
@@ -149,6 +149,47 @@ Verification:
 - Verification: cache reuse/invalidation/corruption tests and integration tests for both families.
 - Completion criteria: selected groups round-trip through cache and export with stable names and metadata.
 - Review gate: Stop and wait for explicit user approval.
+
+Implemented:
+
+- Added a common `extract_feature_set(...)` orchestrator that prepares the signal once and emits
+  configured feature groups in explicit configuration order.
+- Added `FeatureDataset` as a typed wrapper over one `NumpyDataset` and one recording family.
+  Integer/tuple indexing, iteration, `samples`, and `source_map` remain available.
+- Added modular per-block `.npy` cache files plus `window_bounds_seconds.npy`; the manifest is
+  written last and records config, schema/extractor versions, source dtype, both FIF signatures,
+  source/analysis sampling rates, channels, layouts, names, shapes, and dtypes.
+- A valid feature-cache hit is resolved from source metadata and FIF signatures before source
+  arrays are loaded; `NumpyDataset` materializes EEG/EOG only on cache miss or invalidation.
+- Cache paths are isolated by dataset name, recording family, source dtype, and versioned config
+  hash under `artifacts/features/`. Missing, incomplete, stale, or corrupt entries are rebuilt.
+- Added typed `FeatureMatrix` and `build_feature_matrix(...)`. Every row retains its parent
+  `(subject, trial, block)` key, zero-based window index, absolute window bounds, and recording
+  family. Explicit block selection controls deterministic concatenation order.
+- Added and executed `notebooks/4.2-feature-dataset-export.ipynb` as a bounded tutorial over
+  canonical key `(1, 1, 1)` from both recording families. It verifies a cache hit without source
+  array loading and demonstrates separate window-level exports.
+- Scaling, PCA, feature selection, labels, targets, and split fitting remain outside extraction.
+
+Verification:
+
+- Focused feature/cache tests: 58 passed.
+- Cache tests cover valid reuse without source-array loading or extraction, source-signature
+  invalidation, corrupt-array rebuilding, config/extractor-version separation, and `exec/patt`
+  path isolation.
+- Export tests verify stable names, repeated parent keys for child windows, window indices/bounds,
+  and selected-block shapes.
+- Canonical key `(1, 1, 1)` from both `Data_Train/exec` and `Data_Pattern/patt` produced eight
+  finite `float32` blocks and separate generated cache entries.
+- A selected `time+spectral` export from each canonical block produced shape `(1, 1701)` with
+  stable names and preserved source/window metadata.
+- The executed windowed notebook produced six rows and 17,829 selected columns per family for
+  `time+spectral+lndp`, with identical feature names but separate `FeatureMatrix` objects.
+- The notebook contains no error outputs, emits `FEATURE_DATASET_EXPORT_VERIFIED`, and its two
+  charts were visually inspected.
+- `uv run ruff check .`: passed.
+- `uv run pytest`: 211 passed, 2 skipped; two existing Python 3.13 multiprocessing `fork()`
+  deprecation warnings remain.
 
 ### 5. Scientific Validation - Pending
 
@@ -183,3 +224,8 @@ Verification:
 - 2026-06-14: Classical feature notebook executed and inspected; stage 2 completed and stage 3 started.
 - 2026-06-14: Stage 3 implemented, executed, visually inspected, and verified; awaiting explicit
   user approval before stage 4.
+- 2026-06-14: User approved stage 3 and requested continuation; stage 4 started.
+- 2026-06-14: Stage 4 implemented and verified on synthetic and canonical `exec/patt` samples;
+  awaiting explicit user approval before stage 5.
+- 2026-06-14: User requested a stage 4 notebook; the FeatureDataset/cache/export tutorial was
+  executed, inspected, and added to automated notebook acceptance tests.

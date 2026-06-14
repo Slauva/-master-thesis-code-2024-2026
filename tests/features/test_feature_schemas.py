@@ -147,6 +147,13 @@ def test_feature_set_rejects_channel_or_window_mismatch(block: FeatureBlock) -> 
 
 
 def test_feature_block_rejects_invalid_shape_names_or_values() -> None:
+    with pytest.raises(ValueError, match="Unsupported feature block layout"):
+        FeatureBlock(
+            name="time",
+            layout="invalid",  # type: ignore[arg-type]
+            values=np.ones((1, 2, 1), dtype=np.float32),
+            feature_names=("value",),
+        )
     with pytest.raises(ValueError, match="three-dimensional"):
         FeatureBlock(
             name="time",

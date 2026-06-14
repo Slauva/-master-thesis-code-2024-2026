@@ -17,6 +17,17 @@ import pytest
             ("Data_Pattern", '"patt"', "compute_lndp_codes", "compute_lgp_codes"),
             "LOCAL_PATTERNS_VERIFIED",
         ),
+        (
+            "4.2-feature-dataset-export.ipynb",
+            (
+                "Data_Train",
+                "Data_Pattern",
+                "FeatureDataset",
+                "build_feature_matrix",
+                "sample_keys",
+            ),
+            "FEATURE_DATASET_EXPORT_VERIFIED",
+        ),
     ],
 )
 def test_feature_notebook_is_executed_and_validated(

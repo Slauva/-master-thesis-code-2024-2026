@@ -1,5 +1,24 @@
 # Experiments
 
+## 2026-06-14 - FeatureDataset cache and sklearn export validation
+
+- Artifact: executed `notebooks/4.2-feature-dataset-export.ipynb`.
+- Data: canonical key `(1, 1, 1)` from `Data_Train/exec` and `Data_Pattern/patt`, kept as separate
+  datasets and exports.
+- Configuration: crop `[0.5, 15.5)`, 125 Hz analysis rate, six complete 5 s windows with 2 s
+  stride, default `float32` output.
+- Cache check: each family was first extracted into an isolated temporary modular cache. A second
+  `FeatureDataset` loaded the same arrays while its source-array loader was configured to raise,
+  confirming that valid feature-cache hits do not materialize source EEG/EOG.
+- Export: selecting `time`, `spectral`, and `lndp` produced shape `(6, 17829)` per family:
+  819 time columns, 882 spectral columns, and 16,128 LNDP columns. Every row retained parent key
+  `(1, 1, 1)`, window index `0..5`, and absolute bounds from `[0.5, 5.5)` through `[10.5, 15.5)`.
+- Verification: seven code cells executed without errors, emitted
+  `FEATURE_DATASET_EXPORT_VERIFIED`, and both charts were visually inspected. Ruff passed and the
+  full suite reported 211 passed and 2 skipped.
+- Interpretation boundary: timings are illustrative single-run infrastructure observations, not a
+  performance benchmark. No target, split, scaling, PCA, feature selection, or model was fitted.
+
 ## 2026-06-14 - Classical and local-pattern feature validation
 
 - Artifacts: executed `notebooks/4.0-classical-features.ipynb` and

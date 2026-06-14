@@ -7,6 +7,8 @@ from numpy.typing import NDArray
 from utils.datasets.schemas import Sample
 
 FeatureLayout = Literal["channel_features", "channel_matrix", "channel_histogram"]
+RecordingFamily = Literal["exec", "patt"]
+SampleKey = tuple[int, int, int]
 
 
 @dataclass(frozen=True, slots=True)
@@ -19,6 +21,8 @@ class FeatureBlock:
     def __post_init__(self) -> None:
         if not self.name:
             raise ValueError("Feature block name must not be empty")
+        if self.layout not in ("channel_features", "channel_matrix", "channel_histogram"):
+            raise ValueError(f"Unsupported feature block layout: {self.layout!r}")
         if self.values.ndim != 3:
             raise ValueError("Feature block values must be three-dimensional")
         if not np.issubdtype(self.values.dtype, np.floating):
@@ -72,6 +76,44 @@ class FeatureSet:
                 raise ValueError("Every feature block channel axis must match `eeg_channels`")
             if block.layout == "channel_matrix" and block.values.shape[2] != n_channels:
                 raise ValueError("Channel matrices must match `eeg_channels` on both matrix axes")
+
+
+@dataclass(frozen=True, slots=True)
+class FeatureMatrix:
+    X: NDArray[np.floating[Any]]
+    feature_names: tuple[str, ...]
+    sample_keys: tuple[SampleKey, ...]
+    window_indices: NDArray[np.int64]
+    window_bounds_seconds: NDArray[np.float64]
+    recording_family: RecordingFamily
+
+    def __post_init__(self) -> None:
+        if self.X.ndim != 2:
+            raise ValueError("Feature matrix `X` must be two-dimensional")
+        if not np.issubdtype(self.X.dtype, np.floating):
+            raise TypeError("Feature matrix `X` must have a floating-point dtype")
+        if not np.isfinite(self.X).all():
+            raise ValueError("Feature matrix `X` must contain only finite values")
+        if len(self.feature_names) != self.X.shape[1]:
+            raise ValueError("Feature names must match the columns of `X`")
+
+        n_rows = self.X.shape[0]
+        if len(self.sample_keys) != n_rows:
+            raise ValueError("Sample keys must match the rows of `X`")
+        if self.window_indices.shape != (n_rows,):
+            raise ValueError("Window indices must have shape (row,)")
+        if self.window_indices.dtype != np.dtype(np.int64):
+            raise TypeError("Window indices must use int64")
+        if np.any(self.window_indices < 0):
+            raise ValueError("Window indices must be non-negative")
+        if self.window_bounds_seconds.shape != (n_rows, 2):
+            raise ValueError("Window bounds must have shape (row, 2)")
+        if not np.isfinite(self.window_bounds_seconds).all():
+            raise ValueError("Window bounds must contain only finite values")
+        if np.any(self.window_bounds_seconds[:, 1] <= self.window_bounds_seconds[:, 0]):
+            raise ValueError("Every matrix row must have positive-duration window bounds")
+        if self.recording_family not in ("exec", "patt"):
+            raise ValueError(f"Unsupported recording family: {self.recording_family!r}")
 
 
 def flatten_feature_set(

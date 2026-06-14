@@ -130,7 +130,8 @@ EEG feature extraction:
   `.codex/memory-bank/plans/2026-06-14-eeg-feature-extraction.md`.
 - Stage 1, contracts and configuration, is completed.
 - Stage 2, classical time, spectral, and spatial features, is completed.
-- Stage 3, Jaiswal-Banka local patterns, is implemented and awaiting review.
+- Stage 3, Jaiswal-Banka local patterns, is completed.
+- Stage 4, dataset cache and sklearn export, is implemented and awaiting review.
 - Added strict feature configuration, exact imagery crop/window layouts, modular feature schemas,
   stable flattening, and versioned config hashing.
 - Verified the default `[0.5, 15.5)` crop on canonical `exec` and `patt` samples; both produce
@@ -145,12 +146,23 @@ EEG feature extraction:
 - Added and executed `notebooks/4.1-local-patterns.ipynb`; published examples reproduce LNDP code
   7 and 1D-LGP code 224, while the canonical imagery block produces finite `(1/6, 63, 256)`
   histograms.
-- Ruff passes and the full suite reports 202 passed and 2 skipped.
+- Added common `extract_feature_set(...)`, `FeatureDataset`, modular atomic feature caching, typed
+  `FeatureMatrix`, and `build_feature_matrix(...)`.
+- Feature cache identity covers dataset/family, source dtype, resolved config, schema/extractor
+  versions, and both source FIF signatures. Every exported window retains its parent sample key,
+  window index, absolute bounds, and recording family.
+- Valid feature-cache hits are resolved before source EEG/EOG arrays are loaded.
+- Canonical `exec` and `patt` key `(1, 1, 1)` each produce eight finite cached feature blocks;
+  selected `time+spectral` export has shape `(1, 1701)`.
+- Added and executed `notebooks/4.2-feature-dataset-export.ipynb`. With 5 s windows and 2 s stride,
+  each family exports six rows and 17,829 `time+spectral+lndp` columns while preserving parent
+  keys, indices, and bounds; a cache hit is demonstrated without source-array loading.
+- Ruff passes and the full suite reports 211 passed and 2 skipped.
 
 ## Next Actions
 
-- Obtain explicit review approval for feature-extraction stage 3 before starting dataset/cache
-  integration.
+- Obtain explicit review approval for feature-extraction stage 4 before starting final scientific
+  validation.
 - Define canonical train/validation/test split policy.
 - Decide how labels from `labels.json` map to targets.
 - Define whether training examples are whole blocks or fixed windows after the split policy is set.
