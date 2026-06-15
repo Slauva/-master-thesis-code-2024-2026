@@ -21,6 +21,7 @@ from experiments.logistic_regression.config import (
 )
 from experiments.logistic_regression.schemas import (
     AlignedFeaturePartition,
+    EvaluationDirection,
     FittedPixelModel,
     FittedPixelModels,
     GridCandidateScore,
@@ -232,7 +233,7 @@ def run_per_pixel_grid_search(
     dataset: FeatureSetDataset,
     *,
     targets: PixelTargetDataset,
-    split: SubjectSplit,
+    split: SubjectSplit | EvaluationDirection,
     block_names: tuple[str, ...],
     cross_validation_config: CrossValidationConfig,
     grid_search_config: GridSearchConfig,

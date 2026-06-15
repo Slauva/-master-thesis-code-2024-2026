@@ -14,9 +14,20 @@ dependencies = [
     "pydantic>=2.12.5",
     "scikit-learn>=1.9.0",
     "scipy>=1.17.1",
+    "seaborn>=0.13.2",
     "torch>=2.12.0",
     "torchvision>=0.27.0",
 ]
+
+[project.scripts]
+logistic-regression = "experiments.logistic_regression.cli:main"
+
+[build-system]
+requires = ["setuptools>=81"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["experiments*", "features*", "preprocessors*", "utils*"]
 
 [tool.ruff]
 line-length = 119

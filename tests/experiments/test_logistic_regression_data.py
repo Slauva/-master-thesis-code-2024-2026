@@ -5,9 +5,12 @@ import pytest
 
 from experiments.logistic_regression import (
     SubjectSplit,
+    audit_evaluation_direction,
     audit_subject_split,
+    build_evaluation_protocol,
     build_random_imagery_targets,
     create_subject_split,
+    create_within_subject_protocol,
     load_logistic_regression_config,
 )
 from utils.datasets import GeometricSample, NumpyDataset, RandomSample
@@ -145,3 +148,77 @@ def test_real_random_imagery_split_matches_fixed_protocol() -> None:
     assert audit.train_positive_counts.max() == 81
     assert audit.test_positive_counts.min() == 14
     assert audit.test_positive_counts.max() == 26
+
+
+def test_real_evaluation_protocols_match_fixed_counts_and_leakage_contracts() -> None:
+    config = load_logistic_regression_config()
+    dataset = NumpyDataset(
+        config.dataset.dataset_dir,
+        dataset_step_type=config.dataset.recording_family,
+        dataset_pattern_type=config.dataset.pattern_type,
+        cache_policy="none",
+    )
+    targets = build_random_imagery_targets(dataset.samples)
+
+    cross_subject = build_evaluation_protocol(
+        targets,
+        protocol="cross-subject",
+        split_config=config.split,
+    )
+    within_subject = build_evaluation_protocol(
+        targets,
+        protocol="within-subject",
+        split_config=config.split,
+    )
+
+    cross_direction = cross_subject.directions[0]
+    assert cross_direction.train_indices.size == 141
+    assert cross_direction.test_indices.size == 39
+    assert len(cross_direction.train_subjects) == 26
+    assert len(cross_direction.test_subjects) == 7
+    assert not cross_subject.audits[0].has_forbidden_leakage
+
+    assert within_subject.label == "identity-overlapping bidirectional cross-trial"
+    assert len(within_subject.eligible_subjects) == 27
+    assert within_subject.excluded_subjects == (14, 24, 27, 28, 29, 32)
+    assert tuple(direction.train_indices.size for direction in within_subject.directions) == (81, 81)
+    assert tuple(direction.test_indices.size for direction in within_subject.directions) == (81, 81)
+    for direction, audit in zip(
+        within_subject.directions,
+        within_subject.audits,
+        strict=True,
+    ):
+        assert direction.train_subjects == within_subject.eligible_subjects
+        assert direction.test_subjects == within_subject.eligible_subjects
+        assert audit.overlapping_subjects == within_subject.eligible_subjects
+        assert not audit.overlapping_sample_keys
+        assert not audit.overlapping_seeds
+        assert not audit.overlapping_image_fingerprints
+        assert not audit.overlapping_trial_numbers
+        assert audit.all_tasks_have_both_classes
+        assert not audit.has_forbidden_leakage
+        repeated_audit = audit_evaluation_direction(targets, direction)
+        assert repeated_audit.direction_name == audit.direction_name
+        assert repeated_audit.overlapping_subjects == audit.overlapping_subjects
+        np.testing.assert_array_equal(
+            repeated_audit.train_positive_counts,
+            audit.train_positive_counts,
+        )
+        np.testing.assert_array_equal(
+            repeated_audit.test_positive_counts,
+            audit.test_positive_counts,
+        )
+
+
+def test_within_subject_protocol_rejects_cross_trial_seed_and_image_leakage() -> None:
+    samples = [
+        _random_sample(subject=subject, block=trial, seed=subject, value=0).model_copy(
+            update={"trial_number": trial}
+        )
+        for subject in range(1, 7)
+        for trial in (1, 2)
+    ]
+    targets = build_random_imagery_targets(samples)
+
+    with pytest.raises(ValueError, match="leakage contract"):
+        create_within_subject_protocol(targets)

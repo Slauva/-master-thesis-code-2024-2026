@@ -109,7 +109,10 @@ def _build_run(tmp_path: Path) -> tuple[Path, object, object, object, object]:
                 "max_iter": 1000,
                 "n_jobs": 1,
             },
-            "artifacts": {"root": str(tmp_path / "runs")},
+            "artifacts": {
+                "root": str(tmp_path / "runs"),
+                "schema_version": 1,
+            },
         }
     )
     result = run_per_pixel_grid_search(

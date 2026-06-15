@@ -1,10 +1,18 @@
 from dataclasses import dataclass
+from typing import Literal, TypeAlias
 
 import numpy as np
 from numpy.typing import NDArray
 from sklearn.pipeline import Pipeline
 
 from features.schemas import SampleKey
+
+EvaluationProtocol: TypeAlias = Literal["cross-subject", "within-subject"]
+EvaluationDirectionName: TypeAlias = Literal[
+    "cross-subject",
+    "trial-1-to-trial-2",
+    "trial-2-to-trial-1",
+]
 
 
 @dataclass(frozen=True, slots=True)
@@ -69,6 +77,150 @@ class SubjectSplit:
             raise ValueError("Train and test indices must partition every target row")
         if set(self.train_subjects) & set(self.test_subjects):
             raise ValueError("Train and test subjects must be disjoint")
+
+
+@dataclass(frozen=True, slots=True)
+class EvaluationDirection:
+    protocol: EvaluationProtocol
+    name: EvaluationDirectionName
+    label: str
+    train_indices: NDArray[np.int64]
+    test_indices: NDArray[np.int64]
+    train_subjects: tuple[int, ...]
+    test_subjects: tuple[int, ...]
+    eligible_subjects: tuple[int, ...]
+    excluded_subjects: tuple[int, ...]
+    n_samples: int
+    train_trial: int | None = None
+    test_trial: int | None = None
+
+    def __post_init__(self) -> None:
+        if not self.label:
+            raise ValueError("Evaluation direction label must not be empty")
+        for name, indices in (
+            ("train_indices", self.train_indices),
+            ("test_indices", self.test_indices),
+        ):
+            if indices.ndim != 1 or indices.dtype != np.dtype(np.int64):
+                raise TypeError(f"`{name}` must be a one-dimensional int64 array")
+            if indices.size < 1 or np.any(indices < 0) or np.any(indices >= self.n_samples):
+                raise ValueError(f"`{name}` must contain valid rows")
+            if not np.array_equal(indices, np.unique(indices)):
+                raise ValueError(f"`{name}` must be sorted and unique")
+        if np.intersect1d(self.train_indices, self.test_indices).size:
+            raise ValueError("Direction train and test rows must be disjoint")
+
+        for name, subjects in (
+            ("train_subjects", self.train_subjects),
+            ("test_subjects", self.test_subjects),
+            ("eligible_subjects", self.eligible_subjects),
+            ("excluded_subjects", self.excluded_subjects),
+        ):
+            if subjects != tuple(sorted(set(subjects))):
+                raise ValueError(f"`{name}` must be sorted and unique")
+        if not self.eligible_subjects:
+            raise ValueError("Evaluation direction requires eligible subjects")
+        if set(self.eligible_subjects) & set(self.excluded_subjects):
+            raise ValueError("Eligible and excluded subjects must be disjoint")
+        if not set(self.train_subjects) <= set(self.eligible_subjects):
+            raise ValueError("Train subjects must be eligible")
+        if not set(self.test_subjects) <= set(self.eligible_subjects):
+            raise ValueError("Test subjects must be eligible")
+
+        if self.protocol == "cross-subject":
+            if self.name != "cross-subject":
+                raise ValueError("Cross-subject protocol requires the cross-subject direction")
+            if self.train_trial is not None or self.test_trial is not None:
+                raise ValueError("Cross-subject direction must not pin trial numbers")
+            if set(self.train_subjects) & set(self.test_subjects):
+                raise ValueError("Cross-subject train and test identities must be disjoint")
+            if set(self.train_subjects) | set(self.test_subjects) != set(self.eligible_subjects):
+                raise ValueError("Cross-subject direction must partition eligible identities")
+            if np.union1d(self.train_indices, self.test_indices).size != self.n_samples:
+                raise ValueError("Cross-subject direction must partition every target row")
+        else:
+            expected_trials = {
+                "trial-1-to-trial-2": (1, 2),
+                "trial-2-to-trial-1": (2, 1),
+            }
+            if self.name not in expected_trials:
+                raise ValueError("Within-subject protocol requires a cross-trial direction")
+            if (self.train_trial, self.test_trial) != expected_trials[self.name]:
+                raise ValueError("Cross-trial direction name and trial numbers disagree")
+            if self.train_subjects != self.eligible_subjects:
+                raise ValueError("Every eligible identity must occur in cross-trial training")
+            if self.test_subjects != self.eligible_subjects:
+                raise ValueError("Every eligible identity must occur in cross-trial testing")
+
+
+@dataclass(frozen=True, slots=True)
+class ProtocolLeakageAudit:
+    protocol: EvaluationProtocol
+    direction_name: EvaluationDirectionName
+    overlapping_subjects: tuple[int, ...]
+    overlapping_sample_keys: tuple[SampleKey, ...]
+    overlapping_seeds: tuple[int, ...]
+    overlapping_image_fingerprints: tuple[str, ...]
+    overlapping_trial_numbers: tuple[int, ...]
+    train_positive_counts: NDArray[np.int64]
+    test_positive_counts: NDArray[np.int64]
+    all_tasks_have_both_classes: bool
+    subject_contract_satisfied: bool
+    trial_contract_satisfied: bool
+
+    def __post_init__(self) -> None:
+        if self.train_positive_counts.ndim != 1 or self.train_positive_counts.dtype != np.dtype(np.int64):
+            raise TypeError("Train positive counts must be a one-dimensional int64 array")
+        if (
+            self.test_positive_counts.shape != self.train_positive_counts.shape
+            or self.test_positive_counts.dtype != np.dtype(np.int64)
+        ):
+            raise TypeError("Test positive counts must match the train pixel axis")
+
+    @property
+    def has_forbidden_leakage(self) -> bool:
+        return bool(
+            self.overlapping_sample_keys
+            or self.overlapping_seeds
+            or self.overlapping_image_fingerprints
+            or not self.subject_contract_satisfied
+            or not self.trial_contract_satisfied
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class EvaluationProtocolDefinition:
+    protocol: EvaluationProtocol
+    label: str
+    eligible_subjects: tuple[int, ...]
+    excluded_subjects: tuple[int, ...]
+    directions: tuple[EvaluationDirection, ...]
+    audits: tuple[ProtocolLeakageAudit, ...]
+
+    def __post_init__(self) -> None:
+        if not self.label:
+            raise ValueError("Evaluation protocol label must not be empty")
+        if not self.directions or len(self.directions) != len(self.audits):
+            raise ValueError("Evaluation protocol requires one audit per direction")
+        if any(direction.protocol != self.protocol for direction in self.directions):
+            raise ValueError("Every direction must belong to the declared protocol")
+        if any(audit.protocol != self.protocol for audit in self.audits):
+            raise ValueError("Every audit must belong to the declared protocol")
+        if tuple(direction.name for direction in self.directions) != tuple(
+            audit.direction_name for audit in self.audits
+        ):
+            raise ValueError("Direction and audit order must match")
+        if any(direction.eligible_subjects != self.eligible_subjects for direction in self.directions):
+            raise ValueError("Directions must share protocol eligibility")
+        if any(direction.excluded_subjects != self.excluded_subjects for direction in self.directions):
+            raise ValueError("Directions must share excluded-subject provenance")
+        expected_names = (
+            ("cross-subject",)
+            if self.protocol == "cross-subject"
+            else ("trial-1-to-trial-2", "trial-2-to-trial-1")
+        )
+        if tuple(direction.name for direction in self.directions) != expected_names:
+            raise ValueError("Evaluation protocol directions are incomplete or out of order")
 
 
 @dataclass(frozen=True, slots=True)

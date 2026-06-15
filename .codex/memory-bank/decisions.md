@@ -205,3 +205,38 @@
   `hamming_loss = 1 - bit_accuracy = mean_hamming_distance / 36`.
 - Keep IoU and Hamming loss strictly in held-out evaluation and reporting; balanced accuracy
   remains the primary feature-screening and hyperparameter-selection metric.
+- Represent cross-subject and within-subject evaluation with separate typed direction contracts;
+  do not relax the subject-disjoint `SubjectSplit` schema to accommodate identity overlap.
+- Define the secondary protocol as `identity-overlapping bidirectional cross-trial`. Eligible
+  identities must contain both Trial 1 and Trial 2; run Trial 1 -> Trial 2 and Trial 2 -> Trial 1
+  independently and retain excluded identities as explicit provenance.
+- Permit subject identity overlap only for the cross-trial protocol. Sample keys, trial numbers,
+  random seeds, and complete image payloads must remain disjoint between a direction's train and
+  test rows.
+- Repeat feature-family screening, grouped inner CV, and all per-pixel hyperparameter searches
+  independently inside each direction's training rows. Load that direction's test features only
+  after all fitted models are complete.
+- Combine within-subject directions only after both independent predictions exist. For combined
+  uncertainty, resample whole identities so all six out-of-trial random-imagery rows for each
+  selected real-corpus subject remain in one bootstrap cluster.
+- Use artifact schema version 2 for new protocol-aware runs and include protocol plus direction in
+  the immutable run hash. Preserve schema-v1 hash semantics for the existing reference run.
+- Persist each within-subject direction independently, including baseline probabilities and
+  predictions, so safe evaluation can recompute the exact combined metrics without rewriting
+  either run.
+- Keep metadata/array evaluation separate from trusted pipeline replay. Schema-v2 reuse must
+  validate the full inventory and recompute model metrics, baseline metrics, and subject bootstrap
+  summaries without loading joblib.
+- Refuse duplicate CLI training runs and destructive overwrite. `--reuse-existing` is valid only
+  when every expected protocol direction exists, validates, and matches the configured feature
+  hash.
+- Use standard-library `argparse` and equivalent installed `logistic-regression` and
+  `python -m experiments.logistic_regression` entry points. Parse repeatable dotted overrides
+  through OmegaConf rather than ad hoc scalar coercion.
+- Keep train-or-reuse orchestration in one public `execute_evaluation_protocol` workflow shared by
+  CLI and notebooks. Notebooks may format persisted results but must not duplicate splitting,
+  fitting, persistence, reuse validation, or metric computation.
+- Compare cross-subject, each cross-trial direction, and combined cross-trial uncertainty in one
+  figure, but report cross-subject and within-subject tables separately. Never average protocols
+  or describe their difference as a pure model effect because their populations and
+  generalization targets differ.

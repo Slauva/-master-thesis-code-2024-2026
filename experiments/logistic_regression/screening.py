@@ -18,6 +18,7 @@ from experiments.logistic_regression.config import CrossValidationConfig, Featur
 from experiments.logistic_regression.schemas import (
     AlignedTrainingFeatures,
     CandidateScreeningResult,
+    EvaluationDirection,
     FeatureFamily,
     FeatureScreeningResult,
     GroupedPixelCrossValidation,
@@ -60,7 +61,7 @@ def build_aligned_training_features(
     dataset: FeatureSetDataset,
     *,
     targets: PixelTargetDataset,
-    split: SubjectSplit,
+    split: SubjectSplit | EvaluationDirection,
     candidates: tuple[tuple[str, ...], ...],
 ) -> AlignedTrainingFeatures:
     if not candidates or any(not candidate for candidate in candidates):

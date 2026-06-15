@@ -1,8 +1,8 @@
 # Logistic Regression Evaluation Protocols And CLI
 
-Status: in_progress
+Status: completed
 Last updated: 2026-06-15
-Next stage: 2 - Evaluation Protocols And Runner
+Next stage: complete
 
 ## Goal
 
@@ -65,7 +65,7 @@ experiment runner, a terminal CLI, and an executable training notebook.
   loss with deterministic validated values.
 - Review gate: Stop and wait for explicit user approval.
 
-### 2. Evaluation Protocols And Runner - In Progress
+### 2. Evaluation Protocols And Runner - Completed
 
 - Objective: Define and execute cross-subject and within-subject protocols through one reusable
   orchestration layer.
@@ -103,7 +103,7 @@ experiment runner, a terminal CLI, and an executable training notebook.
   a valid combined within-subject summary.
 - Review gate: Stop and wait for explicit user approval.
 
-### 3. Evaluation Artifacts And CLI - Pending
+### 3. Evaluation Artifacts And CLI - Completed
 
 - Objective: Persist protocol-aware evaluations and expose safe terminal commands.
 - Deliverables:
@@ -143,7 +143,7 @@ experiment runner, a terminal CLI, and an executable training notebook.
   without editing Python source.
 - Review gate: Stop and wait for explicit user approval.
 
-### 4. Training Notebook And Final Comparison - Pending
+### 4. Training Notebook And Final Comparison - Completed
 
 - Objective: Provide an executable notebook entry point for training and a clear comparison of
   the two evaluation protocols.
@@ -218,3 +218,57 @@ experiment runner, a terminal CLI, and an executable training notebook.
   Stage 2 has not started.
 - 2026-06-15: User approved Stage 1 with `next`; Stage 1 marked Completed and Stage 2 marked
   In Progress.
+- 2026-06-15: Stage 2 implemented typed protocol, direction, and protocol-specific leakage-audit
+  contracts plus one reusable runner for target construction, feature screening, grouped CV,
+  per-pixel tuning, prediction, baselines, bootstrap, and evaluation.
+- 2026-06-15: Real-corpus protocol verification retained the 141/39 cross-subject split and found
+  27 bidirectional cross-trial identities, 81/81 rows per direction, and excluded subjects
+  `14, 24, 27, 28, 29, 32`. Both directions have complete class support and no shared sample
+  keys, seeds, image payloads, or trial numbers.
+- 2026-06-15: Synthetic runner tests verify deterministic cross-subject and within-subject output,
+  separate train-only screening/tuning per direction, delayed test-feature access, combination
+  only after both direction predictions, and six combined test rows per synthetic subject.
+- 2026-06-15: Verification passed: 48 experiment tests, `uv run ruff check .`,
+  `uv run pytest` (`263 passed`, two pre-existing multiprocessing warnings), and
+  `git diff --check`. No notebook was created because Stage 2 produces protocol/orchestration
+  contracts rather than a new real-model result. Stage 2 is Awaiting Review; Stage 3 has not
+  started.
+- 2026-06-15: User approved Stage 2 with `next`; Stage 2 marked Completed and Stage 3 marked
+  In Progress.
+- 2026-06-15: Stage 3 implemented schema-v2 protocol/direction artifacts with `evaluation.json`,
+  persisted baseline arrays, protocol-aware immutable hashes, exact SHA-256 inventories, and
+  manifest-last atomic publication. The safe evaluation loader supports schema-v1 and schema-v2
+  without loading joblib and validates stored metrics and bootstrap summaries against arrays.
+- 2026-06-15: Added `argparse` `run` and `evaluate` commands, repeatable OmegaConf dotted
+  overrides, duplicate refusal, complete-set reuse without fitting, deterministic JSON output,
+  equivalent console-script and module entry points, and within-subject aggregation from two
+  immutable direction runs.
+- 2026-06-15: Verification passed: 62 experiment tests, `uv run ruff check .`,
+  `uv lock --check`, `uv run pytest` (`277 passed`, two pre-existing multiprocessing warnings),
+  both CLI entry forms, schema-v1 reference evaluation, and `git diff --check`. Synthetic
+  schema-v2 runs covered round trip, corruption, internal consistency, duplicate refusal, reuse,
+  and bidirectional aggregation. No notebook or real schema-v2 training run was produced because
+  those belong to Stage 4. Stage 3 is Awaiting Review; Stage 4 has not started.
+- 2026-06-15: User approved Stage 3 with `next`; Stage 3 marked Completed and Stage 4 marked
+  In Progress.
+- 2026-06-15: Stage 4 added the public `execute_evaluation_protocol` train-or-reuse workflow used
+  by both CLI and notebook, plus the executed
+  `notebooks/5.1-logistic-regression-training.ipynb` and its integration test.
+- 2026-06-15: Published and validated schema-v2 runs `4fcdf3c4fa5ef75a` (cross-subject),
+  `ea7f8aa10a39cea0` (Trial 1 -> Trial 2), and `0ab4cb2a7512ab19` (Trial 2 -> Trial 1).
+  The cross-subject probabilities, predictions, and test targets reproduce schema-v1 run
+  `f515948b6bf5af55` exactly.
+- 2026-06-15: Cross-subject balanced accuracy is `0.509990919` with 95% complete-subject
+  bootstrap interval `[0.496383660, 0.521077288]`. The two cross-trial directions score
+  `0.503108711` and `0.499795634`; their combined estimate is `0.500013604` with interval
+  `[0.486067242, 0.511482875]`. Every interval includes chance.
+- 2026-06-15: The notebook was executed top-to-bottom, then re-executed through immutable reuse.
+  All 8 code cells completed without errors, the verification marker is present, and the protocol
+  uncertainty figure was visually inspected after restoring all four interval rows.
+- 2026-06-15: Final verification passed: focused notebook/workflow tests (`11 passed`),
+  `uv run ruff check .`, `uv lock --check`, `uv run pytest` (`280 passed`, two pre-existing
+  multiprocessing warnings), and `git diff --check`. Stage 4 is Awaiting Review.
+- 2026-06-15: User requested continuation of the plan, approving the final review gate. Stage 4
+  marked Completed and the evaluation/CLI extension plan marked completed.
+- 2026-06-15: Completion sanity check passed: focused workflow/notebook tests (`4 passed`) and
+  `git diff --check`.

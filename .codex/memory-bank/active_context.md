@@ -177,7 +177,10 @@ Pixel-wise Logistic Regression:
 - The approved evaluation/CLI extension plan is stored in
   `.codex/memory-bank/plans/2026-06-15-logistic-regression-evaluation-cli.md`.
 - Extension Stage 1, reconstruction metrics, is completed.
-- Extension Stage 2, evaluation protocols and reusable runner, is in progress.
+- Extension Stage 2, evaluation protocols and reusable runner, is completed.
+- Extension Stage 3, evaluation artifacts and terminal CLI, is completed.
+- Extension Stage 4, executable training notebook and final protocol comparison, is completed.
+- The evaluation/CLI extension plan is completed.
 - Stage 1, contracts, targets, grouped split, leakage checks, and non-EEG baselines, is completed.
 - Stage 2, train-only common feature-family selection, is completed.
 - Stage 3, per-pixel grouped grid search and one-time outer-test prediction, is completed.
@@ -194,7 +197,24 @@ Pixel-wise Logistic Regression:
 - Added foreground IoU at sample and global micro grain plus normalized Hamming loss for the model
   and every baseline. The reference model values are `0.335257970`, `0.334634146`, and
   `0.485754986`, respectively.
-- Ruff passes and the full suite reports 259 passed; two existing Python 3.13 multiprocessing
+- Added typed cross-subject and identity-overlapping bidirectional cross-trial definitions,
+  protocol-aware leakage audits, direction results, combined within-subject evaluation, and one
+  reusable runner.
+- Real protocol verification retains 141/39 rows for cross-subject evaluation. Within-subject
+  evaluation includes 27 identities and 81/81 rows in each trial direction; subjects
+  `14, 24, 27, 28, 29, 32` are excluded with provenance.
+- The within-subject runner repeats feature screening and all per-pixel train-only decisions
+  independently for each direction, accesses test features only after fitting, and combines
+  predictions only after both directions complete.
+- Added public train-or-reuse workflow shared by CLI and notebook.
+- Published schema-v2 runs `4fcdf3c4fa5ef75a`, `ea7f8aa10a39cea0`, and
+  `0ab4cb2a7512ab19`. The schema-v2 cross-subject run reproduces schema-v1 predictions exactly.
+- Executed `notebooks/5.1-logistic-regression-training.ipynb` for both protocols and verified a
+  second execution through immutable reuse.
+- Cross-subject balanced accuracy is `0.509990919` with interval
+  `[0.496383660, 0.521077288]`. Combined cross-trial balanced accuracy is `0.500013604` with
+  interval `[0.486067242, 0.511482875]`; all protocol intervals include chance.
+- Ruff passes and the full suite reports 263 passed; two existing Python 3.13 multiprocessing
   `fork()` deprecation warnings remain.
 - The task uses only 180 `Data_Pattern/patt` random imagery blocks and 36 row-major binary pixel
   targets.
@@ -229,15 +249,11 @@ Pixel-wise Logistic Regression:
 
 ## Next Actions
 
-- Execute only Stage 2 of
-  `.codex/memory-bank/plans/2026-06-15-logistic-regression-evaluation-cli.md`, then stop for
-  explicit review.
-- The original Logistic Regression Stage 5 remains awaiting review and will be revised by the
-  extension's reconstruction-metrics stage before final completion.
+- The original Logistic Regression Stage 5 remains awaiting separate review; the extension's
+  reconstruction metrics are already incorporated.
 - Obtain explicit final approval for EEG feature-extraction Stage 5 separately.
 - Benchmark full-corpus cache warmup only when operational timing is needed.
 
 ## Open Questions
 
-- Whether a later secondary within-subject protocol is useful after the primary subject-generalization
-  baseline is complete.
+- No unresolved questions remain for the completed evaluation/CLI extension.

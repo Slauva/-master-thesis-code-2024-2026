@@ -5,7 +5,15 @@ import numpy as np
 from sklearn.model_selection import GroupShuffleSplit
 
 from experiments.logistic_regression.config import SubjectSplitConfig
-from experiments.logistic_regression.schemas import LeakageAudit, PixelTargetDataset, SubjectSplit
+from experiments.logistic_regression.schemas import (
+    EvaluationDirection,
+    EvaluationProtocol,
+    EvaluationProtocolDefinition,
+    LeakageAudit,
+    PixelTargetDataset,
+    ProtocolLeakageAudit,
+    SubjectSplit,
+)
 from utils.datasets.schemas import RandomSample, Sample
 
 
@@ -127,3 +135,216 @@ def audit_subject_split(
         test_positive_counts=test_positive_counts,
         all_tasks_have_both_classes=bool(np.all(train_has_both & test_has_both)),
     )
+
+
+def create_cross_subject_protocol(
+    targets: PixelTargetDataset,
+    *,
+    config: SubjectSplitConfig,
+) -> EvaluationProtocolDefinition:
+    split, _ = create_subject_split(targets, config=config)
+    eligible_subjects = tuple(
+        int(value) for value in np.unique(targets.subject_ids)
+    )
+    direction = EvaluationDirection(
+        protocol="cross-subject",
+        name="cross-subject",
+        label="cross-subject",
+        train_indices=split.train_indices,
+        test_indices=split.test_indices,
+        train_subjects=split.train_subjects,
+        test_subjects=split.test_subjects,
+        eligible_subjects=eligible_subjects,
+        excluded_subjects=(),
+        n_samples=targets.y.shape[0],
+    )
+    audit = audit_evaluation_direction(targets, direction)
+    _validate_protocol_audit(audit, require_both_classes=config.require_both_classes)
+    return EvaluationProtocolDefinition(
+        protocol="cross-subject",
+        label="cross-subject",
+        eligible_subjects=eligible_subjects,
+        excluded_subjects=(),
+        directions=(direction,),
+        audits=(audit,),
+    )
+
+
+def create_within_subject_protocol(
+    targets: PixelTargetDataset,
+    *,
+    require_both_classes: bool = True,
+) -> EvaluationProtocolDefinition:
+    unexpected_trials = tuple(
+        int(value)
+        for value in np.setdiff1d(
+            np.unique(targets.trial_numbers),
+            np.asarray([1, 2], dtype=np.int64),
+        )
+    )
+    if unexpected_trials:
+        raise ValueError(
+            "Within-subject protocol supports only Trial 1 and Trial 2; "
+            f"found {unexpected_trials}"
+        )
+    all_subjects = tuple(int(value) for value in np.unique(targets.subject_ids))
+    eligible_subjects = tuple(
+        subject
+        for subject in all_subjects
+        if {1, 2}
+        <= set(
+            int(value)
+            for value in np.unique(
+                targets.trial_numbers[targets.subject_ids == subject]
+            )
+        )
+    )
+    excluded_subjects = tuple(
+        subject for subject in all_subjects if subject not in set(eligible_subjects)
+    )
+    if not eligible_subjects:
+        raise ValueError("Within-subject protocol requires identities with both trials")
+
+    eligible_mask = np.isin(targets.subject_ids, eligible_subjects)
+    directions: list[EvaluationDirection] = []
+    audits: list[ProtocolLeakageAudit] = []
+    for name, train_trial, test_trial in (
+        ("trial-1-to-trial-2", 1, 2),
+        ("trial-2-to-trial-1", 2, 1),
+    ):
+        train_indices = np.flatnonzero(
+            eligible_mask & (targets.trial_numbers == train_trial)
+        ).astype(np.int64, copy=False)
+        test_indices = np.flatnonzero(
+            eligible_mask & (targets.trial_numbers == test_trial)
+        ).astype(np.int64, copy=False)
+        train_indices.setflags(write=False)
+        test_indices.setflags(write=False)
+        direction = EvaluationDirection(
+            protocol="within-subject",
+            name=name,
+            label=f"Trial {train_trial} -> Trial {test_trial}",
+            train_indices=train_indices,
+            test_indices=test_indices,
+            train_subjects=eligible_subjects,
+            test_subjects=eligible_subjects,
+            eligible_subjects=eligible_subjects,
+            excluded_subjects=excluded_subjects,
+            n_samples=targets.y.shape[0],
+            train_trial=train_trial,
+            test_trial=test_trial,
+        )
+        audit = audit_evaluation_direction(targets, direction)
+        _validate_protocol_audit(audit, require_both_classes=require_both_classes)
+        directions.append(direction)
+        audits.append(audit)
+
+    return EvaluationProtocolDefinition(
+        protocol="within-subject",
+        label="identity-overlapping bidirectional cross-trial",
+        eligible_subjects=eligible_subjects,
+        excluded_subjects=excluded_subjects,
+        directions=tuple(directions),
+        audits=tuple(audits),
+    )
+
+
+def build_evaluation_protocol(
+    targets: PixelTargetDataset,
+    *,
+    protocol: EvaluationProtocol,
+    split_config: SubjectSplitConfig,
+) -> EvaluationProtocolDefinition:
+    if protocol == "cross-subject":
+        return create_cross_subject_protocol(targets, config=split_config)
+    if protocol == "within-subject":
+        return create_within_subject_protocol(
+            targets,
+            require_both_classes=split_config.require_both_classes,
+        )
+    raise ValueError(f"Unsupported evaluation protocol: {protocol!r}")
+
+
+def audit_evaluation_direction(
+    targets: PixelTargetDataset,
+    direction: EvaluationDirection,
+) -> ProtocolLeakageAudit:
+    train = direction.train_indices
+    test = direction.test_indices
+    train_keys = {targets.sample_keys[int(index)] for index in train}
+    test_keys = {targets.sample_keys[int(index)] for index in test}
+    train_subjects = tuple(int(value) for value in np.unique(targets.subject_ids[train]))
+    test_subjects = tuple(int(value) for value in np.unique(targets.subject_ids[test]))
+    train_trials = tuple(int(value) for value in np.unique(targets.trial_numbers[train]))
+    test_trials = tuple(int(value) for value in np.unique(targets.trial_numbers[test]))
+    overlapping_subjects = tuple(sorted(set(train_subjects) & set(test_subjects)))
+    overlapping_trials = tuple(sorted(set(train_trials) & set(test_trials)))
+
+    if direction.protocol == "cross-subject":
+        subject_contract_satisfied = (
+            not overlapping_subjects
+            and train_subjects == direction.train_subjects
+            and test_subjects == direction.test_subjects
+        )
+        trial_contract_satisfied = True
+    else:
+        subject_contract_satisfied = (
+            train_subjects == direction.eligible_subjects
+            and test_subjects == direction.eligible_subjects
+            and overlapping_subjects == direction.eligible_subjects
+        )
+        trial_contract_satisfied = (
+            train_trials == (direction.train_trial,)
+            and test_trials == (direction.test_trial,)
+            and not overlapping_trials
+        )
+
+    train_positive_counts = targets.y[train].sum(axis=0, dtype=np.int64)
+    test_positive_counts = targets.y[test].sum(axis=0, dtype=np.int64)
+    train_has_both = (train_positive_counts > 0) & (
+        train_positive_counts < train.size
+    )
+    test_has_both = (test_positive_counts > 0) & (
+        test_positive_counts < test.size
+    )
+    train_positive_counts.setflags(write=False)
+    test_positive_counts.setflags(write=False)
+    return ProtocolLeakageAudit(
+        protocol=direction.protocol,
+        direction_name=direction.name,
+        overlapping_subjects=overlapping_subjects,
+        overlapping_sample_keys=tuple(sorted(train_keys & test_keys)),
+        overlapping_seeds=tuple(
+            sorted(
+                {int(value) for value in targets.seeds[train]}
+                & {int(value) for value in targets.seeds[test]}
+            )
+        ),
+        overlapping_image_fingerprints=tuple(
+            sorted(
+                {targets.image_fingerprints[int(index)] for index in train}
+                & {targets.image_fingerprints[int(index)] for index in test}
+            )
+        ),
+        overlapping_trial_numbers=overlapping_trials,
+        train_positive_counts=train_positive_counts,
+        test_positive_counts=test_positive_counts,
+        all_tasks_have_both_classes=bool(np.all(train_has_both & test_has_both)),
+        subject_contract_satisfied=subject_contract_satisfied,
+        trial_contract_satisfied=trial_contract_satisfied,
+    )
+
+
+def _validate_protocol_audit(
+    audit: ProtocolLeakageAudit,
+    *,
+    require_both_classes: bool,
+) -> None:
+    if audit.has_forbidden_leakage:
+        raise ValueError(
+            f"Evaluation direction {audit.direction_name!r} violates its leakage contract"
+        )
+    if require_both_classes and not audit.all_tasks_have_both_classes:
+        raise ValueError(
+            f"Evaluation direction {audit.direction_name!r} lacks both classes in a pixel task"
+        )

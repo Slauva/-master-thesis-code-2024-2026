@@ -5,8 +5,10 @@ from pydantic import ValidationError
 
 from experiments.logistic_regression import (
     LogisticRegressionExperimentConfig,
+    build_evaluation_config_hash,
     build_experiment_config_hash,
     load_logistic_regression_config,
+    parse_dotted_overrides,
 )
 
 
@@ -27,6 +29,7 @@ def test_loads_default_logistic_regression_config() -> None:
     assert config.grid_search.n_jobs == -1
     assert config.prediction_threshold == 0.5
     assert config.artifacts.root == Path("artifacts/experiments/logistic-regression")
+    assert config.artifacts.schema_version == 2
 
 
 def test_config_hash_is_stable_and_versioned() -> None:
@@ -40,6 +43,37 @@ def test_config_hash_is_stable_and_versioned() -> None:
     assert build_experiment_config_hash(config) != build_experiment_config_hash(
         load_logistic_regression_config(overrides={"random_state": 7})
     )
+    assert build_evaluation_config_hash(
+        config,
+        protocol="within-subject",
+        direction="trial-1-to-trial-2",
+    ) != build_evaluation_config_hash(
+        config,
+        protocol="within-subject",
+        direction="trial-2-to-trial-1",
+    )
+
+
+def test_parses_dotted_omegaconf_overrides() -> None:
+    overrides = parse_dotted_overrides(
+        (
+            "grid_search.c_values=[0.1,1.0]",
+            "grid_search.class_weights=[null,balanced]",
+            "grid_search.n_jobs=1",
+            "artifacts.overwrite=false",
+        )
+    )
+    config = load_logistic_regression_config(overrides=overrides)
+
+    assert config.grid_search.c_values == (0.1, 1.0)
+    assert config.grid_search.class_weights == (None, "balanced")
+    assert config.grid_search.n_jobs == 1
+    assert config.artifacts.overwrite is False
+
+
+def test_rejects_invalid_dotted_override_syntax() -> None:
+    with pytest.raises(ValueError, match="KEY=VALUE"):
+        parse_dotted_overrides(("grid_search.n_jobs",))
 
 
 @pytest.mark.parametrize(

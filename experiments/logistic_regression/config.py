@@ -1,7 +1,7 @@
 import hashlib
 import json
 from pathlib import Path
-from typing import Annotated, Any, Literal, Self
+from typing import Annotated, Any, Iterable, Literal, Self
 
 from omegaconf import OmegaConf
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -92,7 +92,7 @@ class ArtifactConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     root: Path = Path("artifacts/experiments/logistic-regression")
-    schema_version: Annotated[int, Field(ge=1)] = 1
+    schema_version: Annotated[int, Field(ge=1)] = 2
     overwrite: bool = False
 
 
@@ -129,6 +129,21 @@ def load_logistic_regression_config(
     return LogisticRegressionExperimentConfig.model_validate(payload)
 
 
+def parse_dotted_overrides(values: Iterable[str]) -> dict[str, Any]:
+    dotlist = list(values)
+    if any("=" not in value for value in dotlist):
+        invalid = next(value for value in dotlist if "=" not in value)
+        raise ValueError(f"Configuration override must use KEY=VALUE syntax: {invalid!r}")
+    payload = OmegaConf.to_container(
+        OmegaConf.from_dotlist(dotlist),
+        resolve=True,
+        throw_on_missing=True,
+    )
+    if not isinstance(payload, dict):
+        raise TypeError("Resolved configuration overrides must be a mapping")
+    return payload
+
+
 def build_experiment_config_hash(
     config: LogisticRegressionExperimentConfig,
     *,
@@ -144,6 +159,43 @@ def build_experiment_config_hash(
         "config": config.model_dump(mode="json"),
     }
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode()
+    return hashlib.sha256(canonical).hexdigest()[:16]
+
+
+def build_evaluation_config_hash(
+    config: LogisticRegressionExperimentConfig,
+    *,
+    protocol: str,
+    direction: str,
+    experiment_version: int = 2,
+    feature_extractor_version: int = 1,
+) -> str:
+    if protocol not in {"cross-subject", "within-subject"}:
+        raise ValueError(f"Unsupported evaluation protocol: {protocol!r}")
+    expected_directions = {
+        "cross-subject": {"cross-subject"},
+        "within-subject": {"trial-1-to-trial-2", "trial-2-to-trial-1"},
+    }
+    if direction not in expected_directions[protocol]:
+        raise ValueError(
+            f"Direction {direction!r} does not belong to protocol {protocol!r}"
+        )
+    if experiment_version < 1 or feature_extractor_version < 1:
+        raise ValueError("Experiment and feature-extractor versions must be positive")
+    payload = {
+        "experiment_version": experiment_version,
+        "feature_extractor_version": feature_extractor_version,
+        "artifact_schema_version": config.artifacts.schema_version,
+        "protocol": protocol,
+        "direction": direction,
+        "config": config.model_dump(mode="json"),
+    }
+    canonical = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    ).encode()
     return hashlib.sha256(canonical).hexdigest()[:16]
 
 

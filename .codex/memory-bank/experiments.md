@@ -377,3 +377,84 @@
   inspected.
 - Verification: focused metric/notebook tests reported 8 passed; Ruff and `git diff --check`
   passed; full suite reported 259 passed with two pre-existing multiprocessing warnings.
+
+## 2026-06-15 - Logistic Regression evaluation protocol and runner validation
+
+- Scope: Stage 2 protocol, leakage-audit, and orchestration validation. No real model fitting or
+  new immutable experiment artifact was produced.
+- Cross-subject protocol: retained the fixed 141 train rows from 26 subjects and 39 test rows from
+  7 disjoint subjects.
+- Bidirectional cross-trial eligibility: 27 subjects with both trials; eligible IDs are
+  `1-13, 15-21, 23, 25, 26, 30, 31, 33, 34`. Excluded IDs are
+  `14, 24, 27, 28, 29, 32`.
+- Trial 1 -> Trial 2: 81 train and 81 test rows. Per-pixel positive counts range 31-51 in train
+  and 28-47 in test.
+- Trial 2 -> Trial 1: 81 train and 81 test rows. Per-pixel positive counts range 28-47 in train
+  and 31-51 in test.
+- Leakage audits: the expected 27 subject identities overlap in each cross-trial direction; sample
+  keys, trial numbers, random seeds, and image fingerprints do not overlap. Every one of the 36
+  pixel tasks has both classes in train and test.
+- Synthetic execution: one runner completed cross-subject and both cross-trial directions with
+  deterministic probabilities and predictions. Event-order tests showed screening data, screening,
+  and grid fitting before test-feature access in each direction; combination occurred only after
+  both predictions.
+- Combined clustering check: synthetic subjects contributed six test rows each after combining
+  both directions, matching the real protocol's intended subject-bootstrap grain.
+- Verification: 48 experiment tests passed; Ruff and `git diff --check` passed; full suite
+  reported 263 passed with two pre-existing multiprocessing warnings.
+
+## 2026-06-15 - Logistic Regression evaluation artifact and CLI validation
+
+- Scope: Stage 3 structural and synthetic validation. No real schema-v2 model run or notebook was
+  produced.
+- Schema-v1 compatibility: safely evaluated immutable run
+  `artifacts/experiments/logistic-regression/f515948b6bf5af55/` without joblib. Recomputed model
+  balanced accuracy `0.509990919`, mean sample IoU `0.335257970`, micro IoU `0.334634146`, and
+  Hamming loss `0.485754986`.
+- Schema-v2 synthetic coverage: wrote and loaded protocol-aware cross-subject and both
+  within-subject directions with exact inventory validation, `evaluation.json`, baseline arrays,
+  duplicate refusal, corruption rejection, and metric/bootstrap consistency checks.
+- Combined within-subject validation: loaded the two immutable directions in reverse input order,
+  restored canonical direction order, combined 72 synthetic test rows from 12 subjects, and
+  reproduced the runner's combined mean balanced accuracy without modifying either manifest.
+- CLI coverage: parsed repeatable dotted OmegaConf overrides; exercised new training, duplicate
+  refusal, complete-set reuse without fitting, schema-v1 JSON evaluation, failure exit codes, and
+  equivalent console-script/module help output.
+- Packaging: added an editable setuptools project entry so `uv run logistic-regression` installs
+  alongside the existing `uv run python -m experiments.logistic_regression` form.
+- Verification: 62 experiment tests passed; Ruff, lockfile check, and `git diff --check` passed;
+  full suite reported 277 passed with two pre-existing Python 3.13 multiprocessing warnings.
+
+## 2026-06-15 - Logistic Regression protocol training and final comparison
+
+- Notebook: executed `notebooks/5.1-logistic-regression-training.ipynb`, then executed it again
+  with `REUSE_EXISTING=True`. All 8 code cells completed, no error outputs were stored, one
+  uncertainty figure was visually inspected, and
+  `LOGISTIC_REGRESSION_TRAINING_PROTOCOLS_VERIFIED` is present.
+- Cross-subject schema-v2 artifact: `artifacts/experiments/logistic-regression/4fcdf3c4fa5ef75a/`.
+  It contains 55 inventoried payload files and reproduces schema-v1 run `f515948b6bf5af55`
+  probabilities, predictions, and test targets exactly.
+- Cross-subject result: selected `lbp`; mean best inner-CV balanced accuracy `0.579192334`;
+  held-out balanced accuracy `0.509990919`, 95% complete-subject bootstrap interval
+  `[0.496383660, 0.521077288]`, mean sample IoU `0.335257970`, micro IoU `0.334634146`, and
+  Hamming loss `0.485754986`.
+- Trial 1 -> Trial 2 artifact:
+  `artifacts/experiments/logistic-regression/ea7f8aa10a39cea0/`. It selected `correlation`;
+  mean best inner-CV balanced accuracy `0.581309200`; held-out balanced accuracy `0.503108711`,
+  interval `[0.484477246, 0.521643876]`, mean sample IoU `0.334078093`, and Hamming loss
+  `0.494513032`.
+- Trial 2 -> Trial 1 artifact:
+  `artifacts/experiments/logistic-regression/0ab4cb2a7512ab19/`. It selected `time+spectral`;
+  mean best inner-CV balanced accuracy `0.601988274`; held-out balanced accuracy `0.499795634`,
+  interval `[0.480587839, 0.518659408]`, mean sample IoU `0.337628447`, and Hamming loss
+  `0.498285322`.
+- Combined bidirectional cross-trial evaluation: 162 held-out rows from 27 eligible identities;
+  balanced accuracy `0.500013604`, interval `[0.486067242, 0.511482875]`, mean sample IoU
+  `0.335853270`, micro IoU `0.335094166`, and Hamming loss `0.496399177`.
+- Interpretation: every protocol and direction interval includes chance. Identity overlap did not
+  improve held-out reconstruction under this cross-trial protocol. Inner-CV scores remain higher
+  than held-out scores, so selection optimism persists. The protocol difference is not a pure
+  model effect because populations and transfer targets differ.
+- Verification: focused notebook/workflow tests reported 11 passed; Ruff, lockfile, and diff
+  checks passed; full suite reported 280 passed with two pre-existing Python 3.13 multiprocessing
+  warnings.
