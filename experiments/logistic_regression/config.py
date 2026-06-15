@@ -1,39 +1,20 @@
 import hashlib
 import json
 from pathlib import Path
-from typing import Annotated, Any, Iterable, Literal, Self
+from typing import Annotated, Any, Literal, Self
 
 from omegaconf import OmegaConf
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-
-class DatasetSelectionConfig(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
-
-    dataset_dir: Path = Path("data/Data_Pattern")
-    recording_family: Literal["patt"] = "patt"
-    pattern_type: Literal["random"] = "random"
-    image_rows: Literal[6] = 6
-    image_columns: Literal[6] = 6
-    feature_config_path: Path = Path("confs/features/default.yaml")
-
-
-class SubjectSplitConfig(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
-
-    test_size: Annotated[float, Field(gt=0.0, lt=1.0)] = 0.2
-    random_state: int = 42
-    group_by: Literal["subject"] = "subject"
-    require_both_classes: bool = True
-
-
-class CrossValidationConfig(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
-
-    n_splits: Annotated[int, Field(ge=2)] = 5
-    shuffle: Literal[True] = True
-    random_state: int = 42
-    scoring: Literal["balanced_accuracy"] = "balanced_accuracy"
+from experiments.random_imagery.config import (
+    ArtifactConfig,
+    CrossValidationConfig,
+    DatasetSelectionConfig,
+    SubjectSplitConfig,
+)
+from experiments.random_imagery.config import (
+    parse_dotted_overrides as parse_dotted_overrides,
+)
 
 
 class FeatureScreeningConfig(BaseModel):
@@ -88,14 +69,6 @@ class GridSearchConfig(BaseModel):
         return self
 
 
-class ArtifactConfig(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
-
-    root: Path = Path("artifacts/experiments/logistic-regression")
-    schema_version: Annotated[int, Field(ge=1)] = 2
-    overwrite: bool = False
-
-
 class LogisticRegressionExperimentConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -127,21 +100,6 @@ def load_logistic_regression_config(
     if not isinstance(payload, dict):
         raise TypeError("Resolved Logistic Regression configuration must be a mapping")
     return LogisticRegressionExperimentConfig.model_validate(payload)
-
-
-def parse_dotted_overrides(values: Iterable[str]) -> dict[str, Any]:
-    dotlist = list(values)
-    if any("=" not in value for value in dotlist):
-        invalid = next(value for value in dotlist if "=" not in value)
-        raise ValueError(f"Configuration override must use KEY=VALUE syntax: {invalid!r}")
-    payload = OmegaConf.to_container(
-        OmegaConf.from_dotlist(dotlist),
-        resolve=True,
-        throw_on_missing=True,
-    )
-    if not isinstance(payload, dict):
-        raise TypeError("Resolved configuration overrides must be a mapping")
-    return payload
 
 
 def build_experiment_config_hash(

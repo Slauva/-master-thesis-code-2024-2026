@@ -21,6 +21,7 @@ dependencies = [
 
 [project.scripts]
 logistic-regression = "experiments.logistic_regression.cli:main"
+random-imagery-models = "experiments.random_imagery.cli:main"
 
 [build-system]
 requires = ["setuptools>=81"]

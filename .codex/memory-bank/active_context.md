@@ -247,8 +247,93 @@ Pixel-wise Logistic Regression:
 - The run records commit `1ca50bf23fdbffb79609a80bacb2f7884e4ac8bc` with `git_dirty=true`.
 - Ruff passes and the full suite reports 251 passed.
 
+Classical random-imagery models:
+
+- The approved staged plan is stored in
+  `.codex/memory-bank/plans/2026-06-15-classical-random-imagery-models.md`.
+- Stage 1, common model-agnostic experiment framework, is completed.
+- Stage 2, calibrated Linear SVM and Ridge Classifier backends, is completed.
+- Stage 3, independent and multi-output regression backends, is completed.
+- Stage 4, schema-v3 artifacts, workflows, and CLI, is completed.
+- Stage 5, full real-corpus training for all nine variants and both protocols, is completed.
+- Stage 6, final protocol-separated model comparison, is implemented and awaiting explicit
+  review.
+- Planned variants cover calibrated Linear SVM and Ridge Classifier plus independent and
+  multi-output Ridge, ElasticNet, Random Forest, and multi-output PLS.
+- Existing Logistic Regression APIs, CLI behavior, schema-v1/v2 readers, and reference predictions
+  are compatibility constraints for the common framework.
+- Added `experiments/random_imagery` with the model registry, shared configuration, bounded-score
+  contracts, backend-driven protocol runner, and Logistic Regression adapter.
+- Added typed default configurations and independent backends for Linear SVM and Ridge Classifier.
+- Each classifier performs model-specific train-only feature-family screening and per-pixel grouped
+  grid search, then fits a scalar Logistic Regression Platt calibrator from grouped OOF decision
+  scores only.
+- Final classifier pipelines are trained on all direction-training rows; outer-test features are
+  materialized only after all 36 pixel pipelines and calibrators are complete.
+- Synthetic cross-subject and bidirectional cross-trial runs produce deterministic finite
+  float64 scores in `[0, 1]` with exact threshold-derived labels.
+- Added independent and multi-output Ridge, ElasticNet, and Random Forest backends plus
+  exploratory multi-output PLS.
+- Independent regressors retain one fitted pipeline per pixel. Multi-output regressors retain one
+  shared selector, pipeline, and hyperparameter set for every target.
+- Regression feature screening and search maximize thresholded balanced accuracy, break ties with
+  lower clipped validation MSE, and then preserve configured candidate order.
+- Added fold-local multi-target `f_classif` percentile ranking with deterministic original-index
+  tie resolution.
+- Raw regressor outputs are clipped to `[0, 1]` only after lower/upper clipping fractions are
+  measured. Scores remain continuous outputs and are not treated as probabilities.
+- Added schema-v3 atomic immutable artifacts under model-specific roots. Run identity includes the
+  model configuration, protocol, and direction; manifests inventory every payload with SHA-256 and
+  byte size.
+- Safe schema-v3 evaluation validates all metadata, arrays, metrics, bootstrap summaries, and
+  pipeline paths without loading joblib. Trusted replay additionally validates feature identity
+  and exact test sample keys before deserializing the manifested pipelines.
+- Independent variants persist one pipeline per target; multi-output variants persist one shared
+  pipeline. Calibrated classifier artifacts persist Platt coefficients separately from the base
+  pipelines.
+- Added shared train-or-reuse orchestration and equivalent `random-imagery-models` and
+  `python -m experiments.random_imagery` entry points with `run`, `evaluate`, and `compare`.
+- Mixed schema-v2 Logistic Regression and schema-v3 model comparison is supported only when
+  protocol, direction, and ordered test sample keys are identical.
+- Executed `notebooks/5.2-classical-models-training.ipynb` top-to-bottom and then re-executed all
+  18 model/protocol workflow calls through immutable reuse.
+- Published exactly 27 active schema-v3 direction runs: nine cross-subject runs with 141/39 rows
+  and eighteen cross-trial runs with 81/81 rows.
+- Safe validation passed for every run. All leakage audits are clean, every target retains both
+  classes, independent variants contain 36 pipelines, and multi-output variants contain one.
+- Real-corpus convergence requires independent ElasticNet `max_iter=1_000_000`, `tol=1e-4` and
+  multi-output ElasticNet `max_iter=1_000_000`, `tol=1e-3`; convergence warnings remain errors.
+- The current schema-v3 model artifact set occupies about 127 MiB.
+- Added `experiments/random_imagery/comparison.py` for exact schema-v2/v3 alignment, shared
+  subject-cluster bootstrap draws, paired metric improvements, pooled classifier calibration,
+  and regressor clipping summaries.
+- Executed and visually inspected `notebooks/5.3-classical-models-comparison.ipynb`; all four
+  figures and marker `CLASSICAL_MODELS_COMPARISON_VERIFIED` passed.
+- No model has a pointwise paired 95% balanced-accuracy improvement interval excluding zero versus
+  Logistic Regression in either protocol.
+- Cross-subject descriptive leaders are independent Ridge Regression (`0.518381515`) and
+  independent Random Forest (`0.518205956`). Combined within-subject descriptive leader is
+  multi-output ElasticNet/Lasso (`0.503456996`).
+- Grouped Platt calibration lowers pooled ECE from Logistic Regression's `0.248079` to `0.052025`
+  for Linear SVM and `0.032203` for Ridge Classifier cross-subject, and from `0.279373` to
+  `0.064972` and `0.056217` within-subject.
+- The global-majority baseline has lower score-MSE than every learned model in both protocols.
+  Exact 36-pixel reconstruction remains zero for every model.
+- Full verification reports 334 passed with two pre-existing Python 3.13 multiprocessing warnings;
+  Ruff, lockfile, notebook integration, visual, and diff checks pass.
+- A real target-only audit validated five shared subject-grouped folds across all 180 rows and 36
+  pixels; every train and validation fold retained both target classes.
+- Canonical target/protocol, baseline, and metric implementations now live in the common package;
+  existing Logistic Regression module paths remain compatibility wrappers.
+- Common-runner parity is exact for synthetic cross-subject and cross-trial protocols. Trusted
+  replay of reference run `f515948b6bf5af55` reproduces its `(39, 36)` probabilities and labels
+  bit-for-bit.
+- Ruff passes and the full suite reports 330 passed; two existing Python 3.13 multiprocessing
+  `fork()` deprecation warnings remain.
+
 ## Next Actions
 
+- Obtain explicit final approval for Stage 6.
 - The original Logistic Regression Stage 5 remains awaiting separate review; the extension's
   reconstruction metrics are already incorporated.
 - Obtain explicit final approval for EEG feature-extraction Stage 5 separately.

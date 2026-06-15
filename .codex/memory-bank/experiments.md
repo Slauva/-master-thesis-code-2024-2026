@@ -458,3 +458,174 @@
 - Verification: focused notebook/workflow tests reported 11 passed; Ruff, lockfile, and diff
   checks passed; full suite reported 280 passed with two pre-existing Python 3.13 multiprocessing
   warnings.
+
+## 2026-06-15 - Common random-imagery framework compatibility validation
+
+- Scope: structural Stage 1 validation only; no Linear SVM, Ridge Classifier, regression model, or
+  new real experiment artifact was trained.
+- Registry: one Logistic Regression reference plus nine planned model variants with explicit
+  task, topology, score semantics, and exploratory/reference metadata.
+- Synthetic parity: the common Logistic Regression backend reproduced legacy selected feature
+  families, scores, labels, metrics, and subject-bootstrap samples exactly under cross-subject
+  and bidirectional cross-trial protocols.
+- Test-access ordering: the common runner completed backend fitting before materializing
+  outer-test features and predicting.
+- Real compatibility: safe CLI evaluation passed for schema-v1 run `f515948b6bf5af55` and
+  schema-v2 run `4fcdf3c4fa5ef75a`. Trusted schema-v1 pipeline replay reproduced stored
+  probabilities and predictions bit-for-bit with shape `(39, 36)`.
+- Verification: 70 experiment tests passed; Ruff, lockfile, and diff checks passed; the full suite
+  reported 286 passed with two pre-existing Python 3.13 multiprocessing warnings.
+
+## 2026-06-15 - Grouped OOF calibration validation
+
+- Scope: Stage 2 structural and synthetic validation for independent Linear SVM and Ridge
+  Classifier backends. No real-corpus model or immutable schema-v3 artifact was produced.
+- Feature selection: each classifier screened candidate feature families with its own estimator on
+  pixel-specific grouped folds, then ran an independent per-pixel grouped hyperparameter search.
+- Calibration: the selected pipeline was cloned and refitted per grouped fold; every outer-train
+  row received exactly one OOF decision score from a model that excluded its validation group.
+  A scalar Logistic Regression calibrator mapped these OOF scores into `[0, 1]`.
+- Final fitting: one selected base pipeline per pixel was refitted on all direction-training rows.
+  Test features were materialized only after every pixel pipeline and calibrator had completed.
+- Synthetic cross-subject validation: both models produced deterministic finite float64 score
+  matrices, exact `0.5` threshold-derived int8 predictions, complete OOF fold assignments, and
+  disjoint train/validation subjects in every calibration fold.
+- Synthetic bidirectional cross-trial smoke validation: both models completed Trial 1 -> Trial 2
+  and Trial 2 -> Trial 1 and combined the two independently calibrated predictions successfully.
+- Verification: 76 experiment tests passed; Ruff, lockfile, and diff checks passed; the full suite
+  reported 292 passed with two pre-existing Python 3.13 multiprocessing warnings.
+
+## 2026-06-15 - Classical regression backend validation
+
+- Scope: Stage 3 structural, synthetic, and target-only validation for seven regression variants.
+  No real EEG feature training or immutable schema-v3 artifact was produced.
+- Variants: independent and multi-output Ridge, ElasticNet, and Random Forest regression plus
+  exploratory multi-output PLS.
+- Independent topology: one pixel-specific grouped search and final fitted pipeline per target.
+  Multi-output topology: one shared subject-grouped fold partition, selector, search, pipeline,
+  and hyperparameter set across all targets.
+- Selection: model-specific feature-family screening and grid search maximize thresholded balanced
+  accuracy; exact ties use lower clipped validation MSE and then configured order. Screening
+  estimator parameters are explicit rather than inherited from the first search-grid candidate.
+- Multi-target selector: fold-local `f_classif` percentile ranks are averaged across targets with
+  deterministic original-feature-index tie resolution.
+- Scores: raw predictions are checked for finiteness, lower and upper clipping fractions are
+  measured, and outputs are clipped into `[0, 1]` before configured-threshold labels are formed.
+- Synthetic validation: all seven variants produced deterministic bounded scores. Independent and
+  multi-output Ridge also produced exact `(18, 36)` test matrices; representative Ridge and PLS
+  variants completed both cross-trial directions and combined successfully.
+- Real target audit: all 180 random-imagery rows and 36 targets from 33 subjects passed shuffled
+  five-fold shared `GroupKFold` validation. Train/validation row counts were `141/39`, `141/39`,
+  `141/39`, `153/27`, and `144/36`; every pixel retained both classes in every partition.
+- Verification: 98 experiment tests passed; Ruff, lockfile, and diff checks passed; the full suite
+  reported 316 passed with two pre-existing Python 3.13 multiprocessing warnings.
+
+## 2026-06-15 - Schema-v3 model artifact and CLI validation
+
+- Scope: Stage 4 structural and synthetic validation. No real-corpus model run or training
+  notebook was produced.
+- Artifacts: added model-specific schema-v3 run roots, deterministic configuration hashes, atomic
+  publication, complete SHA-256/size inventories, persisted train/test targets, scores,
+  predictions, baselines, diagnostics, and topology-aware pipelines.
+- Safe boundary: metadata/array evaluation recomputes and validates persisted metrics and
+  bootstrap summaries without calling `joblib.load`. Pipeline counts and manifested relative
+  paths are validated even in safe mode; corruption, extra files, and unsafe `..` paths are
+  rejected.
+- Trusted replay: independent Linear SVM, independent Ridge Regression, and multi-output PLS
+  synthetic runs reproduced persisted scores to numerical precision and labels exactly after
+  validating feature blocks, ordered feature names, and canonical test sample keys.
+- Workflow: one public function trains or reuses a complete immutable protocol run set. Synthetic
+  within-subject reuse loaded both directions without refitting and recomputed the combined
+  evaluation without rewriting manifests; incomplete sets were rejected.
+- CLI: added equivalent installed and module entry points with `run`, safe `evaluate`, and
+  compatible `compare` commands. A mixed schema-v2 Logistic Regression/schema-v3 PLS comparison
+  succeeded on an identical synthetic cross-subject split.
+- Verification: 113 experiment tests passed; Ruff, lockfile, and diff checks passed; the full
+  suite reported 329 passed with two pre-existing Python 3.13 multiprocessing warnings.
+
+## 2026-06-15 - Full real-corpus classical-model training
+
+- Notebook: executed `notebooks/5.2-classical-models-training.ipynb` top-to-bottom, then validated
+  a complete second pass through immutable reuse. Seven code cells are executed, no error output
+  is stored, one descriptive run-level figure was visually inspected, and
+  `CLASSICAL_MODELS_TRAINING_VERIFIED` is present.
+- Corpus and protocols: all models use the same 180 `Data_Pattern/patt`, `type="random"` rows,
+  33 subjects, 36 row-major targets, and feature config hash `fb8c5dcc8a1d3f30`. Cross-subject
+  directions use 141/39 rows; both cross-trial directions use 81/81 rows from 27 eligible
+  identities.
+- Artifact set: exactly 27 active schema-v3 direction runs occupy about 127 MiB. Every safe load
+  passed complete inventory, metric, bootstrap, split, leakage, and topology validation.
+- Numerical adjustment: independent ElasticNet uses `max_iter=1_000_000`, `tol=1e-4`.
+  Multi-output ElasticNet uses `max_iter=1_000_000`, `tol=1e-3` after strict real-corpus runs
+  showed that `tol=1e-4` remained unmet on one grouped fold. Convergence warnings are still
+  promoted to errors.
+- Linear SVM: cross-subject `f3623d36e070c677`, LBP, balanced accuracy `0.493335880`;
+  Trial 1 -> 2 `72852afb69efda8d`, LBP, `0.503029993`; Trial 2 -> 1
+  `8e9ae1ac1fd4756d`, time+spectral, `0.512548464`.
+- Ridge Classifier: cross-subject `6343dec0600355e7`, LGP, `0.502153502`; Trial 1 -> 2
+  `b87938f8647ad532`, log-covariance, `0.503065128`; Trial 2 -> 1
+  `3b9e5e1624098afb`, time+spectral, `0.513105140`.
+- Independent Ridge Regression: cross-subject `c7605762c2e4c898`, LGP, `0.518381515`;
+  Trial 1 -> 2 `4eb9fbae64345f4b`, log-covariance, `0.501807861`; Trial 2 -> 1
+  `20630da85752c082`, time+spectral, `0.496847788`.
+- Multi-output Ridge Regression: cross-subject `0af85371b36da04f`, time+spectral,
+  `0.497668271`; Trial 1 -> 2 `643f046566cabab0`, time, `0.510087502`; Trial 2 -> 1
+  `993e9bc2c622349b`, spectral, `0.499272610`.
+- Independent ElasticNet: cross-subject `1ebfde4e234d58ff`, LBP, `0.512398951`;
+  Trial 1 -> 2 `4e256d04ea981fef`, spectral, `0.495357334`; Trial 2 -> 1
+  `85d203a041f1db98`, LBP, `0.510503974`.
+- Multi-output ElasticNet: cross-subject `b043eff18b45f217`, time+spectral, `0.506086304`;
+  Trial 1 -> 2 `82ad1db8178806a7`, spectral, `0.506051733`; Trial 2 -> 1
+  `c473d0e79c57fa14`, time+spectral, `0.503266468`.
+- Independent Random Forest: cross-subject `e6f27a2ba93abb13`, LBP, `0.518205956`;
+  Trial 1 -> 2 `92a708813a79889f`, spectral, `0.506584690`; Trial 2 -> 1
+  `db54f50d9cb2cc05`, time+spectral, `0.504821687`.
+- Multi-output Random Forest: cross-subject `35ee5634a4c5e481`, time, `0.504499179`;
+  Trial 1 -> 2 `88cdaaf9fbd21cf4`, spectral, `0.506629297`; Trial 2 -> 1
+  `518ad5e5e02cfd19`, LNDP, `0.508794036`.
+- Multi-output PLS: cross-subject `b9d0ebd252d5d2d9`, correlation, `0.498280588`;
+  Trial 1 -> 2 `4fa8edfdd04111e1`, spectral, `0.502811732`; Trial 2 -> 1
+  `351a10357b7e11d5`, correlation, `0.509864597`.
+- These direction-level values are descriptive training validation only. Cross-subject and
+  cross-trial estimates are not averaged, and isolated confidence intervals above chance are not
+  interpreted without the planned paired, multiple-model comparison in Stage 6.
+- Verification: notebook integration and visual checks passed; Ruff, lockfile, and diff checks
+  passed; the full suite reported 330 passed with two pre-existing Python 3.13 multiprocessing
+  warnings.
+
+## 2026-06-15 - Final classical-model comparison
+
+- Notebook: executed `notebooks/5.3-classical-models-comparison.ipynb` with ten code cells, no
+  error output, four visually inspected figures, and marker
+  `CLASSICAL_MODELS_COMPARISON_VERIFIED`.
+- Compatibility: every schema-v3 candidate exactly matched the schema-v2 Logistic Regression
+  reference on ordered test sample keys, binary targets, and subject IDs. Cross-subject retained
+  39 rows from seven subjects; combined bidirectional cross-trial retained 162 rows from 27
+  subjects.
+- Uncertainty: each protocol used 2,000 accepted subject-cluster bootstrap draws with seed 42,
+  shared across all models and paired reference differences. Cross-subject required 2,002 draw
+  attempts because two resamples lacked both classes for at least one pixel.
+- Cross-subject balanced accuracy ranged from `0.493335880` to `0.518381515`. Independent Ridge
+  Regression (`0.518381515`) and independent Random Forest (`0.518205956`) were the descriptive
+  leaders, but their paired improvements versus Logistic were only `0.008390596`
+  (`[-0.024561612, 0.060292662]`) and `0.008215038`
+  (`[-0.011754340, 0.026133447]`).
+- Combined within-subject balanced accuracy ranged from `0.487378289` to `0.503456996`.
+  Multi-output ElasticNet/Lasso led descriptively at `0.503456996`, with paired improvement
+  `0.003443392` and interval `[-0.014362743, 0.021730064]`.
+- Every candidate's pointwise paired 95% balanced-accuracy improvement interval versus Logistic
+  Regression included zero. Exact-match accuracy was zero for all ten models in both protocols.
+- Classifier pooled ECE was `0.248079` Logistic, `0.052025` Linear SVM, and `0.032203` Ridge
+  Classifier cross-subject; within-subject values were `0.279373`, `0.064972`, and `0.056217`.
+  Better calibration did not produce better thresholded reconstruction accuracy.
+- The global-majority baseline score-MSE was `0.249715` cross-subject and `0.250100`
+  within-subject, lower than every learned model. This comparison remains semantic-aware:
+  classifiers use probability Brier score and regressors use clipped-output MSE.
+- Regression clipping was substantial for several linear variants. Combined within-subject
+  independent Ridge clipped `34.95%` of raw sample-pixel outputs and multi-output ElasticNet
+  clipped `29.58%`; both Random Forest variants clipped none.
+- Inference limits: intervals are pointwise and not multiplicity-adjusted; pooled ECE treats
+  sample-pixel pairs descriptively; PLS remains exploratory; protocols are never averaged.
+- Verification: comparison tests and notebook integration passed; all four figures were visually
+  inspected; Ruff, lockfile, and diff checks passed; the full suite reported 334 passed with two
+  pre-existing Python 3.13 multiprocessing warnings.

@@ -240,3 +240,89 @@
   figure, but report cross-subject and within-subject tables separately. Never average protocols
   or describe their difference as a pure model effect because their populations and
   generalization targets differ.
+- Keep model-agnostic random-imagery targets, evaluation protocols, baselines, metrics,
+  configuration primitives, and orchestration under `experiments/random_imagery`. Preserve
+  `experiments/logistic_regression` module paths as compatibility wrappers where implementations
+  have moved.
+- Describe every random-imagery estimator through a typed registry entry containing model ID,
+  estimator family, independent or multi-output topology, classifier or regressor task, and score
+  semantics.
+- Require every model backend to complete training and feature-family selection before the common
+  runner materializes outer-test features. Backends return bounded float64 scores and exact
+  threshold-derived int8 predictions through one shared contract.
+- Use `score_mse` as the model-agnostic name for squared error of bounded scores. Existing Logistic
+  Regression `mean_brier_score` and `per_pixel_brier_score` fields remain intact and expose
+  `mean_score_mse` and `per_pixel_score_mse` aliases for compatibility.
+- For Linear SVM and Ridge Classifier, perform model-specific feature-family screening with the
+  estimator's native zero decision threshold and balanced accuracy on the established
+  pixel-specific grouped folds.
+- Select each classifier pipeline by grouped balanced-accuracy grid search, then clone the selected
+  pipeline into every grouped fold to generate one OOF decision score per outer-train row. Fit the
+  scalar Logistic Regression Platt calibrator only on those OOF scores and labels.
+- Fit one final selected base pipeline per pixel on all direction-training rows. Apply its decision
+  scores to the fitted Platt calibrator at prediction time; never expose outer-test rows to feature
+  selection, hyperparameter search, OOF score generation, or calibration.
+- Retain OOF decision scores, OOF fold assignments, sigmoid coefficient/intercept, selected
+  supports, base coefficients, and candidate CV summaries in the fitted classifier payload for
+  later schema-v3 artifact persistence.
+- Use the established pixel-specific `StratifiedGroupKFold` contracts for independent regressors.
+  Use one shuffled `GroupKFold` partition by subject for multi-output regressors, and reject any
+  fold where a target lacks either class in train or validation.
+- Keep regression feature-family screening estimator parameters explicit in configuration and
+  separate from search-grid order. Grid order affects only the final deterministic tie-break.
+- Select regression feature families and hyperparameters by maximum mean thresholded balanced
+  accuracy. Resolve exact ties by lower clipped validation MSE and then configured candidate order.
+- For multi-output feature selection, compute fold-local `f_classif` scores for every target,
+  convert each target's scores into deterministic percentile ranks, average ranks across targets,
+  and resolve remaining ties by original feature index.
+- Use sklearn's native multi-output `Ridge`, `ElasticNet`, and `RandomForestRegressor` behavior with
+  one shared pipeline and hyperparameter set. Do not substitute `MultiTaskElasticNet`, whose
+  mixed-norm sparsity is a different model.
+- Represent Lasso inside the ElasticNet grid with `l1_ratio=1.0` and require every ElasticNet
+  configuration to include that candidate.
+- Apply external standardization before Ridge, ElasticNet, and PLS; configure PLS with
+  `scale=False` to avoid a second scaling pass. Random Forest uses no scaler.
+- Keep every Random Forest estimator at `n_jobs=1`; only the outer grouped grid search may
+  parallelize candidate and fold evaluation.
+- Measure fractions of raw regression outputs below zero and above one before clipping. Expose
+  only clipped float64 `[0, 1]` scores and exact configured-threshold int8 labels to the common
+  runner; clipped regression scores must not be described as probabilities.
+- Use artifact schema version 3 for non-reference model runs under
+  `artifacts/experiments/random-imagery/<model-id>/<config-hash>/`. Include model ID, complete
+  resolved model configuration, protocol, and direction in the immutable hash.
+- Persist 36 independently fitted pipelines for independent topology and exactly one fitted
+  pipeline for multi-output topology. Persist grouped Platt calibration coefficients as validated
+  JSON metadata rather than embedding calibrators in the base classifier pipelines.
+- Publish schema-v3 runs atomically only after every payload is flushed and inventoried. Refuse
+  duplicate publication and destructive overwrite.
+- Keep schema-v3 safe loading free of joblib deserialization while still validating pipeline
+  counts, relative paths, manifest membership, file hashes, arrays, metrics, and bootstrap
+  summaries. Permit pipeline loading only through an explicit trusted mode.
+- Require trusted replay to match selected feature blocks, complete ordered feature/channel names,
+  and canonical test sample keys before calling persisted pipelines.
+- Share one `execute_model_protocol` train-or-reuse workflow between terminal and future notebook
+  callers. Reuse is valid only when the complete protocol direction set exists and each run
+  matches both the resolved model configuration and feature configuration hash.
+- Compare schema-v2 and schema-v3 direction runs only when protocol, direction, and ordered test
+  sample keys match exactly; do not silently align or aggregate incompatible evaluation rows.
+- Use `max_iter=1_000_000` with `tol=1e-4` for real independent ElasticNet runs. The approved grid
+  is retained unchanged, including low regularization and `l1_ratio=1.0`; convergence warnings
+  remain fatal.
+- Use `max_iter=1_000_000` with `tol=1e-3` for real multi-output ElasticNet runs. The native
+  multi-target `ElasticNet` cyclic solver did not satisfy `tol=1e-4` even at one million
+  iterations on one grouped fold; the model-specific tolerance is explicit in configuration
+  rather than suppressing the warning or silently dropping a candidate.
+- For final model comparison, require exact ordered test sample keys, targets, and subject IDs
+  across every candidate and the Logistic Regression reference. Reject rather than silently align
+  incompatible runs.
+- Keep cross-subject and combined bidirectional cross-trial comparisons separate. Combine the two
+  cross-trial directions only after confirming disjoint sample keys, then keep all six rows from a
+  sampled identity together in the subject-cluster bootstrap.
+- Use the same 2,000 accepted subject-bootstrap draws for every model within a protocol. Report
+  paired improvement with positive always meaning better: candidate minus Logistic for balanced
+  accuracy and IoU, Logistic minus candidate for score-MSE and Hamming loss.
+- Treat paired 95% intervals as pointwise exploratory intervals without multiplicity adjustment.
+  Do not convert descriptive ranks or isolated absolute intervals into model-superiority claims.
+- Assess calibration only for classifier probabilities using pooled sample-pixel fixed-bin ECE.
+  For regressors, report pre-clipping lower/upper fractions and clipped score-MSE; never interpret
+  clipped continuous outputs as calibrated probabilities.

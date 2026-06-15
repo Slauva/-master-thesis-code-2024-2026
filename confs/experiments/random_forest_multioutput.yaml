@@ -1,0 +1,59 @@
+model_id: random-forest-multioutput
+
+dataset:
+  dataset_dir: data/Data_Pattern
+  recording_family: patt
+  pattern_type: random
+  image_rows: 6
+  image_columns: 6
+  feature_config_path: confs/features/default.yaml
+
+split:
+  test_size: 0.2
+  random_state: 42
+  group_by: subject
+  require_both_classes: true
+
+cross_validation:
+  n_splits: 5
+  shuffle: true
+  random_state: 42
+  scoring: balanced_accuracy
+
+feature_screening:
+  select_k: 100
+  variance_threshold: 0.0
+  candidates:
+    - [time]
+    - [spectral]
+    - [time, spectral]
+    - [covariance]
+    - [correlation]
+    - [log_covariance]
+    - [lndp]
+    - [lgp]
+    - [lbp]
+
+grid_search:
+  estimator_family: random_forest
+  select_k: [50, 100]
+  n_estimators: [100]
+  max_depth: [null, 10]
+  min_samples_leaf: [1, 3]
+  max_features: [0.5, 1.0]
+  screening_n_estimators: 100
+  screening_max_depth: null
+  screening_min_samples_leaf: 1
+  screening_max_features: 1.0
+  estimator_n_jobs: 1
+  n_jobs: -1
+  error_score: raise
+
+prediction_threshold: 0.5
+bootstrap_iterations: 2000
+random_state: 42
+
+artifacts:
+  root: artifacts/experiments/random-imagery
+  schema_version: 3
+  overwrite: false

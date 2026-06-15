@@ -1,0 +1,62 @@
+model_id: linear-svm-independent
+
+dataset:
+  dataset_dir: data/Data_Pattern
+  recording_family: patt
+  pattern_type: random
+  image_rows: 6
+  image_columns: 6
+  feature_config_path: confs/features/default.yaml
+
+split:
+  test_size: 0.2
+  random_state: 42
+  group_by: subject
+  require_both_classes: true
+
+cross_validation:
+  n_splits: 5
+  shuffle: true
+  random_state: 42
+  scoring: balanced_accuracy
+
+feature_screening:
+  select_k: 100
+  variance_threshold: 0.0
+  regularization: 1.0
+  class_weight: balanced
+  candidates:
+    - [time]
+    - [spectral]
+    - [time, spectral]
+    - [covariance]
+    - [correlation]
+    - [log_covariance]
+    - [lndp]
+    - [lgp]
+    - [lbp]
+
+grid_search:
+  estimator_family: linear_svm
+  select_k: [25, 50, 100, 250]
+  c_values: [0.01, 0.1, 1.0, 10.0]
+  class_weights: [null, balanced]
+  max_iter: 10000
+  tolerance: 0.0001
+  n_jobs: -1
+  error_score: raise
+
+calibration:
+  c: 1.0
+  max_iter: 5000
+  tolerance: 0.000001
+  solver: lbfgs
+
+prediction_threshold: 0.5
+bootstrap_iterations: 2000
+random_state: 42
+
+artifacts:
+  root: artifacts/experiments/random-imagery
+  schema_version: 3
+  overwrite: false
