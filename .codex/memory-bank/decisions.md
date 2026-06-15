@@ -148,3 +148,60 @@
   zero-based window index, and absolute bounds alongside `X`.
 - Keep scaling, PCA, feature selection, targets, and all learned transforms outside
   `FeatureDataset` and `build_feature_matrix(...)`; fit them only within training folds.
+- Use only `Data_Pattern/patt` records with `type="random"` for the primary pixel-wise Logistic
+  Regression reconstruction baseline. One full `[0.5, 15.5)` imagery epoch maps to one 36-pixel
+  target row.
+- Hold out subjects with `GroupShuffleSplit(test_size=0.2, random_state=42)`. Interpret the 80/20
+  ratio as a proportion of subject groups, not rows; the current corpus yields 141/39 rows from
+  26/7 subjects.
+- Reject outer splits that overlap in subject, canonical sample key, random seed, or complete image
+  payload, and require both binary classes in every train and test pixel task.
+- Use balanced accuracy as the primary train-only model-selection metric and 0.5 as the fixed final
+  decision threshold. Select one common feature family before per-pixel hyperparameter tuning.
+
+## 2026-06-15
+
+- Screen common feature families separately for each pixel with deterministic five-fold
+  `StratifiedGroupKFold` on the 141 outer-train rows, using subject ID as the group. Reuse the same
+  pixel-specific folds for every candidate family.
+- Fit variance filtering, capped ANOVA `SelectKBest`, standardization, and the fixed balanced L2
+  Logistic Regression screening model only on each fold's training rows.
+- Rank feature families by the unweighted mean of per-pixel mean fold balanced accuracy and break
+  exact ties by configured candidate order.
+- The current train-only screening selects `lbp` for Stage 3. Keep the outer-test feature rows and
+  labels untouched until all per-pixel hyperparameters are selected and final models are fitted.
+- Tune each pixel independently with the same pixel-specific grouped folds used for screening.
+  Search `k in {25, 50, 100, 250}`, `C in {0.01, 0.1, 1, 10}`, L1/L2, and
+  `class_weight in {None, balanced}` inside a variance-filter, ANOVA-selector, scaler, and
+  `liblinear` pipeline.
+- Represent sklearn 1.9 L1/L2 Logistic Regression through `l1_ratio=1/0` instead of the deprecated
+  `penalty` constructor parameter. Preserve the scientific parameter names as `l1` and `l2` in
+  experiment schemas and reports.
+- Complete all 36 train-only grid searches before loading outer-test feature rows or computing any
+  outer-test predictions. Parallel `n_jobs=-1` changes only execution scheduling, not folds,
+  candidate order, seeds, or tie-breaking.
+- Store experiment runs under the versioned config hash and publish the complete run directory
+  atomically only after every payload file is durable and `manifest.json` has been written last.
+- Treat valid experiment runs as immutable by default. Refuse duplicate config-hash writes unless
+  overwrite is explicitly enabled in the resolved experiment config.
+- Record the exact relative file inventory, byte size, and SHA-256 for every config, metadata,
+  array, and pipeline payload. Reject missing, unexpected, size-changed, or hash-changed files.
+- Never load persisted joblib pipelines implicitly. Require explicit `trusted=True` after manifest
+  validation, and restrict pipeline paths to manifested `.joblib` files directly under
+  `pipelines/`.
+- Reproduce persisted predictions only after validating the selected feature family, complete
+  feature-name/channel order, and canonical outer-test sample keys.
+- Evaluate final 6x6 reconstruction with mean per-pixel balanced accuracy as the primary metric,
+  plus macro F1, Brier score, bit accuracy, exact-match accuracy, and mean Hamming distance.
+- Quantify held-out uncertainty with a percentile cluster bootstrap that resamples complete test
+  subjects with replacement. Reject the rare resample that removes either class from any pixel so
+  balanced accuracy retains the same 36-task definition.
+- Treat selected standardized LBP coefficients and selection frequencies as descriptive model
+  diagnostics only, not as physiological channel importance or causal evidence.
+- Treat binary value `1` as foreground for reconstruction IoU. Compute sample IoU independently
+  for each 6x6 image, assign `1.0` to an empty-target/empty-prediction sample, and compute micro
+  IoU from foreground intersections and unions pooled across all evaluated samples and pixels.
+- Report normalized Hamming loss alongside bit accuracy and mean Hamming distance, enforcing
+  `hamming_loss = 1 - bit_accuracy = mean_hamming_distance / 36`.
+- Keep IoU and Hamming loss strictly in held-out evaluation and reporting; balanced accuracy
+  remains the primary feature-screening and hyperparameter-selection metric.

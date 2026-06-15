@@ -230,3 +230,150 @@
   split, condition effect, classification result, or reproduction of article accuracy is claimed.
 - Verification: eight code cells executed with no errors, four PNG outputs were stored, Ruff
   passed, `git diff --check` passed, and the full suite reported 212 passed and 2 skipped.
+
+## 2026-06-14 - Random imagery target and split audit
+
+- Scope: Stage 1 contract audit for the pixel-wise Logistic Regression baseline; no EEG features
+  or fitted classifiers were used.
+- Source: all 180 `type="random"` blocks from `Data_Pattern/patt`.
+- Targets: row-major binary `(180, 36)` matrix with names `pixel_r0_c0` through `pixel_r5_c5`.
+- Split: `GroupShuffleSplit(test_size=0.2, random_state=42)` grouped by subject, producing 141
+  train rows from 26 subjects and 39 test rows from subjects 9, 10, 16, 18, 20, 28, and 33.
+- Class support: train positive counts per pixel range 59-81; test positive counts range 14-26;
+  every pixel contains both classes in both partitions.
+- Leakage audit: no shared subjects, canonical sample keys, seeds, or SHA-256 image fingerprints.
+- Baselines prepared for later evaluation: global majority, per-pixel training frequency, and
+  seeded Bernoulli; each produces `(39, 36)` probabilities and predictions.
+- Verification: 24 focused tests passed, Ruff passed, `git diff --check` passed, and the full suite
+  reported 236 passed and 2 skipped.
+
+## 2026-06-15 - Random imagery train-only feature-family screening
+
+- Scope: Stage 2 common-family selection for 36 binary pixel tasks; the 39 outer-test rows remained
+  untouched.
+- Inputs: 141 full-epoch `[0.5, 15.5)` `Data_Pattern/patt` random-imagery blocks from 26
+  outer-train subjects. Each block produced one feature row.
+- Cross-validation: per-pixel five-fold `StratifiedGroupKFold(shuffle=True, random_state=42)` by
+  subject. All 180 pixel-fold combinations had both classes in train and validation; validation
+  folds contained 24-33 rows from 4-7 subjects.
+- Fold-local pipeline: variance threshold 0, capped ANOVA `SelectKBest(k=100)`, standardization,
+  and balanced L2 Logistic Regression with `C=1`, `liblinear`, and `max_iter=5000`.
+- Mean per-pixel balanced accuracy: `time` 0.508035, `spectral` 0.501098,
+  `time+spectral` 0.505047, `covariance` 0.494298, `correlation` 0.490803,
+  `log_covariance` 0.500776, `lndp` 0.501745, `lgp` 0.510085, and `lbp` 0.515542.
+- Selection: `lbp` by the predefined maximum-mean rule. Its matrix shape was `(141, 16128)`;
+  every fold retained 100 selected features.
+- Reproducibility: a second complete cached run reproduced every score within `5e-10`.
+- Leakage check: feature manifests remained absent for all 39 outer-test keys after both runs.
+- Interpretation boundary: all candidate means are near chance and the leading margin is small.
+  This stage chooses a common train-only representation; it does not estimate held-out performance.
+- Verification: 29 experiment tests passed without warnings, Ruff passed, `git diff --check`
+  passed, and the full suite reported 243 passed with two pre-existing multiprocessing warnings.
+
+## 2026-06-15 - Random imagery per-pixel Logistic Regression grid search
+
+- Scope: Stage 3 training and one outer-test prediction pass for 36 independent binary pixel
+  models using the Stage 2-selected `lbp` family.
+- Inputs: 141 outer-train rows from 26 subjects and 39 outer-test rows from 7 disjoint subjects;
+  one full `[0.5, 15.5)` epoch per row and 16,128 original `lbp` columns.
+- Search: one five-fold subject-grouped `GridSearchCV` per pixel, balanced accuracy, fixed Stage 2
+  folds, and 64 combinations from `k={25,50,100,250}`, `C={0.01,0.1,1,10}`, L1/L2, and
+  class weight `{None,balanced}`.
+- Pipeline: variance threshold 0, capped ANOVA selection, standardization, and `liblinear`
+  Logistic Regression with `max_iter=5000`. All transforms were fitted inside folds; final refit
+  used all 141 training rows.
+- Execution: `n_jobs=-1`; all 36 searches plus test prediction completed in 43.958 s. Temporary
+  joblib transform caches were deleted and removed from returned pipelines.
+- Outputs: finite `(39,36)` probabilities and binary predictions, finite selected coefficients,
+  and 64 retained candidate CV summaries per pixel.
+- Best-CV balanced accuracy: mean 0.579192, range 0.500000-0.684022.
+- Outer-test per-pixel balanced accuracy: mean 0.509991, standard deviation 0.085920, range
+  0.360963-0.658730.
+- Hyperparameters: `k` counts 25/50/100/250 = 6/9/8/13; `C` counts
+  0.01/0.1/1/10 = 6/11/12/7; L1/L2 = 17/19; class weight None/balanced = 22/14.
+- Optimizer iterations ranged from 0 to 13. A zero-iteration final fit is valid for liblinear when
+  the initial solution already meets its stopping condition.
+- Interpretation: the mean selected CV score exceeds the mean held-out score by about 0.0692,
+  while mean held-out balanced accuracy is near chance. This is consistent with hyperparameter
+  selection optimism and weak cross-subject signal, not successful 6x6 reconstruction.
+- Verification: exact deterministic predictions and choices passed on synthetic grouped data;
+  a real train-only rerun reproduced pixel 0's choice and CV score; Ruff passed and the full suite
+  reported 246 passed with two pre-existing multiprocessing warnings.
+
+## 2026-06-15 - Random imagery immutable experiment artifact
+
+- Artifact:
+  `artifacts/experiments/logistic-regression/f515948b6bf5af55/`.
+- Materialization: reproduced the Stage 2 screening and Stage 3 36-pixel grid search from feature
+  cache, then published the complete run through a hidden sibling directory and atomic rename.
+- Contents: resolved config, environment, outer split, 180 grouped CV folds, 16,128 feature names,
+  all screening results, all 2,304 grid candidate summaries, selected feature supports and
+  coefficients, train/test targets, probabilities, predictions, per-pixel test scores, and 36
+  fitted pipelines.
+- Integrity: 48 payload files are listed with exact sizes and SHA-256 in `manifest.json`; total
+  directory size is about 14 MiB and total file count is 49 including the manifest.
+- Trust boundary: joblib loading is denied by default and requires explicit `trusted=True` after
+  all manifest checks. Pipeline filenames are constrained to manifested local files under
+  `pipelines/`.
+- Replay: all 36 pipelines loaded successfully and reproduced the stored `(39,36)` probabilities
+  bit-for-bit and labels exactly from canonical aligned test features.
+- Result consistency: persisted mean outer-test per-pixel balanced accuracy is 0.509990919, equal
+  to Stage 3.
+- Environment: Python 3.13.11, NumPy 2.4.4, SciPy 1.17.1, scikit-learn 1.9.0, joblib 1.5.3,
+  MNE 1.11.0, Pydantic 2.12.5, and OmegaConf 2.3.0.
+- Git provenance: commit `1ca50bf23fdbffb79609a80bacb2f7884e4ac8bc`, dirty working tree.
+  Artifact payload integrity is validated, but final thesis provenance should use a committed
+  implementation revision.
+- Verification: five focused artifact tests covered trusted round trip, prediction replay,
+  duplicate refusal, missing/corrupt files, and unsafe pipeline paths. Ruff passed,
+  `git diff --check` passed, and the full suite reported 251 passed with two pre-existing
+  multiprocessing warnings.
+
+## 2026-06-15 - Random imagery final Logistic Regression evaluation
+
+- Artifact: executed `notebooks/5.0-logistic-regression-random-pixels.ipynb`, reading immutable
+  run `artifacts/experiments/logistic-regression/f515948b6bf5af55/` without retraining.
+- Evaluation set: 39 random-imagery blocks from 7 held-out subjects; one 36-pixel target per block.
+- Primary result: mean per-pixel balanced accuracy `0.509990919`.
+- Uncertainty: percentile cluster bootstrap over complete subjects, 2,000 valid resamples,
+  `random_state=42`; 95% interval `[0.496383660, 0.521077288]`. Two additional draws were rejected
+  because at least one pixel lost a target class.
+- Other model metrics: mean macro F1 `0.499652645`, bit accuracy `0.514245014`, mean Brier score
+  `0.333966692`, exact-match accuracy `0`, and mean Hamming distance `17.487179` of 36 pixels.
+- Non-EEG comparison: global-majority and pixel-frequency balanced accuracy were both `0.5`;
+  seeded Bernoulli was `0.500395206`. Pixel frequency outperformed Logistic Regression on bit
+  accuracy (`0.524216524`), Brier score (`0.250529325`), and Hamming distance (`17.128205`).
+- Selection optimism: mean selected inner-CV balanced accuracy `0.579192` exceeded held-out
+  performance by about `0.0692`.
+- Visual evidence: five inspected figures cover uncertainty and baselines, train-only feature
+  screening plus CV/test scores, the 6x6 per-pixel score map, deterministic closest/median/farthest
+  reconstructions, and descriptive LBP channel selection counts.
+- Interpretation: the bootstrap interval includes chance, no method exactly reconstructed any 6x6
+  image, and the EEG model does not dominate simple frequency baselines. This is a reproducible
+  negative cross-subject baseline, not evidence of successful image reconstruction.
+- Provenance caveats: only seven test subjects; source physical-unit scale remains unresolved; the
+  persisted run records a dirty Git worktree and should be tied to a committed revision for thesis
+  reporting.
+- Verification: 9 notebook code cells executed with no errors and 5 stored PNG outputs; 43 focused
+  experiment/notebook tests passed; Ruff and `git diff --check` passed; full suite reported
+  257 passed with two pre-existing multiprocessing warnings.
+
+## 2026-06-15 - Random imagery reconstruction metric extension
+
+- Scope: evaluation-only extension of the immutable cross-subject run
+  `artifacts/experiments/logistic-regression/f515948b6bf5af55/`; no fitting, feature selection,
+  threshold selection, or artifact rewrite occurred.
+- Logistic Regression: mean sample foreground IoU `0.335257970`, global micro foreground IoU
+  `0.334634146`, and normalized Hamming loss `0.485754986`.
+- Global-majority baseline: mean sample IoU `0`, micro IoU `0`, Hamming loss `0.478632479`.
+- Pixel-frequency baseline: mean sample IoU `0.293694463`, micro IoU `0.291622481`, Hamming loss
+  `0.475783476`.
+- Seeded-Bernoulli baseline: mean sample IoU `0.326008812`, micro IoU `0.324298161`, Hamming loss
+  `0.497150997`.
+- Invariants: empty-target/empty-prediction sample IoU is `1.0`;
+  `hamming_loss = 1 - bit_accuracy = mean_hamming_distance / 36`.
+- Notebook: `notebooks/5.0-logistic-regression-random-pixels.ipynb` re-executed with all 9 code
+  cells successful, no error outputs, the integration marker present, and 5 figures visually
+  inspected.
+- Verification: focused metric/notebook tests reported 8 passed; Ruff and `git diff --check`
+  passed; full suite reported 259 passed with two pre-existing multiprocessing warnings.

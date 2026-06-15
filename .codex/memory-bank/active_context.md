@@ -170,16 +170,74 @@ EEG feature extraction:
   must be resolved before physiological amplitude or power interpretation.
 - Ruff passes and the full suite reports 212 passed and 2 skipped.
 
+Pixel-wise Logistic Regression:
+
+- The approved staged plan is stored in
+  `.codex/memory-bank/plans/2026-06-14-logistic-regression-random-imagery.md`.
+- The approved evaluation/CLI extension plan is stored in
+  `.codex/memory-bank/plans/2026-06-15-logistic-regression-evaluation-cli.md`.
+- Extension Stage 1, reconstruction metrics, is completed.
+- Extension Stage 2, evaluation protocols and reusable runner, is in progress.
+- Stage 1, contracts, targets, grouped split, leakage checks, and non-EEG baselines, is completed.
+- Stage 2, train-only common feature-family selection, is completed.
+- Stage 3, per-pixel grouped grid search and one-time outer-test prediction, is completed.
+- Stage 4, immutable experiment artifacts and validated pipeline round trips, is completed.
+- Stage 5, final metrics, subject bootstrap uncertainty, figures, and the executed notebook, is
+  implemented and awaiting explicit final review.
+- Added reusable prediction metrics and subject-cluster bootstrap evaluation.
+- Added and executed `notebooks/5.0-logistic-regression-random-pixels.ipynb` with five visually
+  inspected figures and automated notebook validation.
+- Final Logistic Regression mean per-pixel balanced accuracy is `0.509990919` with 95% subject
+  bootstrap interval `[0.496383660, 0.521077288]`; the interval includes chance.
+- Exact 6x6 reconstruction accuracy is zero. The pixel-frequency baseline has better bit accuracy,
+  Brier score, and mean Hamming distance than Logistic Regression.
+- Added foreground IoU at sample and global micro grain plus normalized Hamming loss for the model
+  and every baseline. The reference model values are `0.335257970`, `0.334634146`, and
+  `0.485754986`, respectively.
+- Ruff passes and the full suite reports 259 passed; two existing Python 3.13 multiprocessing
+  `fork()` deprecation warnings remain.
+- The task uses only 180 `Data_Pattern/patt` random imagery blocks and 36 row-major binary pixel
+  targets.
+- The fixed outer protocol is subject-wise `GroupShuffleSplit(test_size=0.2, random_state=42)`;
+  the expected real-corpus split is 141/39 rows from 26/7 disjoint subjects.
+- Added strict target/split/baseline schemas and three non-EEG baselines: global majority,
+  per-pixel frequency, and seeded Bernoulli.
+- Real-corpus verification found no overlap in subjects, sample keys, seeds, or image payloads;
+  every pixel has both classes in train and test.
+- Added train-only canonical-key feature alignment, per-pixel five-fold stratified grouped CV,
+  fold-local variance filtering, capped ANOVA selection, scaling, and fixed balanced L2 screening.
+- Real screening selected `lbp` at mean per-pixel balanced accuracy 0.515542. `lgp` scored
+  0.510085 and `time` 0.508035; all nine candidates were near chance, so the selection is
+  procedural rather than evidence of held-out predictive value.
+- A repeated screening run reproduced all candidate scores within `5e-10`; at the end of Stage 2,
+  no feature manifests existed for the 39 outer-test rows. Stage 3 subsequently populated them
+  only after all 36 train-only grid searches completed.
+- Added 36 independent grouped `GridSearchCV` pipelines over the selected `lbp` family. Each grid
+  covers 64 combinations of `k`, `C`, L1/L2, and class weight with every learned transform fitted
+  inside folds.
+- The real run produced finite `(39, 36)` probabilities and predictions. Mean best CV balanced
+  accuracy was 0.579192, while mean outer-test per-pixel balanced accuracy was 0.509991
+  (range 0.360963-0.658730), indicating selection optimism and weak subject generalization.
+- Added atomic immutable experiment runs with complete config/environment/split/screening/grid
+  metadata, SHA-256 file inventory, 36 joblib pipelines, stored targets/predictions, and an
+  explicit trusted-load boundary.
+- Published and validated
+  `artifacts/experiments/logistic-regression/f515948b6bf5af55/` (about 14 MiB, 48 tracked payload
+  files plus manifest). Pipeline replay reproduces stored probabilities bit-for-bit.
+- The run records commit `1ca50bf23fdbffb79609a80bacb2f7884e4ac8bc` with `git_dirty=true`.
+- Ruff passes and the full suite reports 251 passed.
+
 ## Next Actions
 
-- Obtain explicit final approval for EEG feature-extraction Stage 5, then mark the plan completed.
-- Define canonical train/validation/test split policy.
-- Decide how labels from `labels.json` map to targets.
-- Define whether training examples are whole blocks or fixed windows after the split policy is set.
+- Execute only Stage 2 of
+  `.codex/memory-bank/plans/2026-06-15-logistic-regression-evaluation-cli.md`, then stop for
+  explicit review.
+- The original Logistic Regression Stage 5 remains awaiting review and will be revised by the
+  extension's reconstruction-metrics stage before final completion.
+- Obtain explicit final approval for EEG feature-extraction Stage 5 separately.
 - Benchmark full-corpus cache warmup only when operational timing is needed.
 
 ## Open Questions
 
-- What is the exact prediction target?
-- Should evaluation be leave-one-subject-out, grouped K-fold by subject, within-subject, or multiple protocols?
-- Which recordings are considered training, pattern/reference, validation, or test data?
+- Whether a later secondary within-subject protocol is useful after the primary subject-generalization
+  baseline is complete.
