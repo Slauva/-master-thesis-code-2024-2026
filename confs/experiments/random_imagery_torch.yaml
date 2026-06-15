@@ -1,0 +1,51 @@
+model_id: eegnet-fft-multilabel
+
+dataset:
+  dataset_dir: data/Data_Pattern
+  recording_family: patt
+  pattern_type: random
+  image_rows: 6
+  image_columns: 6
+  feature_config_path: confs/features/default.yaml
+
+split:
+  test_size: 0.2
+  random_state: 42
+  group_by: subject
+  require_both_classes: true
+
+spectral_input:
+  crop_start_seconds: 0.5
+  crop_end_seconds: 15.5
+  log_epsilon: 1.0e-12
+  std_epsilon: 1.0e-6
+
+preprocessing_overrides: {}
+
+training:
+  architecture: eegnet
+  method: fft
+  dropout_rate: 0.5
+  learning_rate: 1.0e-3
+  weight_decay: 1.0e-4
+  batch_size: 16
+  maximum_epochs: 300
+  validation_folds: 3
+  selection_seed: 42
+  early_stopping_patience: 30
+  early_stopping_min_delta: 1.0e-4
+  gradient_clip_norm: 1.0
+  final_seeds: [42, 43, 44]
+  prediction_threshold: 0.5
+  num_workers: 0
+  use_amp: false
+  deterministic: true
+  device: auto
+
+bootstrap_iterations: 2000
+random_state: 42
+
+artifacts:
+  root: artifacts/experiments/random-imagery-torch
+  schema_version: 1
+  overwrite: false

@@ -331,8 +331,87 @@ Classical random-imagery models:
 - Ruff passes and the full suite reports 330 passed; two existing Python 3.13 multiprocessing
   `fork()` deprecation warnings remain.
 
+PyTorch spectral random-imagery models:
+
+- The approved staged plan is stored in
+  `.codex/memory-bank/plans/2026-06-15-torch-spectral-random-imagery-models.md`.
+- Stage 1, crop-aware spectral input contracts and train-only normalization, is completed.
+- Stage 2, five PyTorch architecture ports, max-norm utilities, attribution, and structural
+  verification, is completed.
+- Stage 3, leakage-safe grouped model selection and three-seed ensemble training, is completed.
+- Stage 4, immutable Torch artifacts, workflows, and CLI, is implemented and awaiting explicit
+  review.
+- Added `experiments/random_imagery_torch` with a strict `[0.5, 15.5)` crop configuration, a
+  separate atomic cache under `artifacts/preprocessed-imagery/`, immutable spectral and
+  normalization schemas, train-key-only per-frequency log-power z-scoring, aligned Torch datasets,
+  and strict collation.
+- Crop caches are distinct from full-recording spectral caches, validate the EEG source signature,
+  preprocessing and crop identity, array metadata, channel order, axes, dtype, scaling, and
+  source-time reference before reuse.
+- FFT model batches use `(batch, 1, electrode, frequency)`. Morlet, Superlet, and STFT use
+  `(batch, frequency, electrode, time)`. No EOG tensor enters the model-input API.
+- Canonical random-imagery key `(1, 1, 7)` produced FFT `(63, 39)`, Morlet `(63, 39, 49)`,
+  Superlet `(63, 39, 46)`, and STFT `(63, 39, 51)`.
+- A real cross-subject smoke check fitted normalization on train key `(1, 1, 7)` only and then
+  materialized test key `(9, 1, 7)` with exact `(sample, 36)` target alignment.
+- Added 10 focused Stage 1 tests covering crop order, cache hit/invalidation/corruption, source
+  signatures, strict sample contracts, normalization provenance, model geometry, delayed test
+  access, and target-payload alignment.
+- Added spectral adaptations of EEGNet, DeepConvNet, ShallowConvNet, EEGNet-SSVEP, and EEGNet-v1.
+  Every model declares an exact input shape and emits 36 raw logits for the shared multi-label
+  task.
+- The ports preserve source filter counts, EEGNet depthwise/separable blocks, activations, dropout,
+  and max-norm intent. TensorFlow SAME padding, spectral-width kernel caps, and adaptive global
+  pooling make the short frequency/time axes explicit adaptations rather than numerical ports.
+- Added deterministic initialization, per-output-filter max-norm projection, architecture factory
+  and primary/exploratory groups, strict geometry validation, and parameter-count snapshots.
+- Retained the complete ARL EEGModels CC0 1.0/Apache-2.0 license plus modification and citation
+  notice as package data. The supplied `eegnet-tesnorflow.py` was removed after verification.
+- Added 69 architecture tests. All five models pass CPU forward/backward on FFT, Morlet, Superlet,
+  and STFT geometries plus CUDA smoke, max-norm, depthwise-group, deterministic-init, parameter,
+  license, and exact-output checks.
+- Real canonical CUDA forward/backward passed for all 12 primary model/preprocessing combinations
+  on the RTX 3070 Ti.
+- Ruff, lockfile validation, wheel/sdist build, diff check, and the full suite pass with 413 tests;
+  two existing Python 3.13 multiprocessing `fork()` deprecation warnings remain.
+- The primary experiment covers EEGNet, DeepConvNet, and ShallowConvNet crossed with FFT,
+  Morlet, Superlet, and STFT.
+- Each model jointly predicts 36 pixels and uses a three-seed ensemble.
+- Full real-corpus scope is 36 direction runs: 12 variants across one cross-subject and two
+  cross-trial directions.
+- Added strict `TorchTrainingConfig` defaults for AdamW, batch size 16, no AMP, three grouped
+  validation folds, early stopping, gradient clipping, seeds `42/43/44`, and threshold `0.5`.
+- Added grouped fold construction with subject-disjoint train/validation rows and both-class
+  validation for all 36 pixels.
+- Fold normalization and per-pixel positive weights are fitted only from each fold's training
+  rows. Final normalization and weights are fitted only from the complete direction-training rows.
+- Added finite-loss, finite-gradient, max-norm-after-step training loops, median fold-best epoch
+  selection, CPU checkpoint snapshots, and final three-seed ensemble fitting.
+- `fit_torch_ensemble(...)` validates the protocol direction and does not materialize outer-test
+  spectral tensors. `predict_torch_ensemble(...)` is the separate post-fit boundary that validates
+  disjoint test rows and returns finite float64 mean sigmoid scores plus thresholded int8 labels.
+- Added 7 focused Stage 3 tests. Focused Torch tests report 86 passed; full verification reports
+  420 passed with the two existing Python 3.13 multiprocessing `fork()` warnings.
+- Added `TorchExperimentConfig`, default `confs/experiments/random_imagery_torch.yaml`, primary
+  12-model ID parsing, versioned Torch run hashing, and the `random-imagery-torch` console/module
+  entry point.
+- Added immutable Torch run artifacts under
+  `artifacts/experiments/random-imagery-torch/<model-id>/<config-hash>/`.
+- Torch artifacts persist config, environment, split/leakage metadata, preprocessing identity,
+  normalization arrays, training histories, fold diagnostics, three state-dict checkpoints,
+  member scores, ensemble scores, predictions, metrics, baselines, and a SHA-256/byte inventory.
+- Safe Torch loading validates metadata and arrays without deserializing weights. Trusted replay
+  requires `trusted=True`, validates the manifest and sample-key/spectral identity, and then uses
+  `torch.load(..., weights_only=True)`.
+- Added `execute_torch_protocol(...)` train-or-reuse orchestration with immutable duplicate
+  rejection and complete-run reuse validation.
+- Added 8 focused Stage 4 artifact/workflow/CLI tests. Focused Torch tests report 94 passed; full
+  verification reports 428 passed with the two existing Python 3.13 multiprocessing warnings.
+
 ## Next Actions
 
+- Obtain explicit approval for PyTorch spectral-model Stage 4 before starting Stage 5 real-corpus
+  training.
 - Obtain explicit final approval for Stage 6.
 - The original Logistic Regression Stage 5 remains awaiting separate review; the extension's
   reconstruction metrics are already incorporated.

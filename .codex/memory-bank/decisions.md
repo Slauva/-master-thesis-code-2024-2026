@@ -326,3 +326,67 @@
 - Assess calibration only for classifier probabilities using pooled sample-pixel fixed-bin ECE.
   For regressors, report pre-clipping lower/upper fractions and clipped score-MSE; never interpret
   clipped continuous outputs as calibrated probabilities.
+- Build random-imagery Torch spectral inputs from the exact `[0.5, 15.5)` source EEG interval
+  before FFT, Morlet, Superlet, or STFT. Do not reuse full-recording spectral cache entries.
+- Store crop-specific spectral entries under `artifacts/preprocessed-imagery/` with cache identity
+  covering preprocessing configuration, crop/log/normalization configuration, source dtype,
+  schema version, and transform version. Validate the EEG FIF signature; EOG is not an input or
+  cache dependency for this model path.
+- Express crop time-frequency coordinates in source-recording seconds by adding the crop start to
+  transform-relative time centers.
+- Apply a fixed positive floor before natural-log power conversion, then fit one mean and scale per
+  frequency bin using only direction-training samples and all of their electrode/time observations.
+  Persist the exact fit sample keys in the immutable normalization state.
+- Present FFT inputs as `(batch, 1, electrode, frequency)` and Morlet/Superlet/STFT inputs as
+  `(batch, frequency, electrode, time)`. Keep all model inputs float32 and exclude EOG.
+- Align Torch spectral rows to the canonical 36-pixel target dataset by exact sample key and image
+  payload. Dataset construction may inspect label metadata but must not materialize spectral
+  arrays; validation and test arrays remain lazy until explicitly indexed.
+- Represent every Torch spectral architecture with an exact immutable input shape
+  `(spectral_planes, electrodes, spectral_width)` and reject mismatched tensors. Emit 36 raw logits;
+  sigmoid and thresholding belong to training/evaluation code.
+- Treat the ARL EEGModels PyTorch implementations as spectral adaptations. Preserve source filter
+  counts, EEGNet depthwise/separable grouping, activations, dropout families, and max-norm intent,
+  while capping kernels at available spectral width and using TensorFlow-style SAME padding plus
+  adaptive global pooling where original raw-EEG flatten geometry is impossible.
+- Apply Keras-style max-norm to each PyTorch output filter across all remaining weight dimensions.
+  Projection is explicit and must run after optimizer updates; it is not silently applied during
+  forward passes.
+- Initialize convolutional and linear weights with deterministic Xavier uniform initialization
+  under the caller's Torch seed; initialize BatchNorm scales to one and biases to zero.
+- Keep EEGNet, DeepConvNet, and ShallowConvNet as primary full-training architectures. Port and
+  test EEGNet-SSVEP and EEGNet-v1 as exploratory compatibility architectures without including
+  them in the 12-model primary experiment.
+- Retain the complete ARL EEGModels CC0 1.0/Apache-2.0 license and an explicit modification/citation
+  notice as installed package data. Remove the supplied TensorFlow source only after all five
+  PyTorch ports pass structural, CPU, and CUDA verification.
+- Use a shared strict `TorchTrainingConfig` for Stage 3 with AdamW defaults
+  `lr=1e-3`, `weight_decay=1e-4`, batch size 16, no AMP, gradient clipping at `1.0`, maximum
+  300 epochs, early stopping `patience=30`, `min_delta=1e-4`, and threshold `0.5`.
+- Select Torch training duration with exactly three shuffled subject-grouped validation folds
+  seeded by the selection seed. Reject folds where any of the 36 pixels lacks both target classes
+  in train or validation.
+- Fit spectral normalization and `BCEWithLogitsLoss` positive weights only from each fold's
+  training rows during epoch selection. Fit final normalization and positive weights only from the
+  complete direction-training rows.
+- Choose each fold's checkpoint by mean per-pixel balanced accuracy with validation BCE as the
+  tie-break. Train final seeds `42`, `43`, and `44` for the median fold-best epoch count.
+- Keep Torch fitting and test prediction as separate leakage boundaries. `fit_torch_ensemble(...)`
+  must not materialize outer-test spectral tensors; `predict_torch_ensemble(...)` validates
+  disjoint test rows after all final seed checkpoints exist.
+- Treat ensemble scores as native sigmoid probabilities formed by averaging the three seed
+  probabilities. Store threshold-derived labels separately; do not embed sigmoid or thresholding
+  inside the architecture modules.
+- Use artifact schema version 1 for Torch spectral runs under
+  `artifacts/experiments/random-imagery-torch/<model-id>/<config-hash>/`. Include model ID,
+  complete resolved Torch experiment config, protocol, and direction in the immutable hash.
+- Persist Torch checkpoints as three CPU-loadable state-dict `.pt` files, one per final seed.
+  Safe artifact loading must not call `torch.load`; trusted replay may load checkpoints only after
+  manifest, hash, path, configuration, spectral identity, and sample-key validation.
+- Use `torch.load(..., weights_only=True)` for trusted Torch replay and support CPU replay of
+  CUDA-trained artifacts.
+- Store final normalization arrays and exact fit sample keys in every Torch run. Reuse must reject
+  runs whose spectral input configuration hash differs from the currently resolved dataset.
+- Share `execute_torch_protocol(...)` between terminal and future notebook callers. Reuse is valid
+  only when every expected direction run exists, validates, matches the resolved config, and
+  belongs to the same spectral input identity.

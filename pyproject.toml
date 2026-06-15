@@ -12,6 +12,7 @@ dependencies = [
     "omegaconf>=2.3.0",
     "pandas>=3.0.2",
     "pydantic>=2.12.5",
+    "pyriemann>=0.11",
     "scikit-learn>=1.9.0",
     "scipy>=1.17.1",
     "seaborn>=0.13.2",
@@ -22,6 +23,7 @@ dependencies = [
 [project.scripts]
 logistic-regression = "experiments.logistic_regression.cli:main"
 random-imagery-models = "experiments.random_imagery.cli:main"
+random-imagery-torch = "experiments.random_imagery_torch.cli:main"
 
 [build-system]
 requires = ["setuptools>=81"]
@@ -29,6 +31,12 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 include = ["experiments*", "features*", "preprocessors*", "utils*"]
+
+[tool.setuptools.package-data]
+"experiments.random_imagery_torch" = [
+    "ARL_EEGMODELS_LICENSE.txt",
+    "ARL_EEGMODELS_NOTICE.md",
+]
 
 [tool.ruff]
 line-length = 119
