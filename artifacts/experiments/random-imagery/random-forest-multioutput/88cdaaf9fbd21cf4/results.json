@@ -1,0 +1,715 @@
+{
+  "estimator_family": "random_forest",
+  "model_id": "random-forest-multioutput",
+  "models": [
+    {
+      "best_cv_balanced_accuracy": 0.5099694518444517,
+      "best_cv_clipped_mse": 0.2599973619190334,
+      "best_hyperparameters": {
+        "estimator_family": "random_forest",
+        "parameters": [
+          [
+            "max_depth",
+            10
+          ],
+          [
+            "max_features",
+            1.0
+          ],
+          [
+            "min_samples_leaf",
+            1
+          ],
+          [
+            "n_estimators",
+            100
+          ]
+        ],
+        "select_k": 100
+      },
+      "candidate_scores": [
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5022356193189527,
+          "mean_clipped_mse": 0.2612988271604938,
+          "rank": 4,
+          "std_balanced_accuracy": 0.016145323440778583,
+          "std_clipped_mse": 0.007326266366056279
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5021455704789037,
+          "mean_clipped_mse": 0.2581393086419753,
+          "rank": 5,
+          "std_balanced_accuracy": 0.028015170368989425,
+          "std_clipped_mse": 0.006081464439251457
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.4981452729369396,
+          "mean_clipped_mse": 0.2569694650852961,
+          "rank": 12,
+          "std_balanced_accuracy": 0.009131134389453678,
+          "std_clipped_mse": 0.00543718762884902
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.501933059224726,
+          "mean_clipped_mse": 0.2557620434767437,
+          "rank": 6,
+          "std_balanced_accuracy": 0.015990342391743653,
+          "std_clipped_mse": 0.003576683642035171
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.49721607867441203,
+          "mean_clipped_mse": 0.2598095370370371,
+          "rank": 14,
+          "std_balanced_accuracy": 0.024875730959877815,
+          "std_clipped_mse": 0.006373619980931722
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5089918492001825,
+          "mean_clipped_mse": 0.25997465432098765,
+          "rank": 2,
+          "std_balanced_accuracy": 0.019963354081092833,
+          "std_clipped_mse": 0.005229276919172819
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.49186891811891814,
+          "mean_clipped_mse": 0.2573699169086062,
+          "rank": 15,
+          "std_balanced_accuracy": 0.016822620209374216,
+          "std_clipped_mse": 0.0035098803552886817
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5001399603482937,
+          "mean_clipped_mse": 0.2558406636500884,
+          "rank": 9,
+          "std_balanced_accuracy": 0.021114966858455483,
+          "std_clipped_mse": 0.00399728387794816
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.4987719148135815,
+          "mean_clipped_mse": 0.26169363506422794,
+          "rank": 11,
+          "std_balanced_accuracy": 0.02034667343597659,
+          "std_clipped_mse": 0.007472753168284432
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5001832580999249,
+          "mean_clipped_mse": 0.25720113335422046,
+          "rank": 8,
+          "std_balanced_accuracy": 0.029613400273794863,
+          "std_clipped_mse": 0.0049553404227073855
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.4981452729369396,
+          "mean_clipped_mse": 0.2569694650852961,
+          "rank": 13,
+          "std_balanced_accuracy": 0.009131134389453678,
+          "std_clipped_mse": 0.00543718762884902
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.501933059224726,
+          "mean_clipped_mse": 0.2557620434767437,
+          "rank": 7,
+          "std_balanced_accuracy": 0.015990342391743653,
+          "std_clipped_mse": 0.003576683642035171
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5026164730331397,
+          "mean_clipped_mse": 0.26116872040602457,
+          "rank": 3,
+          "std_balanced_accuracy": 0.023687743710818197,
+          "std_clipped_mse": 0.008337389325170494
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5099694518444517,
+          "mean_clipped_mse": 0.2599973619190334,
+          "rank": 1,
+          "std_balanced_accuracy": 0.015164471117626158,
+          "std_clipped_mse": 0.004238795890129164
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.49186891811891814,
+          "mean_clipped_mse": 0.2573699169086062,
+          "rank": 16,
+          "std_balanced_accuracy": 0.016822620209374216,
+          "std_clipped_mse": 0.0035098803552886817
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5001399603482937,
+          "mean_clipped_mse": 0.2558406636500884,
+          "rank": 10,
+          "std_balanced_accuracy": 0.021114966858455483,
+          "std_clipped_mse": 0.00399728387794816
+        }
+      ],
+      "selected_feature_indices": [
+        1,
+        3,
+        4,
+        7,
+        10,
+        20,
+        25,
+        32,
+        35,
+        38,
+        41,
+        60,
+        81,
+        132,
+        144,
+        147,
+        150,
+        154,
+        155,
+        195,
+        197,
+        200,
+        206,
+        225,
+        226,
+        227,
+        234,
+        249,
+        267,
+        285,
+        289,
+        291,
+        292,
+        358,
+        359,
+        361,
+        362,
+        384,
+        389,
+        395,
+        420,
+        421,
+        422,
+        423,
+        427,
+        430,
+        433,
+        434,
+        441,
+        446,
+        451,
+        452,
+        458,
+        477,
+        490,
+        529,
+        545,
+        557,
+        563,
+        566,
+        567,
+        575,
+        603,
+        606,
+        617,
+        620,
+        623,
+        626,
+        632,
+        649,
+        651,
+        672,
+        686,
+        690,
+        694,
+        705,
+        743,
+        746,
+        759,
+        770,
+        771,
+        772,
+        773,
+        774,
+        776,
+        777,
+        780,
+        791,
+        801,
+        804,
+        806,
+        810,
+        833,
+        838,
+        839,
+        841,
+        855,
+        860,
+        875,
+        879
+      ],
+      "selected_feature_names": [
+        "spectral:Fp1:absolute_band_power_theta",
+        "spectral:Fp1:absolute_band_power_beta",
+        "spectral:Fp1:absolute_band_power_low_gamma",
+        "spectral:Fp1:relative_band_power_alpha",
+        "spectral:Fp1:total_power",
+        "spectral:Fz:relative_band_power_theta",
+        "spectral:Fz:dominant_frequency",
+        "spectral:F3:absolute_band_power_low_gamma",
+        "spectral:F3:relative_band_power_alpha",
+        "spectral:F3:total_power",
+        "spectral:F3:spectral_entropy",
+        "spectral:FT9:absolute_band_power_low_gamma",
+        "spectral:FC5:dominant_frequency",
+        "spectral:TP9:relative_band_power_theta",
+        "spectral:CP5:absolute_band_power_low_gamma",
+        "spectral:CP5:relative_band_power_alpha",
+        "spectral:CP5:total_power",
+        "spectral:CP1:absolute_band_power_delta",
+        "spectral:CP1:absolute_band_power_theta",
+        "spectral:P3:spectral_entropy",
+        "spectral:P7:absolute_band_power_theta",
+        "spectral:P7:absolute_band_power_low_gamma",
+        "spectral:P7:total_power",
+        "spectral:Oz:absolute_band_power_theta",
+        "spectral:Oz:absolute_band_power_alpha",
+        "spectral:Oz:absolute_band_power_beta",
+        "spectral:Oz:total_power",
+        "spectral:O2:dominant_frequency",
+        "spectral:P8:absolute_band_power_theta",
+        "spectral:TP10:relative_band_power_delta",
+        "spectral:TP10:relative_band_power_low_gamma",
+        "spectral:TP10:dominant_frequency",
+        "spectral:TP10:spectral_centroid",
+        "spectral:FT10:relative_band_power_beta",
+        "spectral:FT10:relative_band_power_low_gamma",
+        "spectral:FT10:dominant_frequency",
+        "spectral:FT10:spectral_centroid",
+        "spectral:FC2:relative_band_power_theta",
+        "spectral:FC2:dominant_frequency",
+        "spectral:F4:absolute_band_power_beta",
+        "spectral:Fp2:absolute_band_power_delta",
+        "spectral:Fp2:absolute_band_power_theta",
+        "spectral:Fp2:absolute_band_power_alpha",
+        "spectral:Fp2:absolute_band_power_beta",
+        "spectral:Fp2:relative_band_power_alpha",
+        "spectral:Fp2:total_power",
+        "spectral:Fp2:spectral_entropy",
+        "spectral:AF7:absolute_band_power_delta",
+        "spectral:AF7:relative_band_power_alpha",
+        "spectral:AF7:spectral_centroid",
+        "spectral:AF3:absolute_band_power_beta",
+        "spectral:AF3:absolute_band_power_low_gamma",
+        "spectral:AF3:total_power",
+        "spectral:F1:absolute_band_power_theta",
+        "spectral:F5:absolute_band_power_delta",
+        "spectral:FC3:dominant_frequency",
+        "spectral:C1:spectral_entropy",
+        "spectral:C5:dominant_frequency",
+        "spectral:TP7:absolute_band_power_beta",
+        "spectral:TP7:relative_band_power_theta",
+        "spectral:TP7:relative_band_power_alpha",
+        "spectral:CP3:absolute_band_power_theta",
+        "spectral:P5:absolute_band_power_theta",
+        "spectral:P5:absolute_band_power_low_gamma",
+        "spectral:PO7:absolute_band_power_theta",
+        "spectral:PO7:absolute_band_power_low_gamma",
+        "spectral:PO7:relative_band_power_alpha",
+        "spectral:PO7:total_power",
+        "spectral:PO3:absolute_band_power_alpha",
+        "spectral:POz:relative_band_power_delta",
+        "spectral:POz:relative_band_power_alpha",
+        "spectral:PO8:absolute_band_power_delta",
+        "spectral:P6:absolute_band_power_delta",
+        "spectral:P6:absolute_band_power_low_gamma",
+        "spectral:P6:relative_band_power_beta",
+        "spectral:P2:relative_band_power_delta",
+        "spectral:TP8:absolute_band_power_theta",
+        "spectral:TP8:absolute_band_power_low_gamma",
+        "spectral:C6:absolute_band_power_beta",
+        "spectral:C2:absolute_band_power_delta",
+        "spectral:C2:absolute_band_power_theta",
+        "spectral:C2:absolute_band_power_alpha",
+        "spectral:C2:absolute_band_power_beta",
+        "spectral:C2:absolute_band_power_low_gamma",
+        "spectral:C2:relative_band_power_theta",
+        "spectral:C2:relative_band_power_alpha",
+        "spectral:C2:total_power",
+        "spectral:FC4:relative_band_power_alpha",
+        "spectral:FT8:absolute_band_power_beta",
+        "spectral:FT8:relative_band_power_theta",
+        "spectral:FT8:relative_band_power_beta",
+        "spectral:FT8:spectral_centroid",
+        "spectral:AF8:relative_band_power_alpha",
+        "spectral:AF8:spectral_centroid",
+        "spectral:AF8:spectral_entropy",
+        "spectral:AF4:absolute_band_power_theta",
+        "spectral:F2:absolute_band_power_theta",
+        "spectral:F2:relative_band_power_theta",
+        "spectral:Iz:relative_band_power_alpha",
+        "spectral:Iz:dominant_frequency"
+      ]
+    }
+  ],
+  "pipeline_count": 1,
+  "pipeline_files": [
+    "pipelines/multioutput.joblib"
+  ],
+  "prediction_threshold": 0.5,
+  "score_diagnostics": {
+    "clipped_above_one_fraction": 0.0,
+    "clipped_below_zero_fraction": 0.0,
+    "score_semantics": "clipped_regression"
+  },
+  "score_semantics": "clipped_regression",
+  "task": "regressor",
+  "topology": "multioutput"
+}

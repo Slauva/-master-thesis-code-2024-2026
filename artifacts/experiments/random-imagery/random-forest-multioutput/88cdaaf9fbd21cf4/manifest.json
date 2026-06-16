@@ -1,0 +1,93 @@
+{
+  "config_hash": "88cdaaf9fbd21cf4",
+  "direction": "trial-1-to-trial-2",
+  "file_count": 20,
+  "files": {
+    "arrays/baseline_global_majority_predictions.npy": {
+      "sha256": "c925b39b6893874ec605350461068466f8d03d532d971b655a1f58db7e15959a",
+      "size": 3044
+    },
+    "arrays/baseline_global_majority_scores.npy": {
+      "sha256": "49ec65d8e139f4ccda1722e2b27bc6ebec433c497296e8003601703451091c5b",
+      "size": 23456
+    },
+    "arrays/baseline_pixel_frequency_predictions.npy": {
+      "sha256": "226e913098ac8f612455c0df6e95097b5061ed70e713e83d9b37e5e15e430243",
+      "size": 3044
+    },
+    "arrays/baseline_pixel_frequency_scores.npy": {
+      "sha256": "db173cffeac162c10ad05280b1d5be6fc56a2bc27dc16e968346a802da4f547a",
+      "size": 23456
+    },
+    "arrays/baseline_seeded_bernoulli_predictions.npy": {
+      "sha256": "61dfd1be34ddd6e6594bb40e0dab124de7c6babd323b8fe49f27e0c64ce274be",
+      "size": 3044
+    },
+    "arrays/baseline_seeded_bernoulli_scores.npy": {
+      "sha256": "db173cffeac162c10ad05280b1d5be6fc56a2bc27dc16e968346a802da4f547a",
+      "size": 23456
+    },
+    "arrays/predictions.npy": {
+      "sha256": "1d616b4f0023245284009ac5cec481486089b2027510bd2b7447504ca1cfb88a",
+      "size": 3044
+    },
+    "arrays/scores.npy": {
+      "sha256": "e94ecd89b948492b7b8e83463115e504e385927588d3f8c81125ca73475516a3",
+      "size": 23456
+    },
+    "arrays/test_balanced_accuracy.npy": {
+      "sha256": "fb3101a0171301dc02019fb46a7f21db8bf7566ac8d2d5670d8a5629adec08ae",
+      "size": 416
+    },
+    "arrays/test_subject_ids.npy": {
+      "sha256": "a861aecc447b892a889c8d827f22b31f24498edfd32fd9f125cd6ace26ef1c30",
+      "size": 776
+    },
+    "arrays/test_targets.npy": {
+      "sha256": "13c14132a53d88a458354f557b569e2d39467bd46ed5a19a1aae1269a442f985",
+      "size": 3044
+    },
+    "arrays/train_targets.npy": {
+      "sha256": "e9e4db77cce07d9f6954cc5ea0016ec09eaf085b24266a0901a7cae73a2ceb58",
+      "size": 3044
+    },
+    "config.json": {
+      "sha256": "f6b36bd3afb12050740fe6c5af77635bce7210efb352d3a77140086ae5c33b2b",
+      "size": 1677
+    },
+    "environment.json": {
+      "sha256": "e5664e465961d02ea60108e106878dc3abaeb07e15532ca9a25e58f8ee62e8b4",
+      "size": 444
+    },
+    "evaluation.json": {
+      "sha256": "8430d7d9ac2474e82163f21196fed5b1ba3946fb0c7268505752f46bc1ad1b64",
+      "size": 24977
+    },
+    "features.json": {
+      "sha256": "30abcab76cd4864ea0b5607a5dfaf5a5ecd71ab64b5123c3a1736069a4529761",
+      "size": 38276
+    },
+    "pipelines/multioutput.joblib": {
+      "sha256": "5b7a1c692cf09343ec64d213db2e02b54271c9f0fbcb86b0ed908e128741a841",
+      "size": 459905
+    },
+    "results.json": {
+      "sha256": "3352ecd58b0c526dccfbcf6493a5b6e7c2831dd745d2b9b9def50008a43a4143",
+      "size": 19254
+    },
+    "screening.json": {
+      "sha256": "0d50d54ba1cbc97dce38f963e8f40a55dbc2c22c2b5513a477d29f89dc2c9ccd",
+      "size": 134324
+    },
+    "split.json": {
+      "sha256": "2f0cb22ff83527049bd4b98c506b741bd3626ec03af3b46d03b94b397795502e",
+      "size": 22905
+    }
+  },
+  "generated_at": "2026-06-15T18:49:13.711460+00:00",
+  "model_id": "random-forest-multioutput",
+  "protocol": "within-subject",
+  "schema_version": 3,
+  "topology": "multioutput",
+  "writer": "experiments.random_imagery.artifacts.write_model_protocol_runs"
+}

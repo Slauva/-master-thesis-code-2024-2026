@@ -1,0 +1,233 @@
+{
+  "config_hash": "92a708813a79889f",
+  "direction": "trial-1-to-trial-2",
+  "file_count": 55,
+  "files": {
+    "arrays/baseline_global_majority_predictions.npy": {
+      "sha256": "c925b39b6893874ec605350461068466f8d03d532d971b655a1f58db7e15959a",
+      "size": 3044
+    },
+    "arrays/baseline_global_majority_scores.npy": {
+      "sha256": "49ec65d8e139f4ccda1722e2b27bc6ebec433c497296e8003601703451091c5b",
+      "size": 23456
+    },
+    "arrays/baseline_pixel_frequency_predictions.npy": {
+      "sha256": "226e913098ac8f612455c0df6e95097b5061ed70e713e83d9b37e5e15e430243",
+      "size": 3044
+    },
+    "arrays/baseline_pixel_frequency_scores.npy": {
+      "sha256": "db173cffeac162c10ad05280b1d5be6fc56a2bc27dc16e968346a802da4f547a",
+      "size": 23456
+    },
+    "arrays/baseline_seeded_bernoulli_predictions.npy": {
+      "sha256": "61dfd1be34ddd6e6594bb40e0dab124de7c6babd323b8fe49f27e0c64ce274be",
+      "size": 3044
+    },
+    "arrays/baseline_seeded_bernoulli_scores.npy": {
+      "sha256": "db173cffeac162c10ad05280b1d5be6fc56a2bc27dc16e968346a802da4f547a",
+      "size": 23456
+    },
+    "arrays/predictions.npy": {
+      "sha256": "ddbc6dd437f034e7dc378482c45495f54e4a582ca8c9cdb869ddc0f2c233a614",
+      "size": 3044
+    },
+    "arrays/scores.npy": {
+      "sha256": "4447bf9820126d1fcb6e5d48498bad0f7e6c4f88f82b457f2df6af2ea03a4b36",
+      "size": 23456
+    },
+    "arrays/test_balanced_accuracy.npy": {
+      "sha256": "f220bd0fb1a9522653bdc7f4ce1c620df7a08a8a1bd36df03e0d88fad9a7efcb",
+      "size": 416
+    },
+    "arrays/test_subject_ids.npy": {
+      "sha256": "a861aecc447b892a889c8d827f22b31f24498edfd32fd9f125cd6ace26ef1c30",
+      "size": 776
+    },
+    "arrays/test_targets.npy": {
+      "sha256": "13c14132a53d88a458354f557b569e2d39467bd46ed5a19a1aae1269a442f985",
+      "size": 3044
+    },
+    "arrays/train_targets.npy": {
+      "sha256": "e9e4db77cce07d9f6954cc5ea0016ec09eaf085b24266a0901a7cae73a2ceb58",
+      "size": 3044
+    },
+    "config.json": {
+      "sha256": "2e679e50321dfe3c80659bf9be69dfba6f48fd48b2057d9493db52705af01ec7",
+      "size": 1677
+    },
+    "environment.json": {
+      "sha256": "e5664e465961d02ea60108e106878dc3abaeb07e15532ca9a25e58f8ee62e8b4",
+      "size": 444
+    },
+    "evaluation.json": {
+      "sha256": "c674ef9ef3dc6740c17c44e6549c70a27c2cc4fd90370b8c589e37bcd984525a",
+      "size": 24962
+    },
+    "features.json": {
+      "sha256": "30abcab76cd4864ea0b5607a5dfaf5a5ecd71ab64b5123c3a1736069a4529761",
+      "size": 38276
+    },
+    "pipelines/pixel_00.joblib": {
+      "sha256": "ccda750443256e5ff24fdf1d6ca30c642616476313ed68783851b66c2313d63c",
+      "size": 45140
+    },
+    "pipelines/pixel_01.joblib": {
+      "sha256": "7649c9b695a6e2a7490390554dc4daca37b16b79e4d7413f1477020d4b13a7cf",
+      "size": 50785
+    },
+    "pipelines/pixel_02.joblib": {
+      "sha256": "2c28e8cde2472e29890328f338983b45fd2da5456b6e7fb411ec80815027bfdd",
+      "size": 48647
+    },
+    "pipelines/pixel_03.joblib": {
+      "sha256": "57806dcb8b35e64298885125eb7d7e7bed57454ae1e3ae44716a7908abe1d509",
+      "size": 48769
+    },
+    "pipelines/pixel_04.joblib": {
+      "sha256": "9854e682e399f6c05ee4cb45094879bbb8caa0789df4b62c51098fbb040badd4",
+      "size": 47756
+    },
+    "pipelines/pixel_05.joblib": {
+      "sha256": "8b712186facb1cc89f393dfb573d7edc5be5fa815b738d25f415ee22984f33d8",
+      "size": 49590
+    },
+    "pipelines/pixel_06.joblib": {
+      "sha256": "ae9dcba3af59ad4b605d812559e65cd06c898ab179e833949159c48b4b42787a",
+      "size": 50449
+    },
+    "pipelines/pixel_07.joblib": {
+      "sha256": "af7fced8fc664b18cf52c5b0132aefc2499962ae6034c83d2fa1cbbd40efc669",
+      "size": 43061
+    },
+    "pipelines/pixel_08.joblib": {
+      "sha256": "18a5ad7186edd8e75b6a2319064f1f6af1509846e24e9b307f2c9ce6d3a544a6",
+      "size": 45073
+    },
+    "pipelines/pixel_09.joblib": {
+      "sha256": "f00113f787b0530830db9571863689fa4f9299c40c1f3b74a7318c5d17a9e2c4",
+      "size": 46053
+    },
+    "pipelines/pixel_10.joblib": {
+      "sha256": "1f98a3fe2443a38aa618a0964aa56a0493d727d5db065524d5b27764ec7b1a12",
+      "size": 47827
+    },
+    "pipelines/pixel_11.joblib": {
+      "sha256": "4d9f25af61c23702380cfe5d831f66cd1c0e222aa992fded92b0069695dbdd62",
+      "size": 45940
+    },
+    "pipelines/pixel_12.joblib": {
+      "sha256": "c0b9137a2a77cc185c99490d545d333495d3f1f4dc6a1d9c019cfa42b6a2a397",
+      "size": 51893
+    },
+    "pipelines/pixel_13.joblib": {
+      "sha256": "b20540ad0f0cd1d907bcf31fb9320aaac8042a62c29c5b32adf088bf16549d5b",
+      "size": 47233
+    },
+    "pipelines/pixel_14.joblib": {
+      "sha256": "f1d9c025705c6c35100214744253f812bf6bfd9633fbc7bb5d114b201e4730c9",
+      "size": 48477
+    },
+    "pipelines/pixel_15.joblib": {
+      "sha256": "4ebf7e6f5ad032af41218ad04b6e3e195cdeb0d74a7f2b79c6a3c3beca4113ad",
+      "size": 48654
+    },
+    "pipelines/pixel_16.joblib": {
+      "sha256": "eed40488fec35307e82c38deb4ff430563ffa6dbd7023164249dab1818628e7f",
+      "size": 52199
+    },
+    "pipelines/pixel_17.joblib": {
+      "sha256": "cfbb67c2700e0912dfbe0ed7a0514f5ff578c7a0f8d1c9127fd052952ef565a0",
+      "size": 49801
+    },
+    "pipelines/pixel_18.joblib": {
+      "sha256": "78b65e92b676bd3b3db1954d79ee8dbf391533336ac87dad6c95fccaef32db2d",
+      "size": 45811
+    },
+    "pipelines/pixel_19.joblib": {
+      "sha256": "aa624833086810b7dc2978aaf284717b4c7153775e82c19ee88968dadc99dbe1",
+      "size": 46232
+    },
+    "pipelines/pixel_20.joblib": {
+      "sha256": "630aa9fa4a81a52ed3fa22b62a708ccc4aed7813eaf67eff0f0e89d78d1aed1e",
+      "size": 47721
+    },
+    "pipelines/pixel_21.joblib": {
+      "sha256": "571b84a4bcab4a0fb19351f29c1edfded9091210eceaf5372348a7bad9d514f0",
+      "size": 51632
+    },
+    "pipelines/pixel_22.joblib": {
+      "sha256": "a328f2e60ba3d3faa3fbda891b9be95477e70aa4337d542d8046a9f901ab1708",
+      "size": 48274
+    },
+    "pipelines/pixel_23.joblib": {
+      "sha256": "e4dc7be246897df962786ad527888154005ef06d94a7d37e33c8f1cca01ad416",
+      "size": 44802
+    },
+    "pipelines/pixel_24.joblib": {
+      "sha256": "cd54096503c8d693ec58954577471fe97031590ca1fc7d770c8a1cddd0ab8b4b",
+      "size": 44192
+    },
+    "pipelines/pixel_25.joblib": {
+      "sha256": "36c8a94511bd81e39c882e9fdb7025af107e4b1173aecc900681ee2c1f24aabe",
+      "size": 46516
+    },
+    "pipelines/pixel_26.joblib": {
+      "sha256": "2347336e5faca919c6704d00a35d77a5e3bcbd496062df13453d3a5f05de7cee",
+      "size": 49284
+    },
+    "pipelines/pixel_27.joblib": {
+      "sha256": "01cb08d05d6ce9dba5af4faff7c8e67c9eed83b8ac223fbfd04d88744f5378c8",
+      "size": 49305
+    },
+    "pipelines/pixel_28.joblib": {
+      "sha256": "1271cfc95a6913aab85773bf500b144fe82db2c5b843e5c69fbecc7ed25060a7",
+      "size": 47303
+    },
+    "pipelines/pixel_29.joblib": {
+      "sha256": "1d6531f73408ecc55870e5e7f6f410b3fff955ca1a15a93d725f964cfcf13fad",
+      "size": 45165
+    },
+    "pipelines/pixel_30.joblib": {
+      "sha256": "f5a6e18dcd7d01552df429eba12a9ac829f66111f71eadef82caea095b5e2901",
+      "size": 46566
+    },
+    "pipelines/pixel_31.joblib": {
+      "sha256": "9d324d28226be2e5eca80cca73a475420893996b8bfe406e052dbfc23b969f21",
+      "size": 45114
+    },
+    "pipelines/pixel_32.joblib": {
+      "sha256": "20a3a5ab8e6708dee0e4de390cb061fd93908600e5fcd63ffc54a760050e047a",
+      "size": 46413
+    },
+    "pipelines/pixel_33.joblib": {
+      "sha256": "bd4f1b6088e19e6442b8b2d87bde112b84c70242e2f8b82c32ed1af04b9815b7",
+      "size": 45299
+    },
+    "pipelines/pixel_34.joblib": {
+      "sha256": "71562f8a88e5c6b3284f0bc850688f8157ed8b7ac6b81794de3e179e633f96b1",
+      "size": 50076
+    },
+    "pipelines/pixel_35.joblib": {
+      "sha256": "5eac07044f47f192571891cfa73f4fc14b5bfd77bc9422f507ab3302e2689a8f",
+      "size": 47565
+    },
+    "results.json": {
+      "sha256": "140ebb67442b1b0354be20eafa62fe481005842149e441d8c1038f0ec351bb3d",
+      "size": 633828
+    },
+    "screening.json": {
+      "sha256": "bec72527f641acd12be3d15ae2958bd0aad1f66435597ce25dd3711d33cefd42",
+      "size": 136851
+    },
+    "split.json": {
+      "sha256": "119dda9c783dafd20ba8aba739fcef7f3a416fcc25c7cd4581ae80a6f56859f3",
+      "size": 324165
+    }
+  },
+  "generated_at": "2026-06-15T18:48:34.566926+00:00",
+  "model_id": "random-forest-independent",
+  "protocol": "within-subject",
+  "schema_version": 3,
+  "topology": "independent",
+  "writer": "experiments.random_imagery.artifacts.write_model_protocol_runs"
+}

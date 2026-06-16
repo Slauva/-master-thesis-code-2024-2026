@@ -1,0 +1,233 @@
+{
+  "config_hash": "f3623d36e070c677",
+  "direction": "cross-subject",
+  "file_count": 55,
+  "files": {
+    "arrays/baseline_global_majority_predictions.npy": {
+      "sha256": "94b205c3afa4decb89b6613ef6f6cfc5f1cbbe53a225604637e6438f2e59a9f8",
+      "size": 1532
+    },
+    "arrays/baseline_global_majority_scores.npy": {
+      "sha256": "9ab9cbd61d37fdff2614ffd01e7934875dc47dc174b8140074149111d4efd18b",
+      "size": 11360
+    },
+    "arrays/baseline_pixel_frequency_predictions.npy": {
+      "sha256": "a586e27df4bfb64f3dcb5ca1068a2090ecb2ebf72df9c0de6cb14dcf76d98aab",
+      "size": 1532
+    },
+    "arrays/baseline_pixel_frequency_scores.npy": {
+      "sha256": "73fb595fba42bdc0af06a050d35c031bb06fa0dec5d3ecaf80e57fd302ae81ee",
+      "size": 11360
+    },
+    "arrays/baseline_seeded_bernoulli_predictions.npy": {
+      "sha256": "3e62539ec7eec726aeee49b6f4a719d78ae3c61679c78ca5ab270b037d627de7",
+      "size": 1532
+    },
+    "arrays/baseline_seeded_bernoulli_scores.npy": {
+      "sha256": "73fb595fba42bdc0af06a050d35c031bb06fa0dec5d3ecaf80e57fd302ae81ee",
+      "size": 11360
+    },
+    "arrays/predictions.npy": {
+      "sha256": "81bc08c8ae2f8eb9e322be8cae1bef8f049cb7b9889a1f7c116fefce55f4059f",
+      "size": 1532
+    },
+    "arrays/scores.npy": {
+      "sha256": "985ac2e5568b43a7c4b98d3dcef4b79888c6edea65e3f2e5e278ff678bbf8929",
+      "size": 11360
+    },
+    "arrays/test_balanced_accuracy.npy": {
+      "sha256": "ff217d10a6918e7204c7e0fd11f324fec7be6ebbdc629b1c27d2fe2bc3e28f03",
+      "size": 416
+    },
+    "arrays/test_subject_ids.npy": {
+      "sha256": "4574da36ac3444f2a0dd5189a5587839234e71830b90e9d747b140d7b011c347",
+      "size": 440
+    },
+    "arrays/test_targets.npy": {
+      "sha256": "252590e251cc1fcd37403d12c5f7a92a9f6f10af38a4d3aa02ba30d4e729d239",
+      "size": 1532
+    },
+    "arrays/train_targets.npy": {
+      "sha256": "da281c09e224a72c666c6488f29f1e05ceb0b3dfd131655229a136f7b48a0be5",
+      "size": 5204
+    },
+    "config.json": {
+      "sha256": "74c7f6b4ef48e19d310d586621c8ac52f61126af5f9d5a984893702bbcf8c490",
+      "size": 1681
+    },
+    "environment.json": {
+      "sha256": "e5664e465961d02ea60108e106878dc3abaeb07e15532ca9a25e58f8ee62e8b4",
+      "size": 444
+    },
+    "evaluation.json": {
+      "sha256": "1e2fded3805273de42ed23a2ec8a847a1fc98e31436f89f247c8885e623b7499",
+      "size": 20568
+    },
+    "features.json": {
+      "sha256": "453dbbe696840dfd29470f43c2c4d29fca657cfd9a54078bdb61e7156e8cebaa",
+      "size": 380011
+    },
+    "pipelines/pixel_00.joblib": {
+      "sha256": "73c899ab8936c33bd905aed11a87c2ecf74d859f8ede17759eedf42ab9389ffb",
+      "size": 329969
+    },
+    "pipelines/pixel_01.joblib": {
+      "sha256": "32b52d238c12a6a92e9dfb6e7710c037b7364b2667fb3922dbb8f42e1c5c7e90",
+      "size": 329006
+    },
+    "pipelines/pixel_02.joblib": {
+      "sha256": "afc3df9d4ce42dee5bd3bf0433ede447e835986d3216ad100ad9d8b48144a6a5",
+      "size": 336127
+    },
+    "pipelines/pixel_03.joblib": {
+      "sha256": "f2e39ff10258be0116d03c1e476b65e5cc838439435a6cdf4b6f570a86e53afc",
+      "size": 331436
+    },
+    "pipelines/pixel_04.joblib": {
+      "sha256": "cf6079824858fe168ed4752f13d25e20abe22c84eea9138fa4148e478547f465",
+      "size": 331295
+    },
+    "pipelines/pixel_05.joblib": {
+      "sha256": "9d954f68e025284a003df0f494b11d4375a29e34e5e0c82c0941d49777eb7c3f",
+      "size": 329847
+    },
+    "pipelines/pixel_06.joblib": {
+      "sha256": "62ca1513c7843da4c6e07e3bc094cc8a67ab859ae5df9860efdaa1fa9715ecbb",
+      "size": 328847
+    },
+    "pipelines/pixel_07.joblib": {
+      "sha256": "6c5146b5478884dc6a20ff9efbc905d9b26d0a215255030236922d229581f45b",
+      "size": 331365
+    },
+    "pipelines/pixel_08.joblib": {
+      "sha256": "f91a7bf05db9ea5a935f4691d57f665360bbebe0676551ef95dcab079a12ed2a",
+      "size": 329721
+    },
+    "pipelines/pixel_09.joblib": {
+      "sha256": "3dc92bc964eaf25ab305c5bab70e3785b933fc998cc5bd197dc7e3a868cff937",
+      "size": 329268
+    },
+    "pipelines/pixel_10.joblib": {
+      "sha256": "a6363b9c5615808f6590c67f533a3f59570a86f9e30986f1cdaef985594d07b1",
+      "size": 328860
+    },
+    "pipelines/pixel_11.joblib": {
+      "sha256": "bf010b6efefc7501567849825cff6eca65c482ebcc21ca2dca258f4e00d3b1a7",
+      "size": 331387
+    },
+    "pipelines/pixel_12.joblib": {
+      "sha256": "0fa1784f60a1a06da66a3484ccd6032f4bdb4fc52eec38db6ae7518b4c4cb823",
+      "size": 329123
+    },
+    "pipelines/pixel_13.joblib": {
+      "sha256": "5eaa215b4fd103124ac5de44989bb8c10352b4787317332732c5ceb437351102",
+      "size": 329859
+    },
+    "pipelines/pixel_14.joblib": {
+      "sha256": "0a1332e6821e95e63d8ca4d449bde48a09d8e3ab89f0ef20258dc91761eb57cf",
+      "size": 330077
+    },
+    "pipelines/pixel_15.joblib": {
+      "sha256": "6054b29cf12abeaa8a49bb8fe90f2b8e065aaa321ef488559c410acfdbcb4aa8",
+      "size": 329952
+    },
+    "pipelines/pixel_16.joblib": {
+      "sha256": "36cdc34afc70712a493b7c0858a7371d8a89470c10b81fb5c67a3594af68530d",
+      "size": 329028
+    },
+    "pipelines/pixel_17.joblib": {
+      "sha256": "b30acc3a756a0b824a974bab99789f2ecb551a249f7ef900437afea968c3fd04",
+      "size": 335581
+    },
+    "pipelines/pixel_18.joblib": {
+      "sha256": "1ef04fb5129d13612a318d8005ee52452486bb47afbce7d28dc7d4e1a714af6d",
+      "size": 329576
+    },
+    "pipelines/pixel_19.joblib": {
+      "sha256": "8bf078958656f82657c851e83bbe990b580998791ed717b44bc2f8818baee9b8",
+      "size": 330831
+    },
+    "pipelines/pixel_20.joblib": {
+      "sha256": "9a8fa0294df17e32039bf5f6c1b022811cc5d3daee2988e37baee115d6444f80",
+      "size": 335986
+    },
+    "pipelines/pixel_21.joblib": {
+      "sha256": "e450e2d1067e93c41c50f28ebe0fe401d096bac8ee6fe6550f1ee33ac442dacf",
+      "size": 329102
+    },
+    "pipelines/pixel_22.joblib": {
+      "sha256": "3aa5ff5de99630ce456f03ca30659f867207588f05fb7de71a00dae45f9cd0da",
+      "size": 331299
+    },
+    "pipelines/pixel_23.joblib": {
+      "sha256": "f904e9e46c9b042b937275c0071bbf42a33bf7744e9b52c4f896438c31b57f84",
+      "size": 331151
+    },
+    "pipelines/pixel_24.joblib": {
+      "sha256": "3eb81dd60a98c6e0b7dfb05cde423bd31ef9a07e4eb39d375f78b9ee777650b0",
+      "size": 329362
+    },
+    "pipelines/pixel_25.joblib": {
+      "sha256": "86fa3856bb3ae018b85382db3fa4a9261f2ad7ee86089701f3b5e92ebb753789",
+      "size": 335534
+    },
+    "pipelines/pixel_26.joblib": {
+      "sha256": "ba40cbf4f6008f7c349d770133f86feff98e24d7e31984ee5cd2cec7f4c8f2e4",
+      "size": 328864
+    },
+    "pipelines/pixel_27.joblib": {
+      "sha256": "2f6ebad797ca05df2fab489b9ff9aa6f498138b43369fe06c9ae7fa54a15f472",
+      "size": 331524
+    },
+    "pipelines/pixel_28.joblib": {
+      "sha256": "71a1d75b85fcb0c67c84ae72e379f822d25d10480eb6b3803562a5029948ef7b",
+      "size": 329231
+    },
+    "pipelines/pixel_29.joblib": {
+      "sha256": "e55e674fd1d8100ac2fad5f9ab41d0f3798922a44b5ea5d8f0dce0948fa1a681",
+      "size": 329489
+    },
+    "pipelines/pixel_30.joblib": {
+      "sha256": "526170c48968ea5ef172429c1a51360257eb4a1f3f3ce73aab6bd12a98f4afde",
+      "size": 331660
+    },
+    "pipelines/pixel_31.joblib": {
+      "sha256": "e5d270ef1dd1616859cb3d62639d6f7e524c6a8f2209f37453bdba05fd2f1c1d",
+      "size": 335744
+    },
+    "pipelines/pixel_32.joblib": {
+      "sha256": "e0fd80c38fbe73026601eef2a0045f3addbedb3514c220bb89c3fd0e3dd7e06b",
+      "size": 331376
+    },
+    "pipelines/pixel_33.joblib": {
+      "sha256": "dcdad944cbcbefc7c352624e47d988db67848cf0afa5faad342e63cdb3fcf871",
+      "size": 336345
+    },
+    "pipelines/pixel_34.joblib": {
+      "sha256": "68aabeb9a4b30848844c2b8b09678c4a64f4e7543040a586a266cf92cc2996df",
+      "size": 329006
+    },
+    "pipelines/pixel_35.joblib": {
+      "sha256": "a1a6182bdc3dc5e094e495479e24029d7c8bec442d012adbf8f3d0b20623fc08",
+      "size": 335628
+    },
+    "results.json": {
+      "sha256": "490b39e69665578a3bff1806ea0e2f1524e751eec7e809ede2f2c263b88b2c4a",
+      "size": 598951
+    },
+    "screening.json": {
+      "sha256": "448f5bd156d6d9e3f4c5ac33263536e8ec95cc2314b1ff00047c075cfc4b206b",
+      "size": 94520
+    },
+    "split.json": {
+      "sha256": "37424d82da94b4e41ce11a8b12b6e7b7cc7f600e3e49ac29066bb29f5d943b1d",
+      "size": 478096
+    }
+  },
+  "generated_at": "2026-06-15T18:21:00.935624+00:00",
+  "model_id": "linear-svm-independent",
+  "protocol": "cross-subject",
+  "schema_version": 3,
+  "topology": "independent",
+  "writer": "experiments.random_imagery.artifacts.write_model_protocol_runs"
+}

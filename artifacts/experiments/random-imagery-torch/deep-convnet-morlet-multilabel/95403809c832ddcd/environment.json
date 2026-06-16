@@ -1,0 +1,18 @@
+{
+  "git_commit": "a3d97637e062839b47ef927cab2724ff4622f240",
+  "git_dirty": true,
+  "packages": {
+    "mne": "1.11.0",
+    "numpy": "2.4.4",
+    "omegaconf": "2.3.0",
+    "pydantic": "2.12.5",
+    "scikit-learn": "1.9.0",
+    "scipy": "1.17.1",
+    "torch": "2.12.0"
+  },
+  "platform": "Linux-6.17.0-35-generic-x86_64-with-glibc2.39",
+  "python": "3.13.11 (main, Jan 28 2026, 00:01:45) [Clang 21.1.4 ]",
+  "python_implementation": "CPython",
+  "torch_cuda_available": true,
+  "torch_cuda_device": "NVIDIA GeForce RTX 3070 Ti"
+}

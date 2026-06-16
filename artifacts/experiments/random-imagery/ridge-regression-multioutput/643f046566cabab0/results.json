@@ -1,0 +1,361 @@
+{
+  "estimator_family": "ridge_regression",
+  "model_id": "ridge-regression-multioutput",
+  "models": [
+    {
+      "best_cv_balanced_accuracy": 0.522468742677076,
+      "best_cv_clipped_mse": 0.3033912993635197,
+      "best_hyperparameters": {
+        "estimator_family": "ridge_regression",
+        "parameters": [
+          [
+            "alpha",
+            1.0
+          ]
+        ],
+        "select_k": 25
+      },
+      "candidate_scores": [
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.5165615634365633,
+          "mean_clipped_mse": 0.33614925209776353,
+          "rank": 8,
+          "std_balanced_accuracy": 0.02783583215299618,
+          "std_clipped_mse": 0.025946550613777358
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.49665390165390166,
+          "mean_clipped_mse": 0.42730160067644335,
+          "rank": 16,
+          "std_balanced_accuracy": 0.02045155934446976,
+          "std_clipped_mse": 0.018376609573042286
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.511714281089281,
+          "mean_clipped_mse": 0.44164508397724056,
+          "rank": 9,
+          "std_balanced_accuracy": 0.020563102802117626,
+          "std_clipped_mse": 0.016646751594265336
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5047640553890553,
+          "mean_clipped_mse": 0.40555606986971543,
+          "rank": 13,
+          "std_balanced_accuracy": 0.03056929038290272,
+          "std_clipped_mse": 0.024452134842254662
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.5174754643504643,
+          "mean_clipped_mse": 0.324329132812028,
+          "rank": 7,
+          "std_balanced_accuracy": 0.021316356021051894,
+          "std_clipped_mse": 0.02439265467871642
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.506468061259728,
+          "mean_clipped_mse": 0.4023528206857403,
+          "rank": 11,
+          "std_balanced_accuracy": 0.019306664600754666,
+          "std_clipped_mse": 0.016896743693548686
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5192628436378436,
+          "mean_clipped_mse": 0.42773261199206825,
+          "rank": 3,
+          "std_balanced_accuracy": 0.018518565668619716,
+          "std_clipped_mse": 0.020655171310836013
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5044994049160716,
+          "mean_clipped_mse": 0.4046397111565951,
+          "rank": 14,
+          "std_balanced_accuracy": 0.030937232616009832,
+          "std_clipped_mse": 0.024458981511082067
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.522468742677076,
+          "mean_clipped_mse": 0.3033912993635197,
+          "rank": 1,
+          "std_balanced_accuracy": 0.031314744682386625,
+          "std_clipped_mse": 0.027662376442026723
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5175096585513252,
+          "mean_clipped_mse": 0.3684625189045701,
+          "rank": 6,
+          "std_balanced_accuracy": 0.02179836697216351,
+          "std_clipped_mse": 0.014844980944370659
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5178451949285282,
+          "mean_clipped_mse": 0.39399644516126897,
+          "rank": 5,
+          "std_balanced_accuracy": 0.029996374335031377,
+          "std_clipped_mse": 0.027268247120652542
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5057453349120016,
+          "mean_clipped_mse": 0.3966746461105834,
+          "rank": 12,
+          "std_balanced_accuracy": 0.030778960416036952,
+          "std_clipped_mse": 0.02501092900606192
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                10.0
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.5213988557738558,
+          "mean_clipped_mse": 0.2816406043193245,
+          "rank": 2,
+          "std_balanced_accuracy": 0.022592572541431096,
+          "std_clipped_mse": 0.021183593612691384
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                10.0
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5185569985569985,
+          "mean_clipped_mse": 0.31132863071519334,
+          "rank": 4,
+          "std_balanced_accuracy": 0.028688945073691036,
+          "std_clipped_mse": 0.01511830384482489
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                10.0
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5099754335171002,
+          "mean_clipped_mse": 0.3418748489263505,
+          "rank": 10,
+          "std_balanced_accuracy": 0.03839515754422726,
+          "std_clipped_mse": 0.0293459706402344
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "ridge_regression",
+            "parameters": [
+              [
+                "alpha",
+                10.0
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5038135167301834,
+          "mean_clipped_mse": 0.36515895902070283,
+          "rank": 15,
+          "std_balanced_accuracy": 0.02810899229932203,
+          "std_clipped_mse": 0.02859861938613977
+        }
+      ],
+      "selected_feature_indices": [
+        5,
+        9,
+        131,
+        156,
+        160,
+        169,
+        173,
+        209,
+        213,
+        271,
+        272,
+        355,
+        391,
+        417,
+        418,
+        419,
+        424,
+        436,
+        437,
+        463,
+        494,
+        589,
+        703,
+        716,
+        768
+      ],
+      "selected_feature_names": [
+        "time:Fp1:mad",
+        "time:Fp1:normalized_line_length",
+        "time:CP5:variance",
+        "time:Pz:mean",
+        "time:Pz:median",
+        "time:P3:mean",
+        "time:P3:median",
+        "time:Oz:variance",
+        "time:Oz:mad",
+        "time:TP10:hjorth_mobility",
+        "time:TP10:hjorth_complexity",
+        "time:FC2:median",
+        "time:Fp2:variance",
+        "time:AF3:variance",
+        "time:AF3:std",
+        "time:AF3:rms",
+        "time:AF3:excess_kurtosis",
+        "time:AFz:skewness",
+        "time:AFz:excess_kurtosis",
+        "time:F5:excess_kurtosis",
+        "time:C1:mean",
+        "time:PO3:median",
+        "time:C6:variance",
+        "time:C2:variance",
+        "time:AF8:variance"
+      ]
+    }
+  ],
+  "pipeline_count": 1,
+  "pipeline_files": [
+    "pipelines/multioutput.joblib"
+  ],
+  "prediction_threshold": 0.5,
+  "score_diagnostics": {
+    "clipped_above_one_fraction": 0.045953360768175584,
+    "clipped_below_zero_fraction": 0.04869684499314129,
+    "score_semantics": "clipped_regression"
+  },
+  "score_semantics": "clipped_regression",
+  "task": "regressor",
+  "topology": "multioutput"
+}

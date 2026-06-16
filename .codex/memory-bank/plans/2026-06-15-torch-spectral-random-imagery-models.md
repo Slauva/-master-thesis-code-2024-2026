@@ -1,8 +1,8 @@
 # PyTorch Spectral Models For Random-Imagery Reconstruction
 
 Status: in_progress
-Last updated: 2026-06-15
-Next stage: 4 - Artifacts, Workflow, And CLI (awaiting review)
+Last updated: 2026-06-16
+Next stage: 6 - Final Comparison (awaiting review)
 
 ## Goal
 
@@ -121,7 +121,7 @@ Superlet, and STFT representations.
   random-imagery prediction contract without leakage.
 - Review gate: Stop and wait for explicit user approval.
 
-### 4. Artifacts, Workflow, And CLI - Awaiting Review
+### 4. Artifacts, Workflow, And CLI - Completed
 
 - Objective: Add immutable Torch artifacts and complete terminal workflows.
 - Deliverables:
@@ -148,7 +148,7 @@ Superlet, and STFT representations.
   immutably reused from the terminal.
 - Review gate: Stop and wait for explicit user approval.
 
-### 5. Full Real-Corpus Training - Pending
+### 5. Full Real-Corpus Training - Completed
 
 - Objective: Execute all 12 primary Torch variants under both established protocols.
 - Deliverables:
@@ -171,7 +171,7 @@ Superlet, and STFT representations.
   comparison.
 - Review gate: Stop and wait for explicit user approval.
 
-### 6. Final Comparison - Pending
+### 6. Final Comparison - Awaiting Review
 
 - Objective: Compare Torch, classical, and non-EEG models without conflating protocols or score
   semantics.
@@ -312,3 +312,49 @@ Superlet, and STFT representations.
   tests, `uv run ruff check .`, `uv lock --check`, `git diff --check`, and the full suite with
   428 passed. Two pre-existing Python 3.13 multiprocessing `fork()` deprecation warnings remain.
 - 2026-06-15: Stage 4 marked Awaiting Review. Stage 5 has not started.
+- 2026-06-16: User approved Stage 4 by requesting continuation. Stage 4 marked Completed and
+  Stage 5 marked In Progress.
+- 2026-06-16: Stage 5 added and executed
+  `notebooks/6.0-torch-spectral-models-training.ipynb`, which ran all 12 primary Torch
+  architecture/preprocessing variants across the cross-subject and bidirectional cross-trial
+  protocols through `execute_torch_protocol(...)`.
+- 2026-06-16: Published 36 validated immutable Torch direction runs under
+  `artifacts/experiments/random-imagery-torch/`: 12 cross-subject, 12 trial-1-to-trial-2, and
+  12 trial-2-to-trial-1. The notebook's second pass verified immutable reuse for all 36 runs.
+- 2026-06-16: The run environment recorded CUDA on `NVIDIA GeForce RTX 3070 Ti`. Crop-spectral
+  caches for FFT, Morlet, Superlet, and STFT were populated under
+  `artifacts/preprocessed-imagery/Data_Pattern/patt/`.
+- 2026-06-16: Cross-subject direction balanced accuracy ranged from 0.486743 to 0.513443
+  (mean 0.500453). Within-subject direction balanced accuracy ranged from 0.479567 to 0.524497
+  (mean 0.502307). Combined within-subject descriptive leader was
+  `deep-convnet-stft-multilabel` with balanced accuracy 0.512011 and 95% subject-bootstrap
+  interval [0.500668, 0.520872].
+- 2026-06-16: Visual inspection of the two notebook figures passed. Verification passed:
+  97 focused Torch/notebook tests, `uv run ruff check .`, `uv lock --check`,
+  `git diff --check`, and the full suite with 429 passed. Two pre-existing Python 3.13
+  multiprocessing `fork()` deprecation warnings remain.
+- 2026-06-16: Stage 5 marked Awaiting Review. Stage 6 has not started.
+- 2026-06-16: User approved Stage 5 by requesting continuation. Stage 5 marked Completed and
+  Stage 6 marked In Progress.
+- 2026-06-16: Stage 6 added and executed
+  `notebooks/6.1-torch-classical-comparison.ipynb`, comparing Logistic Regression, nine
+  classical schema-v3 variants, 12 Torch spectral variants, and canonical non-EEG baselines from
+  immutable artifacts without loading joblib pipelines or Torch checkpoint weights.
+- 2026-06-16: The final comparison required exact ordered test sample keys, targets, and subject
+  IDs against Logistic Regression for every model. Cross-subject comparison used 39 held-out rows
+  from seven subjects; combined bidirectional cross-trial comparison used 162 held-out rows from
+  27 identities.
+- 2026-06-16: The notebook used the same 2,000 subject-cluster bootstrap draws within each
+  protocol and reported Holm-adjusted bootstrap p-values across the 21 non-reference learned
+  models. Minimum Holm-adjusted balanced-accuracy p-value was 0.273000.
+- 2026-06-16: Cross-subject descriptive leader was
+  `ridge-regression-independent` at balanced accuracy 0.518382. Combined within-subject
+  descriptive leader was `deep-convnet-stft-multilabel` at balanced accuracy 0.512011. No model
+  is promoted as superior to Logistic Regression under the multiplicity-aware paired bootstrap
+  screen.
+- 2026-06-16: Visual inspection of all six final-comparison figures passed. Verification passed:
+  10 focused comparison/notebook tests, `uv run ruff check .`, `uv lock --check`,
+  `git diff --check`, and the full suite with 430 passed. Two pre-existing Python 3.13
+  multiprocessing `fork()` deprecation warnings remain.
+- 2026-06-16: Stage 6 marked Awaiting Review. Because this is the final stage, the plan can be
+  marked completed after explicit user approval.

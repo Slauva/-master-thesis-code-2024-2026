@@ -1,5 +1,77 @@
 # Experiments
 
+## 2026-06-16 - Torch/classical random-imagery final comparison
+
+- Artifact: executed `notebooks/6.1-torch-classical-comparison.ipynb`.
+- Scope: Logistic Regression reference, nine classical schema-v3 models, 12 Torch spectral models,
+  and canonical non-EEG baselines.
+- Loading boundary: compared only immutable metadata and arrays. The notebook uses
+  `load_evaluation_run`, `load_model_run`, and `load_torch_run`; it does not deserialize joblib
+  pipelines or Torch checkpoint weights.
+- Protocol alignment: every non-reference model is required to match Logistic Regression exactly
+  on ordered test sample keys, target matrices, and subject IDs. Cross-subject uses 39 held-out
+  rows from seven subjects. Combined bidirectional cross-trial uses 162 held-out rows from
+  27 identities.
+- Bootstrap contract: 2,000 accepted subject-cluster bootstrap draws are shared by every model
+  within a protocol. Cross-subject required 2,002 draw attempts; within-subject required 2,000.
+- Multiplicity: balanced-accuracy bootstrap p-values are Holm-adjusted across the 21
+  non-reference learned models in each protocol. The minimum adjusted p-value is `0.273000`, so no
+  model is promoted as superior to Logistic Regression.
+- Descriptive cross-subject leader: `ridge-regression-independent`, balanced accuracy `0.518382`.
+  The top Torch cross-subject variant is `shallow-convnet-morlet-multilabel`, balanced accuracy
+  `0.513443`.
+- Descriptive combined within-subject leader: `deep-convnet-stft-multilabel`, balanced accuracy
+  `0.512011`.
+- Score semantics: Logistic Regression, calibrated Linear SVM/Ridge Classifier, and Torch models
+  are probability-score models and receive pooled fixed-bin ECE. Classical regressors expose
+  clipped continuous scores and are explicitly excluded from calibration interpretation.
+- Exact 36-pixel reconstruction accuracy remains zero for every learned model in the final
+  comparison.
+- Visual QA: six figures inspected: balanced-accuracy rankings by protocol, paired
+  balanced-accuracy improvements by protocol, probability-model ECE, and Torch runtime versus
+  parameter count.
+- Verification: focused Stage 6 checks reported 10 passed; `uv run ruff check .`,
+  `uv lock --check`, and `git diff --check` passed; full `uv run pytest` reported 430 passed with
+  two pre-existing Python 3.13 multiprocessing `fork()` deprecation warnings.
+- Interpretation boundary: the comparison supports a conservative thesis conclusion that current
+  learned EEG models remain near chance on this random-imagery reconstruction task. Descriptive
+  ranks are not evidence of reliable superiority.
+
+## 2026-06-16 - Torch spectral random-imagery real-corpus training
+
+- Artifact: executed `notebooks/6.0-torch-spectral-models-training.ipynb`.
+- Scope: 12 primary Torch variants, crossing EEGNet, DeepConvNet, and ShallowConvNet with FFT,
+  Morlet, Superlet, and STFT crop-spectral imagery inputs.
+- Protocols: one cross-subject direction with 141 train rows and 39 held-out rows; two
+  identity-overlapping cross-trial directions with 81 train and 81 test rows each.
+- Training contract: one 36-logit multilabel model per variant/direction, final seeds 42, 43, and
+  44, train-only log-power frequency z-scoring, train-only positive weights, grouped validation
+  epoch selection, and fixed threshold 0.5.
+- Artifacts: 36 immutable Torch direction runs under
+  `artifacts/experiments/random-imagery-torch/`, each with three state-dict checkpoints,
+  histories, normalization state, split/leakage audit, ensemble scores, predictions, metrics,
+  baselines, environment payload, and SHA-256 file inventory.
+- Reuse check: the notebook's second pass called the same workflow with `reuse_existing=True` and
+  verified reuse for all 36 expected direction runs without fitting.
+- Runtime/environment: artifact environment payloads record CUDA available on
+  `NVIDIA GeForce RTX 3070 Ti`; summed persisted training time across direction runs was about
+  1,231.64 s.
+- Direction metrics: cross-subject mean per-pixel balanced accuracy ranged from `0.486743` to
+  `0.513443` with mean `0.500453`; within-subject direction balanced accuracy ranged from
+  `0.479567` to `0.524497` with mean `0.502307`.
+- Combined within-subject descriptive leader: `deep-convnet-stft-multilabel`, balanced accuracy
+  `0.512011`, 95% subject-bootstrap interval `[0.500668, 0.520872]`, 162 test rows.
+- Parameter counts across persisted Torch variants ranged from 2,495 to 184,640 trainable
+  parameters.
+- Visual QA: two notebook figures were inspected, one per protocol. Cross-subject has one
+  direction per variant; within-subject shows both trial directions per variant.
+- Verification: 97 focused Torch/notebook tests passed; `uv run ruff check .`, `uv lock --check`,
+  and `git diff --check` passed; full `uv run pytest` reported 429 passed with two pre-existing
+  Python 3.13 multiprocessing `fork()` deprecation warnings.
+- Interpretation boundary: Stage 5 validates completion, leakage-safe execution, artifact safety,
+  and descriptive metrics only. Multiplicity-aware contrasts against Logistic Regression and
+  classical models are deferred to Stage 6.
+
 ## 2026-06-14 - FeatureDataset cache and sklearn export validation
 
 - Artifact: executed `notebooks/4.2-feature-dataset-export.ipynb`.

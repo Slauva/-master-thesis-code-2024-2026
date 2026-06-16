@@ -1,0 +1,94 @@
+{
+  "artifacts": {
+    "overwrite": false,
+    "root": "artifacts/experiments/random-imagery",
+    "schema_version": 3
+  },
+  "bootstrap_iterations": 2000,
+  "cross_validation": {
+    "n_splits": 5,
+    "random_state": 42,
+    "scoring": "balanced_accuracy",
+    "shuffle": true
+  },
+  "dataset": {
+    "dataset_dir": "data/Data_Pattern",
+    "feature_config_path": "confs/features/default.yaml",
+    "image_columns": 6,
+    "image_rows": 6,
+    "pattern_type": "random",
+    "recording_family": "patt"
+  },
+  "feature_screening": {
+    "candidates": [
+      [
+        "time"
+      ],
+      [
+        "spectral"
+      ],
+      [
+        "time",
+        "spectral"
+      ],
+      [
+        "covariance"
+      ],
+      [
+        "correlation"
+      ],
+      [
+        "log_covariance"
+      ],
+      [
+        "lndp"
+      ],
+      [
+        "lgp"
+      ],
+      [
+        "lbp"
+      ]
+    ],
+    "select_k": 100,
+    "variance_threshold": 0.0
+  },
+  "grid_search": {
+    "error_score": "raise",
+    "estimator_family": "random_forest",
+    "estimator_n_jobs": 1,
+    "max_depth": [
+      null,
+      10
+    ],
+    "max_features": [
+      0.5,
+      1.0
+    ],
+    "min_samples_leaf": [
+      1,
+      3
+    ],
+    "n_estimators": [
+      100
+    ],
+    "n_jobs": -1,
+    "screening_max_depth": null,
+    "screening_max_features": 1.0,
+    "screening_min_samples_leaf": 1,
+    "screening_n_estimators": 100,
+    "select_k": [
+      50,
+      100
+    ]
+  },
+  "model_id": "random-forest-independent",
+  "prediction_threshold": 0.5,
+  "random_state": 42,
+  "split": {
+    "group_by": "subject",
+    "random_state": 42,
+    "require_both_classes": true,
+    "test_size": 0.2
+  }
+}

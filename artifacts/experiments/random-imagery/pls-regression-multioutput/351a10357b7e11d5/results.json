@@ -1,0 +1,293 @@
+{
+  "estimator_family": "pls_regression",
+  "model_id": "pls-regression-multioutput",
+  "models": [
+    {
+      "best_cv_balanced_accuracy": 0.5218910102243436,
+      "best_cv_clipped_mse": 0.27093292679264164,
+      "best_hyperparameters": {
+        "estimator_family": "pls_regression",
+        "parameters": [
+          [
+            "n_components",
+            5
+          ]
+        ],
+        "select_k": 25
+      },
+      "candidate_scores": [
+        {
+          "hyperparameters": {
+            "estimator_family": "pls_regression",
+            "parameters": [
+              [
+                "n_components",
+                2
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.5092840184506852,
+          "mean_clipped_mse": 0.25908957843759317,
+          "rank": 5,
+          "std_balanced_accuracy": 0.021251450292184462,
+          "std_clipped_mse": 0.007525837861341865
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "pls_regression",
+            "parameters": [
+              [
+                "n_components",
+                2
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5070689110272444,
+          "mean_clipped_mse": 0.2586665401714808,
+          "rank": 6,
+          "std_balanced_accuracy": 0.012877225604321198,
+          "std_clipped_mse": 0.005220860459047627
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "pls_regression",
+            "parameters": [
+              [
+                "n_components",
+                2
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5150013412513412,
+          "mean_clipped_mse": 0.25696309483348145,
+          "rank": 3,
+          "std_balanced_accuracy": 0.015756405031490745,
+          "std_clipped_mse": 0.004632932863384555
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "pls_regression",
+            "parameters": [
+              [
+                "n_components",
+                2
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5057144938394939,
+          "mean_clipped_mse": 0.2579165360694543,
+          "rank": 9,
+          "std_balanced_accuracy": 0.01970667783039949,
+          "std_clipped_mse": 0.004710799412635979
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "pls_regression",
+            "parameters": [
+              [
+                "n_components",
+                5
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.5218910102243436,
+          "mean_clipped_mse": 0.27093292679264164,
+          "rank": 1,
+          "std_balanced_accuracy": 0.009323227254667889,
+          "std_clipped_mse": 0.010875058716855502
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "pls_regression",
+            "parameters": [
+              [
+                "n_components",
+                5
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5196262687929354,
+          "mean_clipped_mse": 0.2725715689096431,
+          "rank": 2,
+          "std_balanced_accuracy": 0.010632492742023283,
+          "std_clipped_mse": 0.01348226719381016
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "pls_regression",
+            "parameters": [
+              [
+                "n_components",
+                5
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5095923366756699,
+          "mean_clipped_mse": 0.27360506048344413,
+          "rank": 4,
+          "std_balanced_accuracy": 0.01640828832149068,
+          "std_clipped_mse": 0.014083631809939936
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "pls_regression",
+            "parameters": [
+              [
+                "n_components",
+                5
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5059382592715925,
+          "mean_clipped_mse": 0.2705245924792655,
+          "rank": 8,
+          "std_balanced_accuracy": 0.018408515150737957,
+          "std_clipped_mse": 0.00648162011153149
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "pls_regression",
+            "parameters": [
+              [
+                "n_components",
+                10
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.5025941419691419,
+          "mean_clipped_mse": 0.30152060293009164,
+          "rank": 10,
+          "std_balanced_accuracy": 0.011999848272011202,
+          "std_clipped_mse": 0.009043350119055384
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "pls_regression",
+            "parameters": [
+              [
+                "n_components",
+                10
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5060168381001714,
+          "mean_clipped_mse": 0.300987757600841,
+          "rank": 7,
+          "std_balanced_accuracy": 0.015903628658040465,
+          "std_clipped_mse": 0.014912602047735033
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "pls_regression",
+            "parameters": [
+              [
+                "n_components",
+                10
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.49906840844340844,
+          "mean_clipped_mse": 0.3023717254527211,
+          "rank": 11,
+          "std_balanced_accuracy": 0.007350946615107561,
+          "std_clipped_mse": 0.014800739636899443
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "pls_regression",
+            "parameters": [
+              [
+                "n_components",
+                10
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.48995610099776765,
+          "mean_clipped_mse": 0.3020348598994234,
+          "rank": 12,
+          "std_balanced_accuracy": 0.008371353549401557,
+          "std_clipped_mse": 0.015321814550327488
+        }
+      ],
+      "selected_feature_indices": [
+        21,
+        53,
+        249,
+        283,
+        301,
+        359,
+        377,
+        542,
+        893,
+        908,
+        1013,
+        1043,
+        1087,
+        1123,
+        1138,
+        1139,
+        1188,
+        1245,
+        1273,
+        1414,
+        1510,
+        1664,
+        1808,
+        1928,
+        1953
+      ],
+      "selected_feature_names": [
+        "correlation:Fp1:CP6",
+        "correlation:Fp1:TP8",
+        "correlation:FT9:C3",
+        "correlation:FT9:CP3",
+        "correlation:FT9:AF8",
+        "correlation:FC5:AF8",
+        "correlation:FC1:TP10",
+        "correlation:TP9:TP10",
+        "correlation:Oz:CP6",
+        "correlation:Oz:FT7",
+        "correlation:P4:P2",
+        "correlation:P8:FT7",
+        "correlation:TP10:FC3",
+        "correlation:CP6:AF7",
+        "correlation:CP6:POz",
+        "correlation:CP6:PO4",
+        "correlation:CP2:C2",
+        "correlation:T8:AFz",
+        "correlation:T8:F2",
+        "correlation:F4:FC4",
+        "correlation:AF7:TP8",
+        "correlation:FT7:Iz",
+        "correlation:P5:PO3",
+        "correlation:P2:TP8",
+        "correlation:CP4:C2"
+      ]
+    }
+  ],
+  "pipeline_count": 1,
+  "pipeline_files": [
+    "pipelines/multioutput.joblib"
+  ],
+  "prediction_threshold": 0.5,
+  "score_diagnostics": {
+    "clipped_above_one_fraction": 0.006515775034293553,
+    "clipped_below_zero_fraction": 0.008916323731138546,
+    "score_semantics": "clipped_regression"
+  },
+  "score_semantics": "clipped_regression",
+  "task": "regressor",
+  "topology": "multioutput"
+}

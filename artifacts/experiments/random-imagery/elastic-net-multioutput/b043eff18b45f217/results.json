@@ -1,0 +1,1587 @@
+{
+  "estimator_family": "elastic_net",
+  "model_id": "elastic-net-multioutput",
+  "models": [
+    {
+      "best_cv_balanced_accuracy": 0.5222720903867425,
+      "best_cv_clipped_mse": 0.3537992821829776,
+      "best_hyperparameters": {
+        "estimator_family": "elastic_net",
+        "parameters": [
+          [
+            "alpha",
+            0.01
+          ],
+          [
+            "l1_ratio",
+            0.5
+          ]
+        ],
+        "select_k": 100
+      },
+      "candidate_scores": [
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.501850027138424,
+          "mean_clipped_mse": 0.3036522523884632,
+          "rank": 35,
+          "std_balanced_accuracy": 0.010720513431460217,
+          "std_clipped_mse": 0.02345311812394326
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5087591463756942,
+          "mean_clipped_mse": 0.3581476034152194,
+          "rank": 17,
+          "std_balanced_accuracy": 0.005996670391943509,
+          "std_clipped_mse": 0.023949381256822503
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5087224033302604,
+          "mean_clipped_mse": 0.4195834016512309,
+          "rank": 18,
+          "std_balanced_accuracy": 0.017269509296161622,
+          "std_clipped_mse": 0.01227157406188568
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5085905161213636,
+          "mean_clipped_mse": 0.4274818374179459,
+          "rank": 19,
+          "std_balanced_accuracy": 0.017188700824424634,
+          "std_clipped_mse": 0.013791597637037025
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.4997559809173783,
+          "mean_clipped_mse": 0.3018263670953969,
+          "rank": 58,
+          "std_balanced_accuracy": 0.012464817517323763,
+          "std_clipped_mse": 0.02289496940146367
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5084935159291427,
+          "mean_clipped_mse": 0.3540383678591133,
+          "rank": 20,
+          "std_balanced_accuracy": 0.006006429571629579,
+          "std_clipped_mse": 0.024418221008860704
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5097558555740876,
+          "mean_clipped_mse": 0.41348152887196676,
+          "rank": 14,
+          "std_balanced_accuracy": 0.01632574577325763,
+          "std_clipped_mse": 0.013256709966174816
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5110969674414731,
+          "mean_clipped_mse": 0.4250064530780908,
+          "rank": 10,
+          "std_balanced_accuracy": 0.009289659637693072,
+          "std_clipped_mse": 0.009376988551715239
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.5005067496489906,
+          "mean_clipped_mse": 0.30046502835683914,
+          "rank": 41,
+          "std_balanced_accuracy": 0.012517403997609521,
+          "std_clipped_mse": 0.022189630805511968
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5067716439853924,
+          "mean_clipped_mse": 0.35040444257467784,
+          "rank": 23,
+          "std_balanced_accuracy": 0.005328544761521317,
+          "std_clipped_mse": 0.02493731380009866
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5098338524229178,
+          "mean_clipped_mse": 0.4054985398657923,
+          "rank": 13,
+          "std_balanced_accuracy": 0.01896530562162311,
+          "std_clipped_mse": 0.01274873033698024
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5093432696107181,
+          "mean_clipped_mse": 0.4211350979899871,
+          "rank": 16,
+          "std_balanced_accuracy": 0.009224982313068215,
+          "std_clipped_mse": 0.007428951383720305
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.5008524493068033,
+          "mean_clipped_mse": 0.3000839551774234,
+          "rank": 37,
+          "std_balanced_accuracy": 0.012650383003578127,
+          "std_clipped_mse": 0.02205230024566641
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5063618600200744,
+          "mean_clipped_mse": 0.34964433870379985,
+          "rank": 24,
+          "std_balanced_accuracy": 0.0060751545244778415,
+          "std_clipped_mse": 0.024960070576137486
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5112028587796693,
+          "mean_clipped_mse": 0.4037547737576473,
+          "rank": 7,
+          "std_balanced_accuracy": 0.016201248854341117,
+          "std_clipped_mse": 0.012393240580902217
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.001
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5074907074579109,
+          "mean_clipped_mse": 0.4204053303312228,
+          "rank": 22,
+          "std_balanced_accuracy": 0.011806802599471755,
+          "std_clipped_mse": 0.007475196135711607
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.5008065455750765,
+          "mean_clipped_mse": 0.29161710120429507,
+          "rank": 38,
+          "std_balanced_accuracy": 0.010207164516787607,
+          "std_clipped_mse": 0.0203523542695181
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5040639416979042,
+          "mean_clipped_mse": 0.3378290616376807,
+          "rank": 31,
+          "std_balanced_accuracy": 0.007161518116807378,
+          "std_clipped_mse": 0.024402794206700936
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5111137510731726,
+          "mean_clipped_mse": 0.380442888621851,
+          "rank": 8,
+          "std_balanced_accuracy": 0.01826816840505669,
+          "std_clipped_mse": 0.014718488779800431
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5111125879619143,
+          "mean_clipped_mse": 0.4096268234263424,
+          "rank": 9,
+          "std_balanced_accuracy": 0.015791475992653216,
+          "std_clipped_mse": 0.013978212746864479
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.4942188642624856,
+          "mean_clipped_mse": 0.2838635433902582,
+          "rank": 64,
+          "std_balanced_accuracy": 0.01588291389832637,
+          "std_clipped_mse": 0.017298403824586698
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.49814412649371087,
+          "mean_clipped_mse": 0.32397675371902235,
+          "rank": 61,
+          "std_balanced_accuracy": 0.005307100671946289,
+          "std_clipped_mse": 0.022696831364414777
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5222720903867425,
+          "mean_clipped_mse": 0.3537992821829776,
+          "rank": 1,
+          "std_balanced_accuracy": 0.01227900606585759,
+          "std_clipped_mse": 0.014656685392770616
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.513563954303413,
+          "mean_clipped_mse": 0.3860062192646746,
+          "rank": 6,
+          "std_balanced_accuracy": 0.020106359463169913,
+          "std_clipped_mse": 0.018794143019880635
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.49555214593084207,
+          "mean_clipped_mse": 0.278579316500878,
+          "rank": 63,
+          "std_balanced_accuracy": 0.01778222795354647,
+          "std_clipped_mse": 0.013988883911678301
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5001431032347318,
+          "mean_clipped_mse": 0.3122963204655964,
+          "rank": 42,
+          "std_balanced_accuracy": 0.009267654838596758,
+          "std_clipped_mse": 0.020174968159052883
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5155152097914134,
+          "mean_clipped_mse": 0.33834955689148927,
+          "rank": 4,
+          "std_balanced_accuracy": 0.0014305008850945358,
+          "std_clipped_mse": 0.015122923239453544
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5104269719378444,
+          "mean_clipped_mse": 0.36710942412325814,
+          "rank": 12,
+          "std_balanced_accuracy": 0.012176743693141357,
+          "std_clipped_mse": 0.019829499429411503
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.4965741384769574,
+          "mean_clipped_mse": 0.277254730371595,
+          "rank": 62,
+          "std_balanced_accuracy": 0.01632592354351392,
+          "std_clipped_mse": 0.013154223225403041
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.500777878711806,
+          "mean_clipped_mse": 0.3095577369176107,
+          "rank": 39,
+          "std_balanced_accuracy": 0.00804691243550879,
+          "std_clipped_mse": 0.019574238580087132
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5166709927990187,
+          "mean_clipped_mse": 0.33488324660003305,
+          "rank": 3,
+          "std_balanced_accuracy": 0.00597260324737474,
+          "std_clipped_mse": 0.015196669173324424
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.01
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5109903427369608,
+          "mean_clipped_mse": 0.36332039306443764,
+          "rank": 11,
+          "std_balanced_accuracy": 0.015250094363321207,
+          "std_clipped_mse": 0.02008018125649973
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.4985861192053985,
+          "mean_clipped_mse": 0.2719389640609055,
+          "rank": 60,
+          "std_balanced_accuracy": 0.01715039314200926,
+          "std_clipped_mse": 0.010202115214232319
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5013479545624546,
+          "mean_clipped_mse": 0.29777256408016994,
+          "rank": 36,
+          "std_balanced_accuracy": 0.008764448801848145,
+          "std_clipped_mse": 0.017813880276038942
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.516737225892451,
+          "mean_clipped_mse": 0.31632716602368505,
+          "rank": 2,
+          "std_balanced_accuracy": 0.00654191318257243,
+          "std_clipped_mse": 0.014021337439007754
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5056665540385591,
+          "mean_clipped_mse": 0.3399171521656873,
+          "rank": 27,
+          "std_balanced_accuracy": 0.017446173375208516,
+          "std_clipped_mse": 0.021922250708408444
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.5001182811797044,
+          "mean_clipped_mse": 0.25622979390897915,
+          "rank": 43,
+          "std_balanced_accuracy": 0.01370732288305936,
+          "std_clipped_mse": 0.0017782126496280548
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5051307862172799,
+          "mean_clipped_mse": 0.2630256389253264,
+          "rank": 28,
+          "std_balanced_accuracy": 0.010491090672648012,
+          "std_clipped_mse": 0.0031962141101547895
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5151979225982709,
+          "mean_clipped_mse": 0.2655938586261775,
+          "rank": 5,
+          "std_balanced_accuracy": 0.009162334400105986,
+          "std_clipped_mse": 0.0028713744813601005
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5061882112777534,
+          "mean_clipped_mse": 0.27634261351708556,
+          "rank": 26,
+          "std_balanced_accuracy": 0.009332380546548462,
+          "std_clipped_mse": 0.010494584669117946
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.4997868610529859,
+          "mean_clipped_mse": 0.2529594269471046,
+          "rank": 57,
+          "std_balanced_accuracy": 0.002454581253466729,
+          "std_clipped_mse": 0.0009258113361905727
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5047757051385148,
+          "mean_clipped_mse": 0.2537019754605443,
+          "rank": 29,
+          "std_balanced_accuracy": 0.006721172720586856,
+          "std_clipped_mse": 0.0007747484157072662
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5097138447470619,
+          "mean_clipped_mse": 0.2537665905728509,
+          "rank": 15,
+          "std_balanced_accuracy": 0.006121148513723351,
+          "std_clipped_mse": 0.001013362847453302
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.504754638234147,
+          "mean_clipped_mse": 0.25618025698751024,
+          "rank": 30,
+          "std_balanced_accuracy": 0.0186266686622713,
+          "std_clipped_mse": 0.0025627996055374793
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.5000644414208655,
+          "mean_clipped_mse": 0.25286690822370755,
+          "rank": 44,
+          "std_balanced_accuracy": 0.0008910204930522242,
+          "std_clipped_mse": 0.0008755654995809375
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5029234802912563,
+          "mean_clipped_mse": 0.2531206448469151,
+          "rank": 32,
+          "std_balanced_accuracy": 0.006658694189895153,
+          "std_clipped_mse": 0.0005714144334034799
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5082803726034506,
+          "mean_clipped_mse": 0.25314939349964377,
+          "rank": 21,
+          "std_balanced_accuracy": 0.009804682931116289,
+          "std_clipped_mse": 0.0007526279832086094
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                0.1
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5062278130354951,
+          "mean_clipped_mse": 0.2546435069643117,
+          "rank": 25,
+          "std_balanced_accuracy": 0.010084137508792192,
+          "std_clipped_mse": 0.0018908657365758407
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.4989736419077235,
+          "mean_clipped_mse": 0.2528007340531875,
+          "rank": 59,
+          "std_balanced_accuracy": 0.0028844815486769025,
+          "std_clipped_mse": 0.0009188503634484573
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5007189934582865,
+          "mean_clipped_mse": 0.25279580927310885,
+          "rank": 40,
+          "std_balanced_accuracy": 0.006474421423329716,
+          "std_clipped_mse": 0.0008070279754996378
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5021452338415703,
+          "mean_clipped_mse": 0.2527464679490289,
+          "rank": 34,
+          "std_balanced_accuracy": 0.005937354241790755,
+          "std_clipped_mse": 0.0009747924434987598
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                0.1
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5029154474839459,
+          "mean_clipped_mse": 0.2532023833760221,
+          "rank": 33,
+          "std_balanced_accuracy": 0.0077331196364053174,
+          "std_clipped_mse": 0.0015177120058595184
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.5,
+          "mean_clipped_mse": 0.2529679538088402,
+          "rank": 45,
+          "std_balanced_accuracy": 0.0,
+          "std_clipped_mse": 0.0008760088180553965
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5,
+          "mean_clipped_mse": 0.2529679538088402,
+          "rank": 46,
+          "std_balanced_accuracy": 0.0,
+          "std_clipped_mse": 0.0008760088180553965
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5,
+          "mean_clipped_mse": 0.2529679538088402,
+          "rank": 47,
+          "std_balanced_accuracy": 0.0,
+          "std_clipped_mse": 0.0008760088180553965
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                0.5
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5,
+          "mean_clipped_mse": 0.2529679538088402,
+          "rank": 48,
+          "std_balanced_accuracy": 0.0,
+          "std_clipped_mse": 0.0008760088180553965
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.5,
+          "mean_clipped_mse": 0.2529679538088402,
+          "rank": 49,
+          "std_balanced_accuracy": 0.0,
+          "std_clipped_mse": 0.0008760088180553965
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5,
+          "mean_clipped_mse": 0.2529679538088402,
+          "rank": 50,
+          "std_balanced_accuracy": 0.0,
+          "std_clipped_mse": 0.0008760088180553965
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5,
+          "mean_clipped_mse": 0.2529679538088402,
+          "rank": 51,
+          "std_balanced_accuracy": 0.0,
+          "std_clipped_mse": 0.0008760088180553965
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                0.9
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5,
+          "mean_clipped_mse": 0.2529679538088402,
+          "rank": 52,
+          "std_balanced_accuracy": 0.0,
+          "std_clipped_mse": 0.0008760088180553965
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 25
+          },
+          "mean_balanced_accuracy": 0.5,
+          "mean_clipped_mse": 0.2529679538088402,
+          "rank": 53,
+          "std_balanced_accuracy": 0.0,
+          "std_clipped_mse": 0.0008760088180553965
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5,
+          "mean_clipped_mse": 0.2529679538088402,
+          "rank": 54,
+          "std_balanced_accuracy": 0.0,
+          "std_clipped_mse": 0.0008760088180553965
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5,
+          "mean_clipped_mse": 0.2529679538088402,
+          "rank": 55,
+          "std_balanced_accuracy": 0.0,
+          "std_clipped_mse": 0.0008760088180553965
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "elastic_net",
+            "parameters": [
+              [
+                "alpha",
+                1.0
+              ],
+              [
+                "l1_ratio",
+                1.0
+              ]
+            ],
+            "select_k": 250
+          },
+          "mean_balanced_accuracy": 0.5,
+          "mean_clipped_mse": 0.2529679538088402,
+          "rank": 56,
+          "std_balanced_accuracy": 0.0,
+          "std_clipped_mse": 0.0008760088180553965
+        }
+      ],
+      "selected_feature_indices": [
+        4,
+        20,
+        21,
+        33,
+        101,
+        142,
+        156,
+        169,
+        259,
+        287,
+        288,
+        289,
+        291,
+        307,
+        356,
+        368,
+        391,
+        396,
+        398,
+        402,
+        407,
+        410,
+        423,
+        436,
+        446,
+        462,
+        467,
+        576,
+        585,
+        598,
+        599,
+        600,
+        601,
+        604,
+        716,
+        787,
+        792,
+        797,
+        799,
+        807,
+        808,
+        809,
+        812,
+        832,
+        833,
+        834,
+        841,
+        851,
+        854,
+        860,
+        868,
+        932,
+        933,
+        964,
+        973,
+        974,
+        989,
+        1043,
+        1048,
+        1084,
+        1089,
+        1090,
+        1127,
+        1128,
+        1130,
+        1132,
+        1137,
+        1212,
+        1229,
+        1236,
+        1239,
+        1240,
+        1246,
+        1249,
+        1265,
+        1380,
+        1440,
+        1451,
+        1465,
+        1468,
+        1469,
+        1474,
+        1479,
+        1480,
+        1481,
+        1483,
+        1485,
+        1490,
+        1541,
+        1590,
+        1592,
+        1593,
+        1595,
+        1599,
+        1638,
+        1664,
+        1686,
+        1687,
+        1688,
+        1697
+      ],
+      "selected_feature_names": [
+        "time:Fp1:median",
+        "time:Fz:skewness",
+        "time:Fz:excess_kurtosis",
+        "time:F3:skewness",
+        "time:C3:zero_crossing_rate",
+        "time:CP5:hjorth_complexity",
+        "time:Pz:mean",
+        "time:P3:mean",
+        "time:P8:hjorth_complexity",
+        "time:CP2:variance",
+        "time:CP2:std",
+        "time:CP2:rms",
+        "time:CP2:mad",
+        "time:C4:excess_kurtosis",
+        "time:FC2:mad",
+        "time:F4:median",
+        "time:Fp2:variance",
+        "time:Fp2:peak_to_peak",
+        "time:Fp2:excess_kurtosis",
+        "time:Fp2:hjorth_complexity",
+        "time:AF7:median",
+        "time:AF7:skewness",
+        "time:AF3:skewness",
+        "time:AFz:skewness",
+        "time:F1:median",
+        "time:F5:skewness",
+        "time:F5:hjorth_complexity",
+        "time:PO7:median",
+        "time:PO3:mean",
+        "time:POz:mean",
+        "time:POz:variance",
+        "time:POz:std",
+        "time:POz:rms",
+        "time:POz:peak_to_peak",
+        "time:C2:variance",
+        "time:AF4:skewness",
+        "time:AF4:hjorth_complexity",
+        "time:F2:median",
+        "time:F2:peak_to_peak",
+        "time:Iz:variance",
+        "time:Iz:std",
+        "time:Iz:rms",
+        "time:Iz:peak_to_peak",
+        "spectral:Fp1:spectral_entropy",
+        "spectral:Fz:absolute_band_power_delta",
+        "spectral:Fz:absolute_band_power_theta",
+        "spectral:Fz:relative_band_power_beta",
+        "spectral:F3:absolute_band_power_low_gamma",
+        "spectral:F3:relative_band_power_alpha",
+        "spectral:F3:spectral_entropy",
+        "spectral:F7:relative_band_power_alpha",
+        "spectral:T7:absolute_band_power_theta",
+        "spectral:T7:absolute_band_power_alpha",
+        "spectral:CP5:relative_band_power_delta",
+        "spectral:CP1:absolute_band_power_delta",
+        "spectral:CP1:absolute_band_power_theta",
+        "spectral:Pz:absolute_band_power_alpha",
+        "spectral:Oz:absolute_band_power_delta",
+        "spectral:Oz:relative_band_power_delta",
+        "spectral:P4:spectral_entropy",
+        "spectral:P8:absolute_band_power_low_gamma",
+        "spectral:P8:relative_band_power_delta",
+        "spectral:CP2:absolute_band_power_delta",
+        "spectral:CP2:absolute_band_power_theta",
+        "spectral:CP2:absolute_band_power_beta",
+        "spectral:CP2:relative_band_power_delta",
+        "spectral:CP2:total_power",
+        "spectral:F4:absolute_band_power_theta",
+        "spectral:F8:absolute_band_power_low_gamma",
+        "spectral:F8:dominant_frequency",
+        "spectral:Fp2:absolute_band_power_delta",
+        "spectral:Fp2:absolute_band_power_theta",
+        "spectral:Fp2:relative_band_power_alpha",
+        "spectral:Fp2:total_power",
+        "spectral:AF7:spectral_centroid",
+        "spectral:TP7:absolute_band_power_theta",
+        "spectral:PO7:relative_band_power_delta",
+        "spectral:PO3:absolute_band_power_alpha",
+        "spectral:POz:absolute_band_power_alpha",
+        "spectral:POz:relative_band_power_delta",
+        "spectral:POz:relative_band_power_theta",
+        "spectral:POz:dominant_frequency",
+        "spectral:PO4:absolute_band_power_alpha",
+        "spectral:PO4:absolute_band_power_beta",
+        "spectral:PO4:absolute_band_power_low_gamma",
+        "spectral:PO4:relative_band_power_theta",
+        "spectral:PO4:relative_band_power_beta",
+        "spectral:PO4:spectral_entropy",
+        "spectral:CPz:relative_band_power_beta",
+        "spectral:C2:absolute_band_power_theta",
+        "spectral:C2:absolute_band_power_beta",
+        "spectral:C2:absolute_band_power_low_gamma",
+        "spectral:C2:relative_band_power_theta",
+        "spectral:C2:total_power",
+        "spectral:F6:relative_band_power_alpha",
+        "spectral:AF4:relative_band_power_delta",
+        "spectral:F2:spectral_entropy",
+        "spectral:Iz:absolute_band_power_delta",
+        "spectral:Iz:absolute_band_power_theta",
+        "spectral:Iz:total_power"
+      ]
+    }
+  ],
+  "pipeline_count": 1,
+  "pipeline_files": [
+    "pipelines/multioutput.joblib"
+  ],
+  "prediction_threshold": 0.5,
+  "score_diagnostics": {
+    "clipped_above_one_fraction": 0.10968660968660969,
+    "clipped_below_zero_fraction": 0.1103988603988604,
+    "score_semantics": "clipped_regression"
+  },
+  "score_semantics": "clipped_regression",
+  "task": "regressor",
+  "topology": "multioutput"
+}

@@ -339,8 +339,11 @@ PyTorch spectral random-imagery models:
 - Stage 2, five PyTorch architecture ports, max-norm utilities, attribution, and structural
   verification, is completed.
 - Stage 3, leakage-safe grouped model selection and three-seed ensemble training, is completed.
-- Stage 4, immutable Torch artifacts, workflows, and CLI, is implemented and awaiting explicit
-  review.
+- Stage 4, immutable Torch artifacts, workflows, and CLI, is completed.
+- Stage 5, full real-corpus training for all 12 primary variants and both protocols, is
+  completed.
+- Stage 6, final Torch/classical/probability/baseline comparison, is implemented and awaiting
+  explicit final review.
 - Added `experiments/random_imagery_torch` with a strict `[0.5, 15.5)` crop configuration, a
   separate atomic cache under `artifacts/preprocessed-imagery/`, immutable spectral and
   normalization schemas, train-key-only per-frequency log-power z-scoring, aligned Torch datasets,
@@ -407,12 +410,47 @@ PyTorch spectral random-imagery models:
   rejection and complete-run reuse validation.
 - Added 8 focused Stage 4 artifact/workflow/CLI tests. Focused Torch tests report 94 passed; full
   verification reports 428 passed with the two existing Python 3.13 multiprocessing warnings.
+- Added and executed `notebooks/6.0-torch-spectral-models-training.ipynb`; it calls
+  `execute_torch_protocol(...)` for every planned Torch variant/protocol and verifies a second
+  immutable-reuse pass.
+- Published 36 immutable Torch direction runs under
+  `artifacts/experiments/random-imagery-torch/`: 12 cross-subject, 12 trial-1-to-trial-2, and
+  12 trial-2-to-trial-1.
+- The run environment recorded CUDA on `NVIDIA GeForce RTX 3070 Ti`. The complete crop-spectral
+  imagery caches for FFT, Morlet, Superlet, and STFT are populated under
+  `artifacts/preprocessed-imagery/Data_Pattern/patt/`.
+- Cross-subject direction balanced accuracy ranges from `0.486743` to `0.513443` with mean
+  `0.500453`. Within-subject direction balanced accuracy ranges from `0.479567` to `0.524497`
+  with mean `0.502307`.
+- Combined within-subject descriptive leader is `deep-convnet-stft-multilabel`, balanced accuracy
+  `0.512011`, 95% subject-bootstrap interval `[0.500668, 0.520872]`. This is descriptive pending
+  the Stage 6 multiplicity-aware comparison.
+- Visual inspection of the two Stage 5 notebook figures passed. Focused Torch/notebook tests report
+  97 passed; Ruff, lockfile check, diff check, and the full suite pass with 429 tests and the two
+  existing Python 3.13 multiprocessing warnings.
+- Added and executed `notebooks/6.1-torch-classical-comparison.ipynb`; it compares Logistic
+  Regression, nine classical schema-v3 variants, 12 Torch spectral variants, and canonical non-EEG
+  baselines from immutable artifacts without loading joblib pipelines or Torch checkpoint weights.
+- Stage 6 validates exact ordered test sample keys, targets, and subject IDs for every model
+  against Logistic Regression. Cross-subject uses 39 held-out rows from seven subjects; combined
+  bidirectional cross-trial uses 162 held-out rows from 27 identities.
+- Stage 6 uses the same 2,000 subject-cluster bootstrap draws within each protocol and reports
+  Holm-adjusted bootstrap p-values across the 21 non-reference learned models. Minimum
+  Holm-adjusted balanced-accuracy p-value is `0.273000`.
+- Final descriptive leaders are `ridge-regression-independent` cross-subject with balanced
+  accuracy `0.518382` and `deep-convnet-stft-multilabel` combined within-subject with balanced
+  accuracy `0.512011`.
+- No model is promoted as superior to Logistic Regression under the multiplicity-aware paired
+  bootstrap screen. Exact 36-pixel reconstruction remains zero for all learned models in the final
+  comparison.
+- Visual inspection of all six final-comparison figures passed. Focused Stage 6 tests report
+  10 passed; Ruff, lockfile check, diff check, and the full suite pass with 430 tests and the two
+  existing Python 3.13 multiprocessing warnings.
 
 ## Next Actions
 
-- Obtain explicit approval for PyTorch spectral-model Stage 4 before starting Stage 5 real-corpus
-  training.
-- Obtain explicit final approval for Stage 6.
+- Obtain explicit final approval for PyTorch spectral-model Stage 6, then mark
+  `.codex/memory-bank/plans/2026-06-15-torch-spectral-random-imagery-models.md` completed.
 - The original Logistic Regression Stage 5 remains awaiting separate review; the extension's
   reconstruction metrics are already incorporated.
 - Obtain explicit final approval for EEG feature-extraction Stage 5 separately.

@@ -1,0 +1,55 @@
+{
+  "artifacts": {
+    "overwrite": false,
+    "root": "artifacts/experiments/random-imagery-torch",
+    "schema_version": 1
+  },
+  "bootstrap_iterations": 2000,
+  "dataset": {
+    "dataset_dir": "data/Data_Pattern",
+    "feature_config_path": "confs/features/default.yaml",
+    "image_columns": 6,
+    "image_rows": 6,
+    "pattern_type": "random",
+    "recording_family": "patt"
+  },
+  "model_id": "eegnet-superlet-multilabel",
+  "preprocessing_overrides": {},
+  "random_state": 42,
+  "spectral_input": {
+    "crop_end_seconds": 15.5,
+    "crop_start_seconds": 0.5,
+    "log_epsilon": 1e-12,
+    "std_epsilon": 1e-06
+  },
+  "split": {
+    "group_by": "subject",
+    "random_state": 42,
+    "require_both_classes": true,
+    "test_size": 0.2
+  },
+  "training": {
+    "architecture": "eegnet",
+    "batch_size": 16,
+    "deterministic": true,
+    "device": "auto",
+    "dropout_rate": 0.5,
+    "early_stopping_min_delta": 0.0001,
+    "early_stopping_patience": 30,
+    "final_seeds": [
+      42,
+      43,
+      44
+    ],
+    "gradient_clip_norm": 1.0,
+    "learning_rate": 0.001,
+    "maximum_epochs": 300,
+    "method": "superlet",
+    "num_workers": 0,
+    "prediction_threshold": 0.5,
+    "selection_seed": 42,
+    "use_amp": false,
+    "validation_folds": 3,
+    "weight_decay": 0.0001
+  }
+}

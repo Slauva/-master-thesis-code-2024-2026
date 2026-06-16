@@ -1,0 +1,124 @@
+{
+  "config_hash": "68ce4e0dcf3ecd8d",
+  "direction": "cross-subject",
+  "file_count": 28,
+  "files": {
+    "arrays/baseline_global_majority_predictions.npy": {
+      "sha256": "94b205c3afa4decb89b6613ef6f6cfc5f1cbbe53a225604637e6438f2e59a9f8",
+      "size": 1532
+    },
+    "arrays/baseline_global_majority_scores.npy": {
+      "sha256": "9ab9cbd61d37fdff2614ffd01e7934875dc47dc174b8140074149111d4efd18b",
+      "size": 11360
+    },
+    "arrays/baseline_pixel_frequency_predictions.npy": {
+      "sha256": "a586e27df4bfb64f3dcb5ca1068a2090ecb2ebf72df9c0de6cb14dcf76d98aab",
+      "size": 1532
+    },
+    "arrays/baseline_pixel_frequency_scores.npy": {
+      "sha256": "73fb595fba42bdc0af06a050d35c031bb06fa0dec5d3ecaf80e57fd302ae81ee",
+      "size": 11360
+    },
+    "arrays/baseline_seeded_bernoulli_predictions.npy": {
+      "sha256": "3e62539ec7eec726aeee49b6f4a719d78ae3c61679c78ca5ab270b037d627de7",
+      "size": 1532
+    },
+    "arrays/baseline_seeded_bernoulli_scores.npy": {
+      "sha256": "73fb595fba42bdc0af06a050d35c031bb06fa0dec5d3ecaf80e57fd302ae81ee",
+      "size": 11360
+    },
+    "arrays/member_scores.npy": {
+      "sha256": "96c1fa42beadd46b7b86c94e4d571e731c8993991bdc01de501befe931dace9a",
+      "size": 33824
+    },
+    "arrays/normalization_frequencies.npy": {
+      "sha256": "37908274826a3285642e45e8684eee3b8c1cdcbfab9eb6d35c15353c6046593e",
+      "size": 284
+    },
+    "arrays/normalization_mean.npy": {
+      "sha256": "597d6b955b3584fa38576f1566fe918cd2ac2f0a9812d9b7515c296771f49d93",
+      "size": 440
+    },
+    "arrays/normalization_scale.npy": {
+      "sha256": "e89b857096738293ff8fd718655bbdd8cd56ac57778c548f644f0df9957aec3b",
+      "size": 440
+    },
+    "arrays/normalization_zero_variance_mask.npy": {
+      "sha256": "4e6f34565f07054071e65a8f0609186e4c23be05298f9ed77d61e1ca5ccc6a48",
+      "size": 167
+    },
+    "arrays/positive_weights.npy": {
+      "sha256": "ec1219fca5b534091825c50c947c567dde039ec03a869d78486c5a325b85958d",
+      "size": 272
+    },
+    "arrays/predictions.npy": {
+      "sha256": "708ef0f164dc01ce567fcf409d0b5f76fb7192492c304f3ffb5637518883b3c6",
+      "size": 1532
+    },
+    "arrays/scores.npy": {
+      "sha256": "7752d17b9447589f6ec340ef1d1f34bb12ff6fac2d6a81c6fb8de78a4338039e",
+      "size": 11360
+    },
+    "arrays/test_balanced_accuracy.npy": {
+      "sha256": "620a8f512a6043c2d1374b84070e5aaa83417e16568329fd24a355bb719cf678",
+      "size": 416
+    },
+    "arrays/test_subject_ids.npy": {
+      "sha256": "4574da36ac3444f2a0dd5189a5587839234e71830b90e9d747b140d7b011c347",
+      "size": 440
+    },
+    "arrays/test_targets.npy": {
+      "sha256": "252590e251cc1fcd37403d12c5f7a92a9f6f10af38a4d3aa02ba30d4e729d239",
+      "size": 1532
+    },
+    "arrays/train_targets.npy": {
+      "sha256": "da281c09e224a72c666c6488f29f1e05ceb0b3dfd131655229a136f7b48a0be5",
+      "size": 5204
+    },
+    "checkpoints/seed_42.pt": {
+      "sha256": "5f68af5034c37bc705aeb82837951eae082050aae588db6362075e95c1a3606c",
+      "size": 76836
+    },
+    "checkpoints/seed_43.pt": {
+      "sha256": "057dc1ddb3cfcea2f3db8afd358758a6d5f6632e7895e973d0b31dbddb83da92",
+      "size": 76836
+    },
+    "checkpoints/seed_44.pt": {
+      "sha256": "b00b1bcb9c4a6f1891a6fb9d1e2da33f6d0426cf861bd379ba42c867164f0255",
+      "size": 76836
+    },
+    "config.json": {
+      "sha256": "0c65c7c3f338f773f26bcdeabbb9e5b3d396129a74fd78845b227300891b382d",
+      "size": 1293
+    },
+    "environment.json": {
+      "sha256": "76ee7050528dd587d8ae6886ca498bc614f946d135b82bc52fa59d1274881f1f",
+      "size": 529
+    },
+    "evaluation.json": {
+      "sha256": "0b4e79bef5f2cc03dbf387a7f6667b7932bc97173c5a60e4e8c5284991078f50",
+      "size": 20484
+    },
+    "normalization.json": {
+      "sha256": "4d4eb65797963bec217e26ec6e5d8acd4b7133953c988cb066d17375529f2cc5",
+      "size": 6734
+    },
+    "preprocessing.json": {
+      "sha256": "d2ffb48b0647e9652b07f27361b18a948344376d2524fc5b042809597ab48516",
+      "size": 241
+    },
+    "split.json": {
+      "sha256": "01d44f8974aaf0bf0a3979891ed4696f9e96824a75612b5561a470fc231de8c0",
+      "size": 11991
+    },
+    "training.json": {
+      "sha256": "3da3be5d5c80d77dc424f01a6a67c2254f9a8eb313bce877dd1f18f2d007b40a",
+      "size": 52831
+    }
+  },
+  "generated_at": "2026-06-16T09:31:24.093222+00:00",
+  "model_id": "eegnet-morlet-multilabel",
+  "protocol": "cross-subject",
+  "schema_version": 1,
+  "writer": "experiments.random_imagery_torch.artifacts.write_torch_direction_run"
+}

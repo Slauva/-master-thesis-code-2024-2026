@@ -1,0 +1,124 @@
+{
+  "config_hash": "b940127cbb116aae",
+  "direction": "cross-subject",
+  "file_count": 28,
+  "files": {
+    "arrays/baseline_global_majority_predictions.npy": {
+      "sha256": "94b205c3afa4decb89b6613ef6f6cfc5f1cbbe53a225604637e6438f2e59a9f8",
+      "size": 1532
+    },
+    "arrays/baseline_global_majority_scores.npy": {
+      "sha256": "9ab9cbd61d37fdff2614ffd01e7934875dc47dc174b8140074149111d4efd18b",
+      "size": 11360
+    },
+    "arrays/baseline_pixel_frequency_predictions.npy": {
+      "sha256": "a586e27df4bfb64f3dcb5ca1068a2090ecb2ebf72df9c0de6cb14dcf76d98aab",
+      "size": 1532
+    },
+    "arrays/baseline_pixel_frequency_scores.npy": {
+      "sha256": "73fb595fba42bdc0af06a050d35c031bb06fa0dec5d3ecaf80e57fd302ae81ee",
+      "size": 11360
+    },
+    "arrays/baseline_seeded_bernoulli_predictions.npy": {
+      "sha256": "3e62539ec7eec726aeee49b6f4a719d78ae3c61679c78ca5ab270b037d627de7",
+      "size": 1532
+    },
+    "arrays/baseline_seeded_bernoulli_scores.npy": {
+      "sha256": "73fb595fba42bdc0af06a050d35c031bb06fa0dec5d3ecaf80e57fd302ae81ee",
+      "size": 11360
+    },
+    "arrays/member_scores.npy": {
+      "sha256": "f4a99c8363523d4fd79a494cf05c5ce36fed2484d6756161ea0736cfd45d631a",
+      "size": 33824
+    },
+    "arrays/normalization_frequencies.npy": {
+      "sha256": "37908274826a3285642e45e8684eee3b8c1cdcbfab9eb6d35c15353c6046593e",
+      "size": 284
+    },
+    "arrays/normalization_mean.npy": {
+      "sha256": "5c111ee8038202831b00aef4b4ec36ea2772517ae655f6481fa34011c6f1ea91",
+      "size": 440
+    },
+    "arrays/normalization_scale.npy": {
+      "sha256": "c618575a2f2cfd138609f42d23a3dad63b6922ee60c6df55994837e744d6ede2",
+      "size": 440
+    },
+    "arrays/normalization_zero_variance_mask.npy": {
+      "sha256": "4e6f34565f07054071e65a8f0609186e4c23be05298f9ed77d61e1ca5ccc6a48",
+      "size": 167
+    },
+    "arrays/positive_weights.npy": {
+      "sha256": "ec1219fca5b534091825c50c947c567dde039ec03a869d78486c5a325b85958d",
+      "size": 272
+    },
+    "arrays/predictions.npy": {
+      "sha256": "42a15d84d233a71939216d5e001d5f5d477c07ae021806102e6a3275ae5e30bd",
+      "size": 1532
+    },
+    "arrays/scores.npy": {
+      "sha256": "03f3a5a5e4a24cb99d243fb7a6693c225ed5737a7c5852edbcab6190607f1d6e",
+      "size": 11360
+    },
+    "arrays/test_balanced_accuracy.npy": {
+      "sha256": "bbb1d09e960e4c00d99ce8c25a2d6b22d8cbd6bf27c8d33b1cdd9f975712d128",
+      "size": 416
+    },
+    "arrays/test_subject_ids.npy": {
+      "sha256": "4574da36ac3444f2a0dd5189a5587839234e71830b90e9d747b140d7b011c347",
+      "size": 440
+    },
+    "arrays/test_targets.npy": {
+      "sha256": "252590e251cc1fcd37403d12c5f7a92a9f6f10af38a4d3aa02ba30d4e729d239",
+      "size": 1532
+    },
+    "arrays/train_targets.npy": {
+      "sha256": "da281c09e224a72c666c6488f29f1e05ceb0b3dfd131655229a136f7b48a0be5",
+      "size": 5204
+    },
+    "checkpoints/seed_42.pt": {
+      "sha256": "d990b80b59b6a6914aa1ccbe913fb72c57801a8020bf68dd5c4c93ec7f229997",
+      "size": 728707
+    },
+    "checkpoints/seed_43.pt": {
+      "sha256": "59327a65c68b4d08a9b6b343e6fda1348d14d6b51c23586ef9fcd7a2be47e3f5",
+      "size": 728707
+    },
+    "checkpoints/seed_44.pt": {
+      "sha256": "262c097e6602c23f5d7272d80c1181f33db41329f23bca3e2d2d9543ea5e9a3b",
+      "size": 728707
+    },
+    "config.json": {
+      "sha256": "0b7028cbb8757494b56a5791223dc4e83fb7e152fabedf730f83df95981947f0",
+      "size": 1299
+    },
+    "environment.json": {
+      "sha256": "76ee7050528dd587d8ae6886ca498bc614f946d135b82bc52fa59d1274881f1f",
+      "size": 529
+    },
+    "evaluation.json": {
+      "sha256": "235fb095f661e91feb81f9e71a6ef4db4fc7f026c789be25b6a7bee580337cc5",
+      "size": 20460
+    },
+    "normalization.json": {
+      "sha256": "6cbc523c8e83028d5a3dc34cb8a96444f6c288849ce4dacb4f4820bede20cba4",
+      "size": 6719
+    },
+    "preprocessing.json": {
+      "sha256": "f10c54c66d8a1b5764682be1c2b70fb6bae98dcef09576dba045844dda7ea482",
+      "size": 238
+    },
+    "split.json": {
+      "sha256": "01d44f8974aaf0bf0a3979891ed4696f9e96824a75612b5561a470fc231de8c0",
+      "size": 11991
+    },
+    "training.json": {
+      "sha256": "292a20e859429809af44e2c02f90d7ab47d2b1855323b39e89d892d6dc998d80",
+      "size": 62773
+    }
+  },
+  "generated_at": "2026-06-16T09:41:29.466010+00:00",
+  "model_id": "deep-convnet-fft-multilabel",
+  "protocol": "cross-subject",
+  "schema_version": 1,
+  "writer": "experiments.random_imagery_torch.artifacts.write_torch_direction_run"
+}

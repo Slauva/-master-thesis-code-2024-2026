@@ -1,0 +1,715 @@
+{
+  "estimator_family": "random_forest",
+  "model_id": "random-forest-multioutput",
+  "models": [
+    {
+      "best_cv_balanced_accuracy": 0.5082521163149164,
+      "best_cv_clipped_mse": 0.26010116975308645,
+      "best_hyperparameters": {
+        "estimator_family": "random_forest",
+        "parameters": [
+          [
+            "max_depth",
+            null
+          ],
+          [
+            "max_features",
+            1.0
+          ],
+          [
+            "min_samples_leaf",
+            1
+          ],
+          [
+            "n_estimators",
+            100
+          ]
+        ],
+        "select_k": 100
+      },
+      "candidate_scores": [
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5006441128788237,
+          "mean_clipped_mse": 0.25997679989711936,
+          "rank": 8,
+          "std_balanced_accuracy": 0.006214228019386425,
+          "std_clipped_mse": 0.0018088837173153571
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.491392446443401,
+          "mean_clipped_mse": 0.2616344583333333,
+          "rank": 16,
+          "std_balanced_accuracy": 0.02061884719449625,
+          "std_clipped_mse": 0.003326442861349811
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5016969256836808,
+          "mean_clipped_mse": 0.2580791369165246,
+          "rank": 6,
+          "std_balanced_accuracy": 0.007668182375549663,
+          "std_clipped_mse": 0.002561149753988951
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.504351984707377,
+          "mean_clipped_mse": 0.25780827710712934,
+          "rank": 3,
+          "std_balanced_accuracy": 0.007066713481485965,
+          "std_clipped_mse": 0.0016745752067469435
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.49406162463740877,
+          "mean_clipped_mse": 0.26158141923868317,
+          "rank": 15,
+          "std_balanced_accuracy": 0.008836854803015954,
+          "std_clipped_mse": 0.0023634961907927263
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5082521163149164,
+          "mean_clipped_mse": 0.26010116975308645,
+          "rank": 1,
+          "std_balanced_accuracy": 0.01764203975388644,
+          "std_clipped_mse": 0.002921448788654268
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.4982321627968334,
+          "mean_clipped_mse": 0.25894207760930643,
+          "rank": 13,
+          "std_balanced_accuracy": 0.009359348727454099,
+          "std_clipped_mse": 0.002594893837034429
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                null
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.501428209780893,
+          "mean_clipped_mse": 0.2585424357962383,
+          "rank": 7,
+          "std_balanced_accuracy": 0.007499124414066957,
+          "std_clipped_mse": 0.0017791167007034508
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.5000332622272542,
+          "mean_clipped_mse": 0.25844179963349695,
+          "rank": 9,
+          "std_balanced_accuracy": 0.011636719602243835,
+          "std_clipped_mse": 0.0027998302946922794
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.4982491334255815,
+          "mean_clipped_mse": 0.25891214823407926,
+          "rank": 12,
+          "std_balanced_accuracy": 0.015386270481409876,
+          "std_clipped_mse": 0.002413192974249269
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.501743145421593,
+          "mean_clipped_mse": 0.2580398336686479,
+          "rank": 5,
+          "std_balanced_accuracy": 0.00862489552104604,
+          "std_clipped_mse": 0.0026074795283001313
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                0.5
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.4995631127677697,
+          "mean_clipped_mse": 0.2576917357810598,
+          "rank": 10,
+          "std_balanced_accuracy": 0.004836242878159132,
+          "std_clipped_mse": 0.0017762194655531098
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.49561835182614666,
+          "mean_clipped_mse": 0.25999227081729476,
+          "rank": 14,
+          "std_balanced_accuracy": 0.004720418324734873,
+          "std_clipped_mse": 0.0030373269176817703
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                1
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5051459915762676,
+          "mean_clipped_mse": 0.258775720990717,
+          "rank": 2,
+          "std_balanced_accuracy": 0.015996491938772357,
+          "std_clipped_mse": 0.0022546217351890347
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 50
+          },
+          "mean_balanced_accuracy": 0.4992358126652922,
+          "mean_clipped_mse": 0.25882223104228974,
+          "rank": 11,
+          "std_balanced_accuracy": 0.008656022386306656,
+          "std_clipped_mse": 0.0025275766704342404
+        },
+        {
+          "hyperparameters": {
+            "estimator_family": "random_forest",
+            "parameters": [
+              [
+                "max_depth",
+                10
+              ],
+              [
+                "max_features",
+                1.0
+              ],
+              [
+                "min_samples_leaf",
+                3
+              ],
+              [
+                "n_estimators",
+                100
+              ]
+            ],
+            "select_k": 100
+          },
+          "mean_balanced_accuracy": 0.5023167299676587,
+          "mean_clipped_mse": 0.2585200220089734,
+          "rank": 4,
+          "std_balanced_accuracy": 0.0035435077269924914,
+          "std_clipped_mse": 0.0018163072830925536
+        }
+      ],
+      "selected_feature_indices": [
+        4,
+        6,
+        20,
+        21,
+        30,
+        33,
+        38,
+        71,
+        73,
+        83,
+        84,
+        100,
+        101,
+        142,
+        147,
+        156,
+        160,
+        163,
+        169,
+        170,
+        171,
+        172,
+        173,
+        175,
+        184,
+        185,
+        186,
+        188,
+        233,
+        256,
+        259,
+        264,
+        273,
+        281,
+        285,
+        287,
+        288,
+        289,
+        291,
+        292,
+        295,
+        307,
+        352,
+        353,
+        354,
+        356,
+        359,
+        368,
+        369,
+        381,
+        391,
+        395,
+        396,
+        398,
+        402,
+        405,
+        406,
+        407,
+        409,
+        410,
+        412,
+        413,
+        420,
+        423,
+        424,
+        428,
+        433,
+        436,
+        442,
+        446,
+        462,
+        467,
+        519,
+        576,
+        585,
+        598,
+        599,
+        600,
+        601,
+        604,
+        610,
+        612,
+        649,
+        657,
+        697,
+        703,
+        716,
+        723,
+        784,
+        787,
+        791,
+        792,
+        795,
+        796,
+        797,
+        799,
+        807,
+        808,
+        809,
+        812
+      ],
+      "selected_feature_names": [
+        "time:Fp1:median",
+        "time:Fp1:peak_to_peak",
+        "time:Fz:skewness",
+        "time:Fz:excess_kurtosis",
+        "time:F3:median",
+        "time:F3:skewness",
+        "time:F3:hjorth_complexity",
+        "time:FC5:peak_to_peak",
+        "time:FC5:excess_kurtosis",
+        "time:FC1:mad",
+        "time:FC1:peak_to_peak",
+        "time:C3:normalized_line_length",
+        "time:C3:zero_crossing_rate",
+        "time:CP5:hjorth_complexity",
+        "time:CP1:median",
+        "time:Pz:mean",
+        "time:Pz:median",
+        "time:Pz:skewness",
+        "time:P3:mean",
+        "time:P3:variance",
+        "time:P3:std",
+        "time:P3:rms",
+        "time:P3:median",
+        "time:P3:peak_to_peak",
+        "time:P7:std",
+        "time:P7:rms",
+        "time:P7:median",
+        "time:P7:peak_to_peak",
+        "time:O2:hjorth_complexity",
+        "time:P8:normalized_line_length",
+        "time:P8:hjorth_complexity",
+        "time:TP10:median",
+        "time:CP6:mean",
+        "time:CP6:excess_kurtosis",
+        "time:CP6:hjorth_complexity",
+        "time:CP2:variance",
+        "time:CP2:std",
+        "time:CP2:rms",
+        "time:CP2:mad",
+        "time:CP2:peak_to_peak",
+        "time:CP2:normalized_line_length",
+        "time:C4:excess_kurtosis",
+        "time:FC2:variance",
+        "time:FC2:std",
+        "time:FC2:rms",
+        "time:FC2:mad",
+        "time:FC2:excess_kurtosis",
+        "time:F4:median",
+        "time:F4:mad",
+        "time:F8:median",
+        "time:Fp2:variance",
+        "time:Fp2:mad",
+        "time:Fp2:peak_to_peak",
+        "time:Fp2:excess_kurtosis",
+        "time:Fp2:hjorth_complexity",
+        "time:AF7:std",
+        "time:AF7:rms",
+        "time:AF7:median",
+        "time:AF7:peak_to_peak",
+        "time:AF7:skewness",
+        "time:AF7:normalized_line_length",
+        "time:AF7:zero_crossing_rate",
+        "time:AF3:median",
+        "time:AF3:skewness",
+        "time:AF3:excess_kurtosis",
+        "time:AF3:hjorth_complexity",
+        "time:AFz:median",
+        "time:AFz:skewness",
+        "time:F1:mean",
+        "time:F1:median",
+        "time:F5:skewness",
+        "time:F5:hjorth_complexity",
+        "time:C5:hjorth_complexity",
+        "time:PO7:median",
+        "time:PO3:mean",
+        "time:POz:mean",
+        "time:POz:variance",
+        "time:POz:std",
+        "time:POz:rms",
+        "time:POz:peak_to_peak",
+        "time:POz:hjorth_complexity",
+        "time:PO4:variance",
+        "time:P6:hjorth_complexity",
+        "time:P2:skewness",
+        "time:TP8:excess_kurtosis",
+        "time:C6:variance",
+        "time:C2:variance",
+        "time:C2:excess_kurtosis",
+        "time:AF4:median",
+        "time:AF4:skewness",
+        "time:AF4:hjorth_mobility",
+        "time:AF4:hjorth_complexity",
+        "time:F2:std",
+        "time:F2:rms",
+        "time:F2:median",
+        "time:F2:peak_to_peak",
+        "time:Iz:variance",
+        "time:Iz:std",
+        "time:Iz:rms",
+        "time:Iz:peak_to_peak"
+      ]
+    }
+  ],
+  "pipeline_count": 1,
+  "pipeline_files": [
+    "pipelines/multioutput.joblib"
+  ],
+  "prediction_threshold": 0.5,
+  "score_diagnostics": {
+    "clipped_above_one_fraction": 0.0,
+    "clipped_below_zero_fraction": 0.0,
+    "score_semantics": "clipped_regression"
+  },
+  "score_semantics": "clipped_regression",
+  "task": "regressor",
+  "topology": "multioutput"
+}

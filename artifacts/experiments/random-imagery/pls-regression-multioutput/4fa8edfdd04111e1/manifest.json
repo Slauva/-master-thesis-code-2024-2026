@@ -1,0 +1,93 @@
+{
+  "config_hash": "4fa8edfdd04111e1",
+  "direction": "trial-1-to-trial-2",
+  "file_count": 20,
+  "files": {
+    "arrays/baseline_global_majority_predictions.npy": {
+      "sha256": "c925b39b6893874ec605350461068466f8d03d532d971b655a1f58db7e15959a",
+      "size": 3044
+    },
+    "arrays/baseline_global_majority_scores.npy": {
+      "sha256": "49ec65d8e139f4ccda1722e2b27bc6ebec433c497296e8003601703451091c5b",
+      "size": 23456
+    },
+    "arrays/baseline_pixel_frequency_predictions.npy": {
+      "sha256": "226e913098ac8f612455c0df6e95097b5061ed70e713e83d9b37e5e15e430243",
+      "size": 3044
+    },
+    "arrays/baseline_pixel_frequency_scores.npy": {
+      "sha256": "db173cffeac162c10ad05280b1d5be6fc56a2bc27dc16e968346a802da4f547a",
+      "size": 23456
+    },
+    "arrays/baseline_seeded_bernoulli_predictions.npy": {
+      "sha256": "61dfd1be34ddd6e6594bb40e0dab124de7c6babd323b8fe49f27e0c64ce274be",
+      "size": 3044
+    },
+    "arrays/baseline_seeded_bernoulli_scores.npy": {
+      "sha256": "db173cffeac162c10ad05280b1d5be6fc56a2bc27dc16e968346a802da4f547a",
+      "size": 23456
+    },
+    "arrays/predictions.npy": {
+      "sha256": "e1e8045c73622cbde52137dc0c45ff1d0eb961062ed0ec2438e60e13dcbdc3a1",
+      "size": 3044
+    },
+    "arrays/scores.npy": {
+      "sha256": "e262c40a6fedc513feae90dbb037284703443d421f3607f46128d695398048a0",
+      "size": 23456
+    },
+    "arrays/test_balanced_accuracy.npy": {
+      "sha256": "9634ecf9365cee29fba79a6ca0e68fb133199d770daf12321216effe0b1f8747",
+      "size": 416
+    },
+    "arrays/test_subject_ids.npy": {
+      "sha256": "a861aecc447b892a889c8d827f22b31f24498edfd32fd9f125cd6ace26ef1c30",
+      "size": 776
+    },
+    "arrays/test_targets.npy": {
+      "sha256": "13c14132a53d88a458354f557b569e2d39467bd46ed5a19a1aae1269a442f985",
+      "size": 3044
+    },
+    "arrays/train_targets.npy": {
+      "sha256": "e9e4db77cce07d9f6954cc5ea0016ec09eaf085b24266a0901a7cae73a2ceb58",
+      "size": 3044
+    },
+    "config.json": {
+      "sha256": "4967f8557531b8a72a4f1eb4b7184400c0eb6319d43dc390f19543d3cad68159",
+      "size": 1501
+    },
+    "environment.json": {
+      "sha256": "e5664e465961d02ea60108e106878dc3abaeb07e15532ca9a25e58f8ee62e8b4",
+      "size": 444
+    },
+    "evaluation.json": {
+      "sha256": "6c0cf3459355e41b4035396476bbed2ea5eca74ad20e8ac87aa77be52ab18adc",
+      "size": 24979
+    },
+    "features.json": {
+      "sha256": "30abcab76cd4864ea0b5607a5dfaf5a5ecd71ab64b5123c3a1736069a4529761",
+      "size": 38276
+    },
+    "pipelines/multioutput.joblib": {
+      "sha256": "a73bd18bdb098547a6bf1d6e2849423bef5e3b1d9b4eed2115ee6e596d852a5f",
+      "size": 133751
+    },
+    "results.json": {
+      "sha256": "40ae892ed06b70366638cf0768d1fb541caedea5818ef3d1d0700d664b0c370f",
+      "size": 22064
+    },
+    "screening.json": {
+      "sha256": "f00c6a1141036b82e3463d326075a73ec37350a1d34d54b56b793af964197a8a",
+      "size": 132780
+    },
+    "split.json": {
+      "sha256": "2f0cb22ff83527049bd4b98c506b741bd3626ec03af3b46d03b94b397795502e",
+      "size": 22905
+    }
+  },
+  "generated_at": "2026-06-15T18:49:29.670624+00:00",
+  "model_id": "pls-regression-multioutput",
+  "protocol": "within-subject",
+  "schema_version": 3,
+  "topology": "multioutput",
+  "writer": "experiments.random_imagery.artifacts.write_model_protocol_runs"
+}

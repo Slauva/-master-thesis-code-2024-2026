@@ -22,4 +22,5 @@ data/**
 artifacts/cache/
 artifacts/preprocessed/
 artifacts/features/
-artifacts/experiments/
+#artifacts/experiments/
+artifacts/preprocessed-imagery/

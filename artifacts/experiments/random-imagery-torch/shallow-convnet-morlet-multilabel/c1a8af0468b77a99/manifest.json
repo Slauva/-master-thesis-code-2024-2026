@@ -1,0 +1,124 @@
+{
+  "config_hash": "c1a8af0468b77a99",
+  "direction": "trial-1-to-trial-2",
+  "file_count": 28,
+  "files": {
+    "arrays/baseline_global_majority_predictions.npy": {
+      "sha256": "c925b39b6893874ec605350461068466f8d03d532d971b655a1f58db7e15959a",
+      "size": 3044
+    },
+    "arrays/baseline_global_majority_scores.npy": {
+      "sha256": "49ec65d8e139f4ccda1722e2b27bc6ebec433c497296e8003601703451091c5b",
+      "size": 23456
+    },
+    "arrays/baseline_pixel_frequency_predictions.npy": {
+      "sha256": "226e913098ac8f612455c0df6e95097b5061ed70e713e83d9b37e5e15e430243",
+      "size": 3044
+    },
+    "arrays/baseline_pixel_frequency_scores.npy": {
+      "sha256": "db173cffeac162c10ad05280b1d5be6fc56a2bc27dc16e968346a802da4f547a",
+      "size": 23456
+    },
+    "arrays/baseline_seeded_bernoulli_predictions.npy": {
+      "sha256": "61dfd1be34ddd6e6594bb40e0dab124de7c6babd323b8fe49f27e0c64ce274be",
+      "size": 3044
+    },
+    "arrays/baseline_seeded_bernoulli_scores.npy": {
+      "sha256": "db173cffeac162c10ad05280b1d5be6fc56a2bc27dc16e968346a802da4f547a",
+      "size": 23456
+    },
+    "arrays/member_scores.npy": {
+      "sha256": "a88b58925324f3a0e056631da140cbaabcf76e7076b29ffefc08a16a0af332d0",
+      "size": 70112
+    },
+    "arrays/normalization_frequencies.npy": {
+      "sha256": "37908274826a3285642e45e8684eee3b8c1cdcbfab9eb6d35c15353c6046593e",
+      "size": 284
+    },
+    "arrays/normalization_mean.npy": {
+      "sha256": "999e01bbfb08891abb1823d646e034638ccc34583ad70972d909491ac11957e4",
+      "size": 440
+    },
+    "arrays/normalization_scale.npy": {
+      "sha256": "e653741d8da0d1e894c3b78c62fe035cb03b439112baf3c1f13e1108d24c017c",
+      "size": 440
+    },
+    "arrays/normalization_zero_variance_mask.npy": {
+      "sha256": "4e6f34565f07054071e65a8f0609186e4c23be05298f9ed77d61e1ca5ccc6a48",
+      "size": 167
+    },
+    "arrays/positive_weights.npy": {
+      "sha256": "a2adb14757fd9bc44bb28b9a50dd43705b6789bd4068c5e96cd1fb08d3e66e18",
+      "size": 272
+    },
+    "arrays/predictions.npy": {
+      "sha256": "8f3e97ba0155e48c81bdcdbc3b285ce2aa257a72a01b59f0af7ccedaab2f1a59",
+      "size": 3044
+    },
+    "arrays/scores.npy": {
+      "sha256": "fef22d26100a64924247b957cc2c1d2a3033a29b07f431e97d4ece003273a762",
+      "size": 23456
+    },
+    "arrays/test_balanced_accuracy.npy": {
+      "sha256": "e92028669f9e22c240e16be537b43ebca6a04e912fbb9a7f6339b7d7e8758c17",
+      "size": 416
+    },
+    "arrays/test_subject_ids.npy": {
+      "sha256": "a861aecc447b892a889c8d827f22b31f24498edfd32fd9f125cd6ace26ef1c30",
+      "size": 776
+    },
+    "arrays/test_targets.npy": {
+      "sha256": "13c14132a53d88a458354f557b569e2d39467bd46ed5a19a1aae1269a442f985",
+      "size": 3044
+    },
+    "arrays/train_targets.npy": {
+      "sha256": "e9e4db77cce07d9f6954cc5ea0016ec09eaf085b24266a0901a7cae73a2ceb58",
+      "size": 3044
+    },
+    "checkpoints/seed_42.pt": {
+      "sha256": "f19222d1a0e4738314a10e75aa583578ab85248f1531d0fb75a13506fbf03ad0",
+      "size": 494725
+    },
+    "checkpoints/seed_43.pt": {
+      "sha256": "ed06452e3bca94c2c0194f3fa47643793bfe699ec5024bfdf49e9fe9b0f51da1",
+      "size": 494725
+    },
+    "checkpoints/seed_44.pt": {
+      "sha256": "bd5daf7912bd80dc4f6c3409e75050c5bdd5c0f8a3637c507e70d47b8bf3b9d9",
+      "size": 494725
+    },
+    "config.json": {
+      "sha256": "f68d8ff322a6273c0980959cd0343354b1c3d60a508c9fc5a9a022554f5d105a",
+      "size": 1311
+    },
+    "environment.json": {
+      "sha256": "76ee7050528dd587d8ae6886ca498bc614f946d135b82bc52fa59d1274881f1f",
+      "size": 529
+    },
+    "evaluation.json": {
+      "sha256": "7fbd71ae207eb929c77df260182553eb5dd2bcbcc47b18034b381200ac1adc60",
+      "size": 24653
+    },
+    "normalization.json": {
+      "sha256": "e2c2d671e849ef7e73026d09304cc289946ce5a5716863b81731c4800f98afa4",
+      "size": 4355
+    },
+    "preprocessing.json": {
+      "sha256": "d2ffb48b0647e9652b07f27361b18a948344376d2524fc5b042809597ab48516",
+      "size": 241
+    },
+    "split.json": {
+      "sha256": "f2e2265fd87ac5d1065628c58b3befa76763d16a6b336c4acbed3498d8148b65",
+      "size": 14301
+    },
+    "training.json": {
+      "sha256": "7fc87418ad6335a0a435ee3cab910e6e94c26e8238d990924a9635b9da5ad78c",
+      "size": 53746
+    }
+  },
+  "generated_at": "2026-06-16T09:47:54.820356+00:00",
+  "model_id": "shallow-convnet-morlet-multilabel",
+  "protocol": "within-subject",
+  "schema_version": 1,
+  "writer": "experiments.random_imagery_torch.artifacts.write_torch_direction_run"
+}

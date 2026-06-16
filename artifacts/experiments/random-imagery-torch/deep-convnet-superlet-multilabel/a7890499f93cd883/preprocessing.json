@@ -1,0 +1,11 @@
+{
+  "input_config": {
+    "crop_end_seconds": 15.5,
+    "crop_start_seconds": 0.5,
+    "log_epsilon": 1e-12,
+    "std_epsilon": 1e-06
+  },
+  "method": "superlet",
+  "preprocessing_overrides": {},
+  "spectral_config_hash": "e4e75c01a81659bb"
+}
