@@ -1,5 +1,167 @@
 # Experiments
 
+## 2026-06-22 - BNCI2014_001 Stage 6 exploratory FFT-CNN Torch pilot
+
+- Artifact: `artifacts/experiments/bnci2014_001/fft-cnn-pilot/b54f16eff24c0908/`.
+- Code: `experiments/bnci2014_001/torch_pilot.py`, updated
+  `experiments/bnci2014_001/workflow.py`, updated config/exports, and
+  `tests/experiments/test_bnci2014_001_torch_pilot.py`.
+- Scope: optional lightweight neural pilot over the full BNCI2014_001 four-class motor-imagery
+  corpus, 5,184 epochs, 9 leave-one-subject-out folds. This is exploratory only and not tuned.
+- Input: FFT PSD tensors from the BNCI spectral adapter, shape `(epoch, 1, 22, 39)`, transformed as
+  `log1p(nonnegative_power)`. Fold normalization uses only the train-fit tensors inside each outer
+  fold.
+- Model/training: small CNN with 16 hidden channels, dropout `0.25`, AdamW `lr=0.001`,
+  `weight_decay=0.0001`, seed `42`, max `12` epochs, patience `4`, batch size `256`.
+- Validation: one validation subject selected from the outer train subjects with the
+  `lowest-train-subject` strategy. Test FFT tensors are materialized only after the fold training
+  boundary; focused tests monkeypatch materialization/training/prediction to verify this order.
+- Split alignment: Stage 6 `comparison.json` validates exact alignment to Stage 4 CSP+LDA
+  `447f714497ed180e` and Stage 5 feature-logreg `902edd18de1c7e5b` by fold name plus train/test
+  index hashes.
+- Summary metrics: mean balanced accuracy `0.2633101851851852`, std `0.017836846073405598`; mean
+  macro F1 `0.17191417111806218`, std `0.0470451783253082`.
+- Fold balanced accuracy: subject 1 `0.256944`, subject 2 `0.250000`, subject 3 `0.286458`,
+  subject 4 `0.298611`, subject 5 `0.244792`, subject 6 `0.246528`, subject 7 `0.265625`,
+  subject 8 `0.250000`, subject 9 `0.270833`.
+- Aggregate confusion matrix in label order `left_hand`, `right_hand`, `feet`, `tongue`:
+  `[[157, 407, 299, 433], [146, 367, 325, 458], [130, 319, 348, 499], [99, 333, 371, 493]]`.
+- Comparison: Stage 6 mean balanced accuracy is `-0.12191358024691351` below Stage 4 CSP+LDA and
+  `-0.08699845679012352` below Stage 5 feature-logreg. Interpret as a completed neural smoke/pilot,
+  not evidence against tuned neural approaches.
+- Verification: `uv run pytest tests/experiments/test_bnci2014_001_data.py
+  tests/experiments/test_bnci2014_001_adapters.py
+  tests/experiments/test_bnci2014_001_baseline.py
+  tests/experiments/test_bnci2014_001_project_features.py
+  tests/experiments/test_bnci2014_001_torch_pilot.py` reported 19 passed; `uv run ruff check .`,
+  full-dataset workflow execution, artifact manifest validation, and `git diff --check` passed.
+
+## 2026-06-22 - BNCI2014_001 Stage 5 project feature Logistic Regression benchmark
+
+- Artifact: `artifacts/experiments/bnci2014_001/feature-logreg/902edd18de1c7e5b/`.
+- Code: `experiments/bnci2014_001/project_features.py`, updated
+  `experiments/bnci2014_001/workflow.py`, updated config/exports, and
+  `tests/experiments/test_bnci2014_001_project_features.py`.
+- Scope: full BNCI2014_001 four-class motor-imagery corpus through MOABB, 5,184 epochs, 22 EEG
+  channels, 9 leave-one-subject-out folds. This stage uses project feature extraction, not CSP and
+  not a neural model.
+- Representation: project `time` plus `spectral` feature groups on the explicit half-open 4-second
+  BNCI epoch, with one full-crop feature row per epoch and no window splitting. Materialized feature
+  matrix shape is `(5184, 594)` and is stored as `arrays/features.npy`.
+- Model: `StandardScaler` plus one-vs-rest Logistic Regression using `liblinear`, `C=1.0`,
+  `class_weight=balanced`, `max_iter=1000`. Scaling and model fitting happen independently inside
+  each train fold only.
+- Split alignment: Stage 5 `comparison.json` validates exact alignment to the Stage 4 CSP+LDA
+  artifact `447f714497ed180e` by fold name plus train/test index hashes.
+- Summary metrics: mean balanced accuracy `0.3503086419753087`, std `0.08830410888220815`; mean
+  macro F1 `0.31290918212946645`, std `0.095943983880703`; aggregate accuracy equals balanced
+  accuracy because the corpus is class-balanced per subject.
+- Fold balanced accuracy: subject 1 `0.460069`, subject 2 `0.258681`, subject 3 `0.404514`,
+  subject 4 `0.333333`, subject 5 `0.262153`, subject 6 `0.279514`, subject 7 `0.244792`,
+  subject 8 `0.435764`, subject 9 `0.473958`.
+- Aggregate confusion matrix in label order `left_hand`, `right_hand`, `feet`, `tongue`:
+  `[[501, 350, 239, 206], [324, 575, 209, 188], [358, 332, 305, 301], [294, 271, 296, 435]]`.
+- Comparison to Stage 4: Stage 5 mean balanced accuracy is `-0.03491512345678999` below the
+  CSP+LDA mean `0.3852237654320987`. Interpret this as a fixed-baseline comparison only; no
+  feature-family or hyperparameter search was run.
+- Operational note: an initial `lbfgs` Logistic Regression run was interrupted after feature
+  extraction because fitting was too slow for practical reruns. The accepted artifact uses explicit
+  one-vs-rest `liblinear`, which completed and was verified.
+- Verification: `uv run pytest tests/experiments/test_bnci2014_001_data.py
+  tests/experiments/test_bnci2014_001_adapters.py
+  tests/experiments/test_bnci2014_001_baseline.py
+  tests/experiments/test_bnci2014_001_project_features.py` reported 16 passed; `uv run ruff check .`,
+  full-dataset workflow execution, artifact manifest validation, and `git diff --check` passed.
+
+## 2026-06-22 - BNCI2014_001 Stage 4 CSP+LDA LOSO baseline
+
+- Artifact: `artifacts/experiments/bnci2014_001/csp-lda/447f714497ed180e/`.
+- Code: `experiments/bnci2014_001/baselines.py`, `experiments/bnci2014_001/metrics.py`,
+  `experiments/bnci2014_001/workflow.py`, and
+  `tests/experiments/test_bnci2014_001_baseline.py`.
+- Scope: full BNCI2014_001 four-class motor-imagery corpus through MOABB, 5,184 epochs, 22 EEG
+  channels, 9 leave-one-subject-out folds. No feature/spectral project representation or neural
+  model was run in this stage.
+- Leakage boundary: every fold holds out exactly one subject; split audit rejects subject and sample
+  key overlap; CSP and LDA are fitted inside each train fold only. Focused test monkeypatched CSP/LDA
+  and verified that CSP `fit_transform` saw only train epochs.
+- Baseline config: CSP+LDA, `n_components=8`, `reg=null`, `log=true`, `cov_est=concat`,
+  `norm_trace=false`, `component_order=mutual_info`, LDA `solver=svd`.
+- Summary metrics: mean balanced accuracy `0.3852237654320987`, std `0.10863131589647801`; mean
+  macro F1 `0.3348272726634433`, std `0.12610162297656752`; aggregate accuracy equals balanced
+  accuracy because the corpus is class-balanced per subject.
+- Fold balanced accuracy: subject 1 `0.371528`, subject 2 `0.276042`, subject 3 `0.503472`,
+  subject 4 `0.392361`, subject 5 `0.272569`, subject 6 `0.230903`, subject 7 `0.357639`,
+  subject 8 `0.539931`, subject 9 `0.522569`.
+- Aggregate confusion matrix in label order `left_hand`, `right_hand`, `feet`, `tongue`:
+  `[[604, 289, 242, 161], [253, 630, 207, 206], [345, 300, 451, 200], [372, 326, 286, 312]]`.
+- Artifact contents: resolved config, environment, split hashes, fold/summary metrics, `y_true`,
+  `y_pred`, test indices, fold indices, predicted probabilities, and a complete SHA-256/byte
+  manifest. No pickle/joblib model payloads are stored.
+- Verification: `uv run pytest tests/experiments/test_bnci2014_001_data.py
+  tests/experiments/test_bnci2014_001_adapters.py
+  tests/experiments/test_bnci2014_001_baseline.py` reported 13 passed; `uv run ruff check .`,
+  full-dataset workflow execution, artifact manifest validation, and `git diff --check` passed.
+
+## 2026-06-22 - BNCI2014_001 Stage 3 feature and spectral adapter smoke
+
+- Artifact: `artifacts/experiments/bnci2014_001/stage3_adapter_smoke.json`.
+- Code: `experiments/bnci2014_001/features.py`, `experiments/bnci2014_001/spectral.py`, and
+  `tests/experiments/test_bnci2014_001_adapters.py`.
+- Scope: adapter smoke only. No model, CSP, scaler, cache publishing, or split-aware learned
+  transform was introduced.
+- Epoch contract: BNCI MOABB epochs have shape `(channel, 1001)` for the `[2, 6]` interval; the
+  adapter uses the first 1000 samples as a half-open `[0, 4.0)` epoch at 250 Hz before feature or
+  spectral extraction.
+- Real smoke input: first subject-1 epoch, 22 channels, sample key `(1, "0train", "0", 0)`.
+- Feature smoke: time plus spectral feature groups with two non-overlapping 2-second windows
+  produced block shapes `(2, 22, 13)` and `(2, 22, 14)`, flattened to matrix shape `(2, 594)`.
+- Spectral smoke: FFT produced `(22, 39)` power; STFT produced `(22, 39, 8)` power.
+- Logical full-corpus payload estimates from the representative epoch are about 17.74 MiB for FFT
+  and 136.67 MiB for STFT arrays, excluding manifests and filesystem overhead.
+- Verification: `uv run pytest tests/experiments/test_bnci2014_001_data.py
+  tests/experiments/test_bnci2014_001_adapters.py` reported 9 passed; `uv run ruff check .` and
+  `git diff --check` passed.
+
+## 2026-06-22 - BNCI2014_001 Stage 2 task contract and leakage audit
+
+- Artifact: code/config/tests for the Stage 2 task contract under `experiments/bnci2014_001/`,
+  `confs/experiments/bnci2014_001.yaml`, and `tests/experiments/test_bnci2014_001_data.py`.
+- Scope: deterministic epoch metadata, four-class targets, leave-one-subject-out split construction,
+  and leakage auditing. No modeling, CSP, scaling, feature selection, or spectral transform was run.
+- Contract: one row per MOABB motor-imagery epoch, with sample key
+  `(subject, session, run, epoch_index)`, label order `left_hand`, `right_hand`, `feet`, `tongue`,
+  and primary protocol `leave-one-subject-out`.
+- Real subset smoke: subjects 1-2 loaded as `(1152, 22, 1001)` `float32` epochs with two
+  leak-free leave-one-subject-out splits.
+- Real full-dataset smoke: subjects 1-9 loaded as `(5184, 22, 1001)` `float32` epochs with nine
+  leave-one-subject-out splits; every split had no forbidden subject/sample-key leakage and all
+  four classes present in train and test.
+- Data location: MOABB downloaded missing BNCI2014_001 `.mat` files to the user's MNE cache under
+  `~/mne_data`; raw files were not copied into the repository.
+- Verification: `uv run pytest tests/experiments/test_bnci2014_001_data.py` reported 5 passed;
+  `uv run ruff check .` and `git diff --check` passed.
+
+## 2026-06-22 - BNCI2014_001 Stage 1 MOABB intake audit
+
+- Artifact: executed `notebooks/7.0-bnci2014-001-dataset-audit.ipynb`.
+- Scope: Stage 1 of the approved BNCI2014_001 staged plan; no modeling or train/test split was
+  introduced.
+- Dataset access: `moabb 1.5.0`, `mne 1.11.0`, `BNCI2014_001` through
+  `MotorImagery(n_classes=4)`.
+- Static metadata: 9 subjects, 2 sessions, event ids `left_hand=1`, `right_hand=2`, `feet=3`,
+  `tongue=4`, and MOABB interval `[2, 6]`.
+- Loaded subset: subject 1 only, yielding 576 epochs with shape `(576, 22, 1001)` and balanced
+  labels: 144 epochs for each of the four classes.
+- Metadata retained for later leakage contracts: subject, session, run, and label. Observed
+  sessions were `0train` and `1test`; observed runs were `0` through `5`.
+- Raw-level check: first raw run had 250 Hz sampling, 26 channels total, and channel types
+  22 EEG, 3 EOG, and 1 stim.
+- Audit JSON: `artifacts/experiments/bnci2014_001/stage1_dataset_audit.json`.
+- Verification: notebook executed top-to-bottom and emitted `BNCI2014_001_STAGE1_AUDIT_VERIFIED`;
+  `uv run ruff check .` and `git diff --check` passed.
+- Limitation: full-dataset loading and split design are deferred to later stages.
+
 ## 2026-06-16 - Torch/classical random-imagery final comparison
 
 - Artifact: executed `notebooks/6.1-torch-classical-comparison.ipynb`.
@@ -701,3 +863,64 @@
 - Verification: comparison tests and notebook integration passed; all four figures were visually
   inspected; Ruff, lockfile, and diff checks passed; the full suite reported 334 passed with two
   pre-existing Python 3.13 multiprocessing warnings.
+
+## 2026-06-22 - BNCI2014_001 full Torch spectral benchmark
+
+- Scope: approved Stage 6R full Torch benchmark on BNCI2014_001 with 5,184 MOABB motor-imagery
+  epochs, 9 leave-one-subject-out folds, and four balanced classes (`left_hand`, `right_hand`,
+  `feet`, `tongue`).
+- Artifact: `artifacts/experiments/bnci2014_001/torch-full/02d63e3c8ee8372d/`.
+- Tensor cache: `artifacts/experiments/bnci2014_001/torch-full-tensors/02d63e3c8ee8372d/`.
+- Models: `eegnet`, `deep-convnet`, and `shallow-convnet` from
+  `experiments.random_imagery_torch.models`, built with `n_outputs=4`.
+- Preprocessors: `fft`, `morlet`, `stft`, and `superlet`.
+- Tensor transform: `log1p(nonnegative_power)`. FFT shape is `(epoch, 1, channel, frequency)`;
+  time-frequency methods are flattened to `(epoch, 1, channel, frequency*time)` for compatibility
+  with the existing spectral backbones.
+- Training: AdamW, cross-entropy, seed `42`, max `12` epochs, patience `4`, batch size `256`,
+  dropout `0.5`, learning rate `0.001`, weight decay `0.0001`. Validation subject is selected from
+  each outer train fold by `lowest-train-subject`; tensor standardization is fit on train-fit rows
+  only.
+- Mean balanced accuracy by variant: `eegnet-fft-bnci` `0.30343364197530864`,
+  `deep-convnet-fft-bnci` `0.27835648148148145`, `shallow-convnet-fft-bnci`
+  `0.27488425925925924`, `eegnet-morlet-bnci` `0.28684413580246915`,
+  `deep-convnet-morlet-bnci` `0.3061342592592593`, `shallow-convnet-morlet-bnci`
+  `0.25655864197530864`, `eegnet-stft-bnci` `0.2727623456790123`,
+  `deep-convnet-stft-bnci` `0.3080632716049383`, `shallow-convnet-stft-bnci`
+  `0.2858796296296296`, `eegnet-superlet-bnci` `0.28935185185185186`,
+  `deep-convnet-superlet-bnci` `0.3053626543209877`, and `shallow-convnet-superlet-bnci`
+  `0.2891589506172839`.
+- Best variant: `deep-convnet-stft-bnci`, mean balanced accuracy `0.3080632716049383`, std
+  `0.053767218232652424`, mean macro F1 `0.23715464451660015`.
+- Reference comparison: best Stage 6R Torch variant is below Stage 4 CSP+LDA
+  (`0.3852237654320987`) by `0.07716049382716038` and below Stage 5 feature-logreg
+  (`0.3503086419753087`) by `0.042245370370370405`.
+- Operational note: the first full run exposed that legacy time-frequency tensor layout
+  `(frequency, channel, time)` made EEGNet pooling invalid for Morlet's short time axis. The accepted
+  run uses benchmark version 2 with flattened time-frequency width and migrated the already
+  materialized Superlet tensors instead of recomputing them from scratch.
+- Verification: artifact manifest validation passed; focused BNCI tests passed with 24 tests;
+  `uv run ruff check .` and `git diff --check` passed.
+
+## 2026-06-22 - BNCI2014_001 final benchmark notebook
+
+- Scope: Stage 7 read-only report over immutable BNCI2014_001 artifacts from Stage 1 audit, Stage 4
+  CSP+LDA, Stage 5 project feature Logistic Regression, and Stage 6R full Torch spectral benchmark.
+  No model was retrained in this notebook.
+- Notebook: executed `notebooks/7.1-bnci2014-001-benchmark.ipynb` top-to-bottom with marker
+  `BNCI2014_001_BENCHMARK_VERIFIED`.
+- Summary artifact: `artifacts/experiments/bnci2014_001/stage7_benchmark_summary.json`.
+- Contract checks: class order `left_hand`, `right_hand`, `feet`, `tongue`; 5,184 epochs; nine
+  leave-one-subject-out folds; matching fold names across CSP+LDA, feature-logreg, and all Torch
+  variants.
+- Best overall model: `csp-lda`, mean balanced accuracy `0.3852237654320987`, fold std
+  `0.10863131589647801`, mean macro F1 `0.3348272726634433`.
+- Second benchmark line: `feature-logreg`, mean balanced accuracy `0.3503086419753087`, fold std
+  `0.08830410888220815`, mean macro F1 `0.31290918212946645`.
+- Best full Torch variant: `deep-convnet-stft-bnci`, mean balanced accuracy
+  `0.3080632716049383`, fold std `0.053767218232652424`, mean macro F1 `0.23715464451660015`.
+- Interpretation: the BNCI2014_001 task adapter and reporting pipeline are reproducible end to end;
+  the untuned full Torch sweep remains below the classical CSP+LDA and project feature baselines.
+- Verification: executed notebook has no error outputs and contains the marker; summary JSON parses
+  with strict `allow_nan=False` output; focused BNCI tests passed with 24 tests; `uv run ruff check .`
+  and `git diff --check` passed.

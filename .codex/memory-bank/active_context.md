@@ -2,6 +2,272 @@
 
 ## Current Focus
 
+External EEG dataset feasibility note:
+
+- Current `random_imagery` experiment pipeline is not directly portable as-is because it assumes
+  project `patt/random` records, a fixed `[0.5, 15.5)` crop, and 36 binary 6x6 image targets.
+- Reusable pieces for global datasets are the MNE/NumPy loading style, leakage-aware subject/trial
+  metadata, spectral transforms, classical feature extraction, grouped splits, artifact hashing, and
+  reporting discipline.
+- A portable benchmark run should first add a task adapter that yields `(eeg, sfreq, channels,
+  subject, session/trial, epoch_id, y)` and task-specific crop/metrics, then reuse preprocessing and
+  model backends where epoch length permits.
+
+BNCI2014_001 staged plan:
+
+- Approved plan saved at `.codex/memory-bank/plans/2026-06-22-bnci2014-001-pipeline.md`.
+- Current stage: Stage 7, Final Notebook, Report, And Memory Update, awaiting review after
+  implementation and verification on 2026-06-22.
+- Scope: final read-only benchmark notebook/report over the Stage 1, Stage 4, Stage 5, and Stage 6R
+  artifacts, with conservative interpretation and no new model training.
+- Stage 1 deliverables: executed `notebooks/7.0-bnci2014-001-dataset-audit.ipynb` and
+  `artifacts/experiments/bnci2014_001/stage1_dataset_audit.json`.
+- Stage 1 verification: subject 1 loaded through MOABB with 576 epochs, 22 EEG channels, 1001 time
+  points, balanced four-class labels, sessions `0train`/`1test`, runs `0`-`5`, and raw 250 Hz
+  recordings with 22 EEG, 3 EOG, and 1 stim channel. `uv run ruff check .` and `git diff --check`
+  passed.
+- Stage 2 deliverables: `experiments/bnci2014_001/config.py`,
+  `experiments/bnci2014_001/data.py`, `experiments/bnci2014_001/__init__.py`,
+  `confs/experiments/bnci2014_001.yaml`, and
+  `tests/experiments/test_bnci2014_001_data.py`.
+- Stage 2 verification: focused tests passed with 5 tests; `uv run ruff check .` and
+  `git diff --check` passed; real two-subject smoke produced `(1152, 22, 1001)` epochs; real
+  full-dataset smoke produced `(5184, 22, 1001)` float32 epochs, subjects 1-9, nine
+  leave-one-subject-out splits, no forbidden leakage, and all four classes present in every
+  train/test partition.
+- Stage 3 deliverables: `experiments/bnci2014_001/features.py`,
+  `experiments/bnci2014_001/spectral.py`, updated BNCI config exports, focused adapter tests, and
+  `artifacts/experiments/bnci2014_001/stage3_adapter_smoke.json`.
+- Stage 3 verification: focused BNCI tests passed with 9 tests; `uv run ruff check .` and
+  `git diff --check` passed; adapters trim MOABB's 1001-sample epoch to a half-open 1000-sample
+  `[0, 4.0)` interval; real subject-1 smoke produced feature matrix shape `(2, 594)`, FFT power
+  shape `(22, 39)`, STFT power shape `(22, 39, 8)`, and logical full-corpus payload estimates of
+  about 17.74 MiB for FFT and 136.67 MiB for STFT arrays.
+- Stage 4 deliverables: `experiments/bnci2014_001/baselines.py`,
+  `experiments/bnci2014_001/metrics.py`, `experiments/bnci2014_001/workflow.py`, updated
+  BNCI config/exports, focused baseline tests, and immutable run artifact
+  `artifacts/experiments/bnci2014_001/csp-lda/447f714497ed180e/`.
+- Stage 4 verification: focused BNCI tests passed with 13 tests; `uv run ruff check .`,
+  full-dataset `execute_csp_lda_baseline(load_bnci_config(), reuse_existing=True)`,
+  `validate_baseline_manifest(...)`, and `git diff --check` passed.
+- Stage 4 result: full-corpus 5,184-epoch, 9-fold LOSO CSP+LDA baseline produced mean balanced
+  accuracy `0.3852237654320987` (std `0.10863131589647801`) and mean macro F1
+  `0.3348272726634433` (std `0.12610162297656752`).
+- Stage 5 deliverables: `experiments/bnci2014_001/project_features.py`, updated
+  `experiments/bnci2014_001/workflow.py`, updated BNCI config/exports, focused project-feature
+  tests, and immutable run artifact
+  `artifacts/experiments/bnci2014_001/feature-logreg/902edd18de1c7e5b/`.
+- Stage 5 verification: focused BNCI tests passed with 16 tests; `uv run ruff check .`,
+  full-dataset `execute_feature_logreg_benchmark(load_bnci_config(), reuse_existing=True)`,
+  `validate_baseline_manifest(...)`, and `git diff --check` passed. `comparison.json` confirms
+  Stage 5 splits matched Stage 4 CSP+LDA by fold name plus train/test index hashes.
+- Stage 5 result: project `time+spectral` features produced matrix shape `(5184, 594)`; full-corpus
+  9-fold LOSO one-vs-rest Logistic Regression produced mean balanced accuracy
+  `0.3503086419753087` (std `0.08830410888220815`) and mean macro F1 `0.31290918212946645`
+  (std `0.095943983880703`), `0.03491512345678999` below the Stage 4 CSP+LDA mean.
+- Stage 6 deliverables: `experiments/bnci2014_001/torch_pilot.py`, updated
+  `experiments/bnci2014_001/workflow.py`, updated BNCI config/exports, focused Torch pilot tests,
+  and immutable run artifact `artifacts/experiments/bnci2014_001/fft-cnn-pilot/b54f16eff24c0908/`.
+- Stage 6 verification: focused BNCI tests passed with 19 tests; `uv run ruff check .`,
+  full-dataset `execute_torch_fft_pilot(load_bnci_config(), reuse_existing=True)`,
+  `validate_baseline_manifest(...)`, and `git diff --check` passed. Tests and workflow preserve the
+  boundary that test FFT tensors are materialized only after fold training completes.
+- Stage 6 result: full-corpus 9-fold LOSO exploratory FFT-CNN pilot produced mean balanced accuracy
+  `0.2633101851851852` (std `0.017836846073405598`) and mean macro F1
+  `0.17191417111806218` (std `0.0470451783253082`), below both Stage 4 CSP+LDA and Stage 5
+  feature-logreg. Interpret as an intentionally lightweight pre-revision neural smoke/pilot only.
+- Stage 6R deliverables: `experiments/bnci2014_001/torch_full.py`, updated BNCI config/exports,
+  focused full-Torch tests, tensor caches under
+  `artifacts/experiments/bnci2014_001/torch-full-tensors/02d63e3c8ee8372d/`, and immutable run
+  artifact `artifacts/experiments/bnci2014_001/torch-full/02d63e3c8ee8372d/`.
+- Stage 6R verification: full 12-variant run completed; artifact manifest validation passed;
+  focused BNCI test set passed with 24 tests; `uv run ruff check .` and `git diff --check` passed.
+- Stage 6R result: best variant was `deep-convnet-stft-bnci` with mean balanced accuracy
+  `0.3080632716049383` (std `0.053767218232652424`) and mean macro F1 `0.23715464451660015`.
+  Other strong variants were `deep-convnet-morlet-bnci` (`0.3061342592592593`) and
+  `deep-convnet-superlet-bnci` (`0.3053626543209877`). The best full Torch variant remains below
+  Stage 4 CSP+LDA by `0.07716049382716038` and below Stage 5 feature-logreg by
+  `0.042245370370370405`.
+- Stage 7 deliverables: executed `notebooks/7.1-bnci2014-001-benchmark.ipynb`,
+  `artifacts/experiments/bnci2014_001/stage7_benchmark_summary.json`, and updated plan/memory
+  files.
+- Stage 7 verification: notebook executed top-to-bottom with marker
+  `BNCI2014_001_BENCHMARK_VERIFIED` and no error outputs; strict summary JSON reports best overall
+  `csp-lda` and best Torch `deep-convnet-stft-bnci`; focused BNCI tests passed with 24 tests;
+  `uv run ruff check .` and `git diff --check` passed.
+- Stage 7 result: final notebook confirms CSP+LDA remains the strongest BNCI2014_001 benchmark
+  (`0.3852237654320987` mean balanced accuracy), followed by project feature Logistic Regression
+  (`0.3503086419753087`) and the best full Torch model `deep-convnet-stft-bnci`
+  (`0.3080632716049383`). Interpret the Torch sweep as an untuned exploratory transfer check.
+- Next action after user approval: mark Stage 7 completed, set the BNCI2014_001 staged plan to
+  complete, and provide the final plan summary. Do not proceed without explicit approval.
+
+Thesis advisor comments staged plan:
+
+- Approved plan saved at
+  `.codex/memory-bank/plans/2026-06-22-thesis-advisor-edits.md`.
+- Current stage: Stage 7, Static QA And Optional Build, awaiting review after user approved Stage 6
+  and moving to the next stage on 2026-06-22.
+- Stage 1 deliverables:
+  `../latex/chapters/litreview/brain-activity-reconstruction.tex`,
+  `../latex/biblio/bibliography.bib`, and `../latex/biblio/footcite-entries.tex`.
+- Stage 1 verification: `rg` confirmed the four new arXiv citation keys exist in both
+  `bibliography.bib` and `footcite-entries.tex`, and Section 1.4 now names EEG2IMAGE,
+  DreamDiffusion, BrainVis, and GWIT while preserving the caveat that generative EEG-to-image
+  pipelines do not directly solve the small binary visual-imagery task.
+- Stage 2 deliverables:
+  `../latex/chapters/introduction.tex`, `../latex/chapters/methodology/base.tex`,
+  `../latex/chapters/experiments/base.tex`, and `../latex/chapters/conclusion.tex`.
+- Stage 2 verification: `rg` confirmed the old negative-result lead is absent and the new
+  strict-evaluation framing appears in the introduction, experiments, and conclusion. No LaTeX build
+  was run.
+- Stage 3 deliverables:
+  `../latex/chapters/methodology/base.tex`, `../latex/chapters/experiments/base.tex`, and
+  `.codex/memory-bank/decisions.md`.
+- Stage 3 verification: executable dataset indexing from `code/` reported 540 prepared
+  recollection-phase blocks with 180 random and 360 geometric blocks; edited thesis-facing
+  methodology/experiments fragments contain no internal storage names `Data_Pattern`, `patt`,
+  `.fif`, `labels.json`, or `img`; duplicate-label search reported none. After the user reported a
+  build error, an explicit `\selectlanguage{russian}` was added before the methodology section
+  "Стратегии обучения и валидации"; the approved Docker/latexmk diploma build completed
+  successfully and produced `../latex/output/diploma.pdf` with 91 A4 pages. Log search found no
+  LaTeX errors, undefined citations/references, fatal errors, or `Command \CYR... unavailable`
+  encoding errors.
+- Stage 4 deliverables:
+  `../latex/images/eeg_rhythms_frequency_bands.png` and
+  `../latex/chapters/litreview/basics-eeg-visual.tex`.
+- Stage 4 verification: regenerated PNG was visually inspected, is a valid 1500x1080 RGB PNG, and
+  contains neutral academic labels; `rg` found no `подсозн` or `доступ к подсознанию` in
+  thesis-facing text; Docker/latexmk rebuilt `../latex/output/diploma.pdf` successfully with 91 A4
+  pages; log search found no LaTeX errors, undefined citations/references, fatal errors, or
+  `Command \CYR... unavailable` encoding errors.
+- Stage 5 deliverables:
+  `../latex/chapters/introduction.tex`, `../latex/chapters/methodology/base.tex`,
+  `../latex/chapters/experiments/base.tex`, `../latex/chapters/conclusion.tex`,
+  `../latex/chapters/appendix/base.tex`, selected Chapter 1 literature files, and
+  `.codex/memory-bank/glossary.md`.
+- Stage 5 verification: `schema-v*` no longer appears in thesis-facing LaTeX files; the remaining
+  flagged English terms are deliberate first definitions or non-user-facing `cross-subject` labels;
+  duplicate-label search reported none; Docker/latexmk rebuilt `../latex/output/diploma.pdf`
+  successfully with 91 A4 pages; log search found no LaTeX errors, undefined citations/references,
+  fatal errors, or `Command \CYR... unavailable` encoding errors.
+- Stage 6 deliverables:
+  new `Связь с предшествующей работой` section and `tab:predecessor-comparison` in
+  `../latex/chapters/methodology/base.tex`, plus nearby terminology cleanup in
+  `../latex/chapters/methodology/base.tex` and `../latex/chapters/experiments/base.tex`.
+- Stage 6 verification: `dementyev2025visualstimuli` is cited in the comparison section and exists
+  in both `bibliography.bib` and `footcite-entries.tex`; duplicate-label search reported none;
+  targeted terminology search found no visible `Trial`, `upstream`, `schema-v*`, or
+  `visual imagery reconstruction` in the edited methodology/experiments files, with only the
+  intentional first-definition `cross-trial` term remaining; Docker/latexmk rebuilt
+  `../latex/output/diploma.pdf` successfully with 93 A4 pages; log search found no LaTeX errors,
+  undefined citations/references, fatal errors, or `Command \CYR... unavailable` encoding errors.
+- Stage 7 deliverables:
+  final static QA for thesis-facing LaTeX sources, a cleanup of the deep
+  `experiments/random_imagery_torch` implementation URL in `../latex/chapters/appendix/base.tex`,
+  and an updated `../latex/output/diploma.pdf`.
+- Stage 7 verification: static search found no placeholders, `schema-v*`, internal dataset storage
+  names, `.fif`, `labels.json`, notebook paths, `experiments/`, `outputs/`, `upstream`,
+  `visual imagery reconstruction`, or removed Figure 1.3 wording in thesis-facing LaTeX.
+  Structural validator reported 32 labels with no duplicates, no missing references, 17
+  `\includegraphics` targets with no missing files, and 43 citation keys with no missing BibTeX or
+  full-footcite entries. Docker/latexmk rebuilt `../latex/output/diploma.pdf` successfully with 93
+  A4 pages; log search found no LaTeX errors, undefined citations/references, fatal errors, or
+  `Command \CYR... unavailable` encoding errors. Build was run despite being optional because the
+  final appendix URL cleanup changed a thesis source file.
+- Post-Stage-7 annotation update: user requested annotation synchronization with the advisor-edit
+  changes. `../latex/annotation.tex` now reflects the inherited 2025 dataset, strict leakage-aware
+  evaluation framing, 180-row random-imagery subset, 15-second epoch-level window defense, and
+  conservative results. Docker/latexmk rebuilt `../latex/output/annotation.pdf` successfully with 5
+  A4 pages; log search found no LaTeX errors, undefined citations/references, fatal errors, or
+  `Command \CYR... unavailable` encoding errors; annotation has 3 citation keys with no missing
+  BibTeX or full-footcite entries.
+- Scope: targeted thesis revisions responding to the scientific advisor's comments on Section 1.4
+  literature specificity, leakage-aware framing, 15-second window justification, Figure 1.3,
+  terminology consistency, removal of implementation jargon, dataset-count accounting, and explicit
+  comparison with the 2025 Dementyev/Parepko/Baranov thesis.
+- Constraint: execute one stage at a time and stop at `Awaiting Review`; do not proceed to the next
+  stage without explicit approval.
+
+Thesis writing staged plan:
+
+- Approved plan saved at
+  `.codex/memory-bank/plans/2026-06-16-thesis-methodology-experiments-appendix.md`.
+- Current stage: Stage 8, Static QA And Memory Update, completed.
+- Stage 1 deliverable:
+  `.codex/memory-bank/thesis-writing-evidence.md`.
+- Stage 2 deliverable:
+  `../latex/chapters/methodology/base.tex`.
+- Stage 3 deliverable:
+  `../latex/chapters/appendix/base.tex`.
+- Stage 4 deliverable:
+  deep-learning architecture appendix in `../latex/chapters/appendix/base.tex`.
+- Stage 5 deliverable:
+  rewritten `../latex/chapters/experiments/base.tex`.
+- Stage 6 deliverable:
+  thesis-facing experiment tables in `../latex/chapters/experiments/base.tex`.
+- Stage 7 deliverables:
+  `scripts/generate_thesis_figures.py` and nine generated PDF figures in `../latex/images/`.
+- Stage 8 deliverables:
+  final static QA report in the staged plan and updated durable memory.
+- Latest progress: the user's 2026-06-16 request to continue the plan was treated as approval of
+  Stage 7. Stage 8 completed final static QA for the thesis chapter set, cleaned one false-positive
+  LaTeX quote/backtick fragment in the appendix, rechecked placeholders, stale internal wording,
+  fixed-width tables, figure targets, labels, citation keys, Ruff status for the figure generator,
+  and evidence traceability for major numerical claims.
+- Stage 7 checks: figure generation verified the final comparison anchors
+  `ridge-regression-independent:0.518382`,
+  `deep-convnet-stft-multilabel:0.512011`, and `min_holm_p=0.273000`;
+  PNG previews were visually inspected for the cross-subject ranking, reconstruction examples,
+  pipeline, and EEGNet architecture figure; all `\includegraphics` targets exist; new figure labels
+  are unique; `uv run ruff check scripts/generate_thesis_figures.py` passes; static searches found
+  no `TODO`, `\ldots`, `f_s =`, internal dataset storage names, repository artifact paths, or
+  notebook paths in the edited thesis chapter set.
+- Stage 8 checks: static search found no `TODO`, `\ldots`, `f_s =`, internal dataset storage
+  names, repository artifact paths, notebook paths, backtick-formatted code/path fragments, or
+  fixed-width `tabular` environments in the edited thesis chapter set. Verified 22 labels with no
+  duplicates, 9 figure targets with no missing files, and 15 citation keys with no missing BibTeX
+  entries. `uv run ruff check scripts/generate_thesis_figures.py` passes. Major numerical claims
+  were checked against `thesis-writing-evidence.md`, `experiments.md`, and the assert-backed
+  figure-generation script.
+- Thesis citation style note: all literature references in the LaTeX thesis should use
+  `\footcite{...}`. The current BibTeX/GOST setup prints full bibliography entries in footnotes
+  through `../latex/biblio/footcite-entries.tex`, while `../latex/chapters/bibliography.tex`
+  remains the normal `\bibliographystyle{biblio/gost2008n}` + `\bibliography{biblio/bibliography}`
+  list. If new `.bib` entries or citation keys are added, rebuild BibTeX and refresh the
+  footcite entries file from the new `.bbl`.
+- Next action after user approval: optional LaTeX compilation/build if the user gives separate
+  permission. Do not run LaTeX compilation without separate user permission.
+- Scope guardrail: the thesis methodology/experiments/appendix staged writing plan is complete;
+  future work should be treated as a new request or optional build/review step.
+
+Thesis finalization staged plan:
+
+- Approved plan saved at
+  `.codex/memory-bank/plans/2026-06-16-thesis-finalization.md`.
+- Current stage: Stage 8, Memory Update And Handoff, completed.
+- Final deliverables:
+  standalone 5-page annotation source `../latex/annotation.tex`, updated
+  `../latex/chapters/introduction.tex`,
+  `../latex/chapters/conclusion.tex`, light Chapter 1 consistency edits, hidden PDF link boxes in
+  `../latex/settings/preamble.tex`, `../latex/output/diploma.pdf`, and
+  `../latex/output/annotation.pdf`.
+- Latest progress: thesis finalization plan completed end to end. The annotation placeholder was
+  replaced and moved out of the main diploma into a standalone annotation document using the same
+  `\footcite{...}` plus GOST/BibTeX literature style as the diploma; the introduction was
+  reconciled with conservative results and now explicitly names the object and subject of
+  research, the conclusion was added and connected, Chapter 1 was lightly aligned, static QA
+  passed, and Docker/latexmk builds produced both final PDFs.
+- Final checks: static search found no thesis-facing placeholders, stale internal paths, or
+  backtick-formatted path fragments; 30 labels have no duplicates; 17 figure targets exist; 39
+  citation keys have BibTeX entries; the LaTeX logs have no errors, undefined references, or
+  missing citations. Main `diploma.pdf` metadata reports 88 A4 pages and its TOC excludes
+  annotation; standalone `annotation.pdf` metadata reports 5 A4 pages and includes four cited
+  literature entries. The bibliography contains 39 entries, satisfying the minimum-30 requirement.
+  Residual non-blocking overfull/underfull warnings remain, mostly from long English terms,
+  bibliography entries, and existing thesis sections.
+- Next action: user/scientific-advisor review of the built PDF.
+
 Dataset API stages 0-6 are implemented:
 
 - Strict FIF/label indexing by subject, trial, and block.

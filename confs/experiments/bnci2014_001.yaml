@@ -1,0 +1,70 @@
+dataset:
+  dataset_code: BNCI2014-001
+  subjects: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  labels: [left_hand, right_hand, feet, tongue]
+  epoch_start_seconds: 2.0
+  epoch_end_seconds: 6.0
+  source_sfreq: 250.0
+  n_classes: 4
+  dtype: float32
+
+split:
+  primary_protocol: leave-one-subject-out
+  group_by: subject
+  require_all_classes_in_train: true
+  require_all_classes_in_test: true
+
+baseline:
+  model_id: csp-lda
+  n_components: 8
+  reg: null
+  log: true
+  cov_est: concat
+  norm_trace: false
+  component_order: mutual_info
+  lda_solver: svd
+  lda_shrinkage: null
+
+project_features:
+  model_id: feature-logreg
+  feature_groups: [time, spectral]
+  window_seconds: null
+  window_stride_seconds: null
+  logistic_c: 1.0
+  logistic_solver: liblinear
+  logistic_class_weight: balanced
+  logistic_max_iter: 1000
+  standardize: true
+
+torch_pilot:
+  model_id: fft-cnn-pilot
+  spectral_method: fft
+  seed: 42
+  max_epochs: 12
+  patience: 4
+  batch_size: 256
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  hidden_channels: 16
+  dropout: 0.25
+  validation_strategy: lowest-train-subject
+  device: auto
+
+torch_full:
+  model_id: torch-full
+  architectures: [eegnet, deep-convnet, shallow-convnet]
+  spectral_methods: [fft, morlet, stft, superlet]
+  seed: 42
+  max_epochs: 12
+  patience: 4
+  batch_size: 256
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  dropout_rate: 0.5
+  validation_strategy: lowest-train-subject
+  device: auto
+
+artifacts:
+  root: artifacts/experiments/bnci2014_001
+  schema_version: 1
+  overwrite: false

@@ -390,3 +390,68 @@
 - Share `execute_torch_protocol(...)` between terminal and future notebook callers. Reuse is valid
   only when every expected direction run exists, validates, matches the resolved config, and
   belongs to the same spectral input identity.
+
+## 2026-06-16
+
+- In the LaTeX thesis, use `\footcite{...}` for literature references instead of inline numeric
+  `\cite{...}`. Footnotes must show full GOST-style bibliography entries, not just numeric labels
+  like `[1]`.
+- Do not use the `bibentry` package for this thesis: with the current `disser`/BibTeX/GOST setup it
+  reads `.bbl` entries in a context that can trigger `Lonely \item` errors. Keep the bibliography
+  list as normal BibTeX in `chapters/bibliography.tex`.
+- Maintain full footnote citations through the generated
+  `../latex/biblio/footcite-entries.tex` mapping derived from `../latex/output/diploma.bbl`. After
+  adding or changing bibliography entries, rebuild BibTeX and refresh that mapping so new
+  `\footcite` keys have full text.
+- Thesis prose and appendix text should not reference local project file paths or embed project
+  code blocks. Use the public repository URL for code availability and pseudocode only where useful.
+
+## 2026-06-22
+
+- In the thesis dataset description, distinguish the predecessor project's 217 random observations
+  from the current thesis's 180-row random-imagery reconstruction subset. The 180 rows are the
+  selected recollection-phase random observations with a complete EEG-epoch to 6x6 target-image
+  mapping; this is a phase-scope choice, not a model-quality filter.
+- Present the full `[0.5, 15.5)` crop as a conservative one-row-per-labeled-epoch analysis unit.
+  Do not claim it is temporally optimal for visual imagery. Its thesis-facing justification is that
+  splitting the same epoch into multiple model rows without a separate grouped protocol would create
+  dependent pseudo-observations sharing subject, trial, and target image.
+- Treat BNCI2014_001 as a separate motor-imagery task adapter under `experiments/bnci2014_001`
+  rather than routing it through `random_imagery`; its target is one four-class label per MOABB
+  epoch, not a 6x6 image payload.
+- Use BNCI2014_001's MOABB `MotorImagery(n_classes=4)` interval `[2, 6]` and label order
+  `left_hand`, `right_hand`, `feet`, `tongue` for the initial task contract.
+- Use leave-one-subject-out as the primary BNCI2014_001 leakage-safe protocol. Every split must
+  keep subject IDs and epoch sample keys disjoint, and must retain subject, session, run, and
+  per-run epoch index metadata for later feature extraction and modeling.
+- For BNCI2014_001 feature and spectral adapters, treat MOABB's 1001-sample epoch for the `[2, 6]`
+  interval as an inclusive-endpoint representation and use the first 1000 samples as the explicit
+  half-open `[0, 4.0)` analysis epoch at 250 Hz before project feature or spectral extraction.
+- Use CSP+LDA as the first BNCI2014_001 classical baseline under the primary leave-one-subject-out
+  protocol. Fit CSP and LDA independently inside each train fold, persist metrics/predictions rather
+  than model pickles, and store immutable run artifacts under
+  `artifacts/experiments/bnci2014_001/csp-lda/<config-hash>/` with a SHA-256/byte manifest.
+- Scope BNCI2014_001 experiment hashes to the relevant sub-configuration. CSP+LDA hashes include
+  dataset, split, baseline, and artifact settings; project feature Logistic Regression hashes include
+  dataset, split, project-feature, and artifact settings. Adding a later benchmark configuration must
+  not invalidate an already-published earlier-stage artifact.
+- Use the first BNCI2014_001 project-style feature benchmark as a fixed `time+spectral` full-epoch
+  feature matrix plus train-fold-only `StandardScaler` and one-vs-rest Logistic Regression. Keep the
+  prediction unit at one row per MOABB epoch and validate split alignment to the CSP+LDA artifact by
+  fold name and train/test index hashes.
+- Treat the first BNCI2014_001 Torch result as an exploratory FFT-CNN pilot only. Use train-fold
+  validation subjects for early stopping, fit FFT-tensor normalization on train-fit tensors only,
+  and materialize outer-test tensors only after the fold training boundary. Do not interpret this
+  small untuned pilot as a competitive neural benchmark.
+- For the approved BNCI2014_001 full Torch spectral benchmark, evaluate only the previously studied
+  primary spectral backbones `eegnet`, `deep-convnet`, and `shallow-convnet` with the four
+  preprocessors `fft`, `morlet`, `stft`, and `superlet`. Reuse the backbone implementations from
+  `experiments.random_imagery_torch.models` with `n_outputs=4` and a four-class cross-entropy task.
+- For BNCI2014_001 Torch time-frequency inputs, flatten `log1p(nonnegative_power)` tensors to
+  `(plane=1, channel, frequency*time)` before passing them to the spectral backbones. FFT remains
+  `(plane=1, channel, frequency)`. This preserves compatibility with the existing pooling geometry
+  without introducing a new architecture.
+- BNCI2014_001 full Torch tensor caches are deterministic generated artifacts and may be reused or
+  migrated across benchmark-layout versions, but learned tensor standardization remains fitted only
+  on train-fit rows inside each outer fold. The Stage 6R result is exploratory and untuned; it does
+  not supersede CSP+LDA as the stronger BNCI baseline.

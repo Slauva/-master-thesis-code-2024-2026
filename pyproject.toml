@@ -8,6 +8,7 @@ dependencies = [
     "jupyter>=1.1.1",
     "matplotlib>=3.10.8",
     "mne>=1.11.0",
+    "moabb>=1.5.0",
     "numpy>=2.4.4",
     "omegaconf>=2.3.0",
     "pandas>=3.0.2",
