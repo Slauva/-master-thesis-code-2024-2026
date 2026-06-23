@@ -2,6 +2,123 @@
 
 ## Current Focus
 
+BNCI2014_009 P300 benchmark staged plan:
+
+- Approved plan saved at `.codex/memory-bank/plans/2026-06-22-bnci2014-009-p300-benchmark.md`.
+- Current stage: Stage 7, Final Notebook, Report, And Memory Update, awaiting review after
+  implementation and verification on 2026-06-23.
+- Scope: leakage-aware `Target` vs `NonTarget` P300 benchmark over BNCI2014_009 with classical
+  ERP/xDAWN/Riemannian baselines first, raw ERP deep-learning models next, and spectral deep models
+  treated as exploratory.
+- Stage 1 deliverables: executed `notebooks/7.2-bnci2014-009-dataset-audit.ipynb` and
+  `artifacts/experiments/bnci2014_009/stage1_dataset_audit.json`.
+- Stage 1 verification: notebook executed top-to-bottom with marker
+  `BNCI2014_009_STAGE1_AUDIT_VERIFIED`; search found no stored error outputs; `uv run ruff check .`
+  and `git diff --check` passed.
+- Stage 1 result: local MOABB metadata reports 10 subjects, P300 events `Target=2` and
+  `NonTarget=1`, interval `[0, 0.8]`, 16 EEG channels, 256 Hz source sampling, and MOABB P300
+  filter band `[1, 24]` Hz. Subject 1 loaded as 1,728 finite `float64` epochs with shape
+  `(1728, 16, 206)`, sessions `0`-`2`, run `0`, 288 `Target` epochs, and 1,440 `NonTarget`
+  epochs.
+- Stage 2 deliverables: `experiments/bnci2014_009/__init__.py`,
+  `experiments/bnci2014_009/config.py`, `experiments/bnci2014_009/data.py`,
+  `confs/experiments/bnci2014_009.yaml`, and `tests/experiments/test_bnci2014_009_data.py`.
+- Stage 2 verification: focused tests passed with 5 tests; `uv run ruff check .` and
+  `git diff --check` passed; real two-subject smoke produced `(3456, 16, 206)` `float32` epochs
+  and two leak-free LOSO splits; real full-dataset smoke produced `(17280, 16, 206)` `float32`
+  epochs, subjects 1-10, ten leave-one-subject-out splits, no forbidden leakage, both classes
+  present in every train/test partition, and held-out subject counts of 288 `Target` and 1,440
+  `NonTarget` epochs per fold.
+- Stage 2 operational note: MOABB downloaded missing BNCI2014_009 `.mat` files into `~/mne_data`;
+  no raw data was written to the repository.
+- Stage 3 deliverables: `experiments/bnci2014_009/features.py`, updated
+  `experiments/bnci2014_009/__init__.py`, `tests/experiments/test_bnci2014_009_features.py`, and
+  `artifacts/experiments/bnci2014_009/stage3_adapter_smoke.json`.
+- Stage 3 verification: focused BNCI2014_009 tests passed with 9 tests; `uv run ruff check .` and
+  `git diff --check` passed; real subject-1 smoke built ERP features of shape `(1728, 896)` and
+  xDAWN+tangent features with train side `(1152, 36)` and apply side `(576, 36)`.
+- Stage 3 result: ERP features are label-free decimated waveform plus mean-amplitude windows.
+  xDAWN/tangent-space support is available through an explicit train/apply helper and must be fit
+  only inside training folds in Stage 4.
+- Stage 4 deliverables: `experiments/bnci2014_009/metrics.py`,
+  `experiments/bnci2014_009/baselines.py`, `experiments/bnci2014_009/workflow.py`, updated
+  BNCI2014_009 config/exports, focused classical tests, and immutable run artifact
+  `artifacts/experiments/bnci2014_009/classical-sweep/7b7a88206dd8d8a5/`.
+- Stage 4 verification: focused BNCI2014_009 tests passed with 12 tests; `uv run ruff check .`,
+  full-corpus `execute_classical_benchmark(load_bnci009_config(), reuse_existing=True)`,
+  `validate_classical_manifest(...)`, and `git diff --check` passed.
+- Stage 4 result: full-corpus 17,280-epoch, 10-fold LOSO classical sweep found best mean balanced
+  accuracy for `erp-logreg` at `0.7640624999999999` (std `0.058843103679993326`), followed by
+  `erp-ridge` at `0.7605555555555557` and `xdawn-tangent-logreg` at `0.7554861111111111`.
+  `erp-logreg` mean target recall was `0.7003472222222222`, mean ROC-AUC `0.8506896219135804`, and
+  mean PR-AUC `0.5940665572712607`.
+- Stage 4 operational note: `erp-linear-svm` uses deterministic `SGDClassifier(loss="hinge")`
+  because two full-corpus attempts with sklearn `LinearSVC`/liblinear were interrupted for
+  excessive runtime.
+- Stage 5 deliverables: `experiments/bnci2014_009/torch_raw.py`, updated BNCI2014_009
+  config/exports, focused raw Torch tests, and immutable run artifact
+  `artifacts/experiments/bnci2014_009/raw-erp-torch/7afe116a224e20e2/`.
+- Stage 5 verification: focused BNCI2014_009 tests passed with 18 tests; `uv run ruff check .`,
+  full-corpus `execute_raw_torch_benchmark(load_bnci009_config(), reuse_existing=True)`,
+  `validate_raw_torch_manifest(...)`, full `uv run pytest` with 472 passed and 2 pre-existing
+  multiprocessing warnings, and `git diff --check` passed.
+- Stage 5 result: full-corpus 17,280-epoch, 10-fold LOSO raw ERP deep sweep found best mean
+  balanced accuracy for `deep-convnet-raw-erp` at `0.6161458333333332` (std
+  `0.061481330050920734`), followed by `raw-cnn-raw-erp` at `0.5795138888888889`,
+  `shallow-convnet-raw-erp` at `0.5582986111111111`, and `eegnet-raw-erp` at
+  `0.5494791666666666`. The best raw deep result remains below Stage 4 `erp-logreg` by about
+  `0.1479166666666667` balanced-accuracy points.
+- Stage 5 operational note: raw ERP tensors use shape `(epoch, 1, channel, time)`, train-fit-only
+  standardization, validation subjects drawn only from training subjects, balanced cross-entropy,
+  and compact untuned one-seed training. Model checkpoints are not persisted.
+- Stage 6 deliverables: `experiments/bnci2014_009/torch_spectral.py`, updated BNCI2014_009
+  config/exports, focused spectral Torch tests, and immutable run artifact
+  `artifacts/experiments/bnci2014_009/spectral-torch/8d4c3434245e4841/`.
+- Stage 6 verification: focused BNCI2014_009 tests passed with 21 tests; `uv run ruff check .`,
+  full-corpus `execute_spectral_torch_benchmark(load_bnci009_config(), reuse_existing=True)`,
+  `validate_spectral_torch_manifest(...)`, full `uv run pytest` with 475 passed and 2 pre-existing
+  multiprocessing warnings, and `git diff --check` passed. `comparison.json` confirms exact
+  Stage 5 raw-run test-index alignment.
+- Stage 6 result: full-corpus 17,280-epoch, 10-fold LOSO FFT spectral deep sweep found best mean
+  balanced accuracy for `eegnet-fft-spectral` at `0.5526736111111111` (std
+  `0.0452594676891947`), followed by `deep-convnet-fft-spectral` at `0.5504166666666668` and
+  `shallow-convnet-fft-spectral` at `0.5394097222222223`. The best FFT spectral result remains
+  below Stage 5 `deep-convnet-raw-erp` by about `0.06347222222222215` and below Stage 4
+  `erp-logreg` by about `0.2113888888888888` balanced-accuracy points.
+- Stage 6 operational note: FFT log-power tensors use shape `(epoch, 1, channel, frequency)`.
+  Morlet, Superlet, and STFT are deferred because the existing time-frequency contracts were
+  designed for longer epochs; P300-specific windows should be validated separately.
+- Stage 7 deliverables: executed `notebooks/7.3-bnci2014-009-benchmark.ipynb`,
+  `artifacts/experiments/bnci2014_009/stage7_benchmark_summary.json`, focused notebook validation
+  test, and updated memory bank notes.
+- Stage 7 verification: notebook executed top-to-bottom with marker
+  `BNCI2014_009_BENCHMARK_VERIFIED`; summary JSON reports best overall `erp-logreg`; focused
+  BNCI2014_009 tests plus notebook validation passed with 22 tests; `uv run ruff check .`, full
+  `uv run pytest` with 476 passed and 2 pre-existing multiprocessing warnings, and
+  `git diff --check` passed.
+- Stage 7 result: final notebook confirms `erp-logreg` is the strongest completed benchmark
+  (`0.7640624999999999` mean balanced accuracy), followed by the best raw ERP deep model
+  `deep-convnet-raw-erp` (`0.6161458333333332`) and the best FFT spectral model
+  `eegnet-fft-spectral` (`0.5526736111111111`). Interpret neural results as compact untuned
+  exploratory baselines.
+- Next action after user approval: mark Stage 7 completed, set the BNCI2014_009 staged plan to
+  complete, and provide the final plan summary. Do not proceed without explicit approval.
+
+BNCI2014_009 P300 benchmark Stage 1 historical note:
+
+- Stage 1 was implemented and verified on 2026-06-22, then approved by the user's "дальше" request
+  on 2026-06-22.
+- Stage 2 was implemented and verified on 2026-06-22, then approved by the user's "дальше" request
+  on 2026-06-22.
+- Stage 3 was implemented and verified on 2026-06-22, then approved by the user's "дальше" request
+  on 2026-06-22.
+- Stage 4 was implemented and verified on 2026-06-22, then approved by the user's "Продолжи план"
+  request on 2026-06-23.
+- Stage 5 was implemented and verified on 2026-06-23, then approved by the user's "дальше" request
+  on 2026-06-23.
+- Stage 6 was implemented and verified on 2026-06-23, then approved by the user's "следующий шаг"
+  request on 2026-06-23.
+
 External EEG dataset feasibility note:
 
 - Current `random_imagery` experiment pipeline is not directly portable as-is because it assumes

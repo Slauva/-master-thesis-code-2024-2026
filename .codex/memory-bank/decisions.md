@@ -240,6 +240,7 @@
   figure, but report cross-subject and within-subject tables separately. Never average protocols
   or describe their difference as a pure model effect because their populations and
   generalization targets differ.
+
 - Keep model-agnostic random-imagery targets, evaluation protocols, baselines, metrics,
   configuration primitives, and orchestration under `experiments/random_imagery`. Preserve
   `experiments/logistic_regression` module paths as compatibility wrappers where implementations
@@ -408,6 +409,17 @@
 
 ## 2026-06-22
 
+- For BNCI2014_009 P300 benchmarks, represent the primary unit as a single post-stimulus epoch with
+  class labels `Target` and `NonTarget`; keep the primary evaluation subject-disjoint via
+  leave-one-subject-out splits.
+- Keep BNCI2014_009 ERP waveform and mean-amplitude features label-free and aligned one row per
+  epoch. Fit scalers, feature selectors, thresholds, and classifiers only inside train folds.
+- Treat BNCI2014_009 xDAWN covariance and Riemannian tangent-space transforms as label-dependent
+  learned transforms. They must be fitted only on each fold's training epochs and then applied to
+  validation/test epochs after fitting.
+- Use deterministic `SGDClassifier(loss="hinge")` for the BNCI2014_009 `erp-linear-svm` baseline.
+  Full-corpus sklearn `LinearSVC`/liblinear attempts were operationally too slow for the staged
+  sweep, while the SGD hinge-loss model preserves the intended linear SVM-style comparison.
 - In the thesis dataset description, distinguish the predecessor project's 217 random observations
   from the current thesis's 180-row random-imagery reconstruction subset. The 180 rows are the
   selected recollection-phase random observations with a complete EEG-epoch to 6x6 target-image
@@ -455,3 +467,17 @@
   migrated across benchmark-layout versions, but learned tensor standardization remains fitted only
   on train-fit rows inside each outer fold. The Stage 6R result is exploratory and untuned; it does
   not supersede CSP+LDA as the stronger BNCI baseline.
+
+## 2026-06-23
+
+- For BNCI2014_009 raw ERP Torch benchmarks, represent each epoch as `(plane=1, channel, time)` and
+  reuse the existing spectral-backbone tensor contract only as a PyTorch geometry adapter. Interpret
+  these EEGNet/DeepConvNet/ShallowConvNet raw-time runs as compact untuned baselines, not
+  state-of-the-art P300 optimization.
+- In BNCI2014_009 raw ERP Torch folds, choose validation data only from training subjects, fit
+  tensor standardization and balanced class weights on the train-fit partition only, and materialize
+  held-out probabilities only after fold training completes.
+- For BNCI2014_009 Stage 6, keep the exploratory spectral deep sweep to FFT log-power tensors under
+  the existing project preprocessing grid. Defer Morlet, Superlet, and STFT for this short P300
+  epoch until a separate P300-specific time-frequency tensor contract is validated; do not silently
+  force longer-epoch defaults onto 0.8-second epochs.

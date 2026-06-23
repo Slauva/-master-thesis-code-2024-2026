@@ -1,0 +1,85 @@
+dataset:
+  dataset_code: BNCI2014-009
+  subjects: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  labels: [Target, NonTarget]
+  epoch_start_seconds: 0.0
+  epoch_end_seconds: 0.8
+  source_sfreq: 256.0
+  n_classes: 2
+  dtype: float32
+  moabb_filter_low_hz: 1.0
+  moabb_filter_high_hz: 24.0
+
+split:
+  primary_protocol: leave-one-subject-out
+  group_by: subject
+  require_all_classes_in_train: true
+  require_all_classes_in_test: true
+
+classical:
+  model_id: classical-sweep
+  variants:
+    - dummy-prior
+    - erp-lda
+    - erp-logreg
+    - erp-linear-svm
+    - erp-ridge
+    - xdawn-tangent-lda
+    - xdawn-tangent-logreg
+  erp_waveform_stride: 4
+  xdawn_n_filters: 2
+  xdawn_estimator: oas
+  tangent_metric: riemann
+  logistic_c: 1.0
+  logistic_max_iter: 1000
+  svm_alpha: 0.0001
+  svm_max_iter: 1000
+  svm_tol: 0.001
+  seed: 42
+
+raw_torch:
+  model_id: raw-erp-torch
+  architectures:
+    - raw-cnn
+    - eegnet
+    - deep-convnet
+    - shallow-convnet
+  seed: 42
+  max_epochs: 8
+  patience: 3
+  batch_size: 512
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  dropout_rate: 0.5
+  hidden_channels: 16
+  validation_strategy: lowest-train-subject
+  class_weighting: balanced
+  device: auto
+
+spectral_torch:
+  model_id: spectral-torch
+  architectures:
+    - eegnet
+    - deep-convnet
+    - shallow-convnet
+  spectral_methods:
+    - fft
+  deferred_methods:
+    - morlet
+    - superlet
+    - stft
+  seed: 42
+  max_epochs: 8
+  patience: 3
+  batch_size: 512
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  dropout_rate: 0.5
+  validation_strategy: lowest-train-subject
+  class_weighting: balanced
+  device: auto
+
+artifacts:
+  root: artifacts/experiments/bnci2014_009
+  schema_version: 1
+  overwrite: false

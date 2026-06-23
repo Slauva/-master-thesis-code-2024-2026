@@ -924,3 +924,227 @@
 - Verification: executed notebook has no error outputs and contains the marker; summary JSON parses
   with strict `allow_nan=False` output; focused BNCI tests passed with 24 tests; `uv run ruff check .`
   and `git diff --check` passed.
+
+## 2026-06-22 - BNCI2014_009 Stage 1 P300 dataset audit
+
+- Scope: approved Stage 1 dataset audit for BNCI2014_009 before adding any task adapter or model
+  code.
+- Notebook: executed `notebooks/7.2-bnci2014-009-dataset-audit.ipynb` top-to-bottom with marker
+  `BNCI2014_009_STAGE1_AUDIT_VERIFIED` and no stored error outputs.
+- Summary artifact: `artifacts/experiments/bnci2014_009/stage1_dataset_audit.json`.
+- Static metadata: MOABB dataset `BNCI2014-009`, P300 paradigm, 10 subjects, events `Target=2` and
+  `NonTarget=1`, interval `[0, 0.8]`, 16 EEG channels, 256 Hz source sampling, linked-earlobe
+  reference, hardware bandpass `0.1-20 Hz`, line frequency 50 Hz, and MOABB P300 filter band
+  `[1, 24]` Hz.
+- Subject-1 smoke load: 1,728 finite `float64` epochs with shape `(1728, 16, 206)`, metadata columns
+  `subject`, `session`, and `run`; sessions `0`, `1`, and `2` each contain 576 epochs, all under
+  run `0`.
+- Label balance: 288 `Target` epochs and 1,440 `NonTarget` epochs, giving target fraction
+  `0.16666666666666666` and confirming the expected 1:5 P300 imbalance.
+- Stage 2 implication: primary prediction unit should be a single post-stimulus epoch; primary
+  split should group by subject; balanced accuracy should remain primary, with macro F1, target
+  recall, confusion matrix, ROC-AUC, and PR-AUC as required secondary metrics when scores exist.
+- Verification: `uv run ruff check .` and `git diff --check` passed.
+
+## 2026-06-22 - BNCI2014_009 Stage 2 P300 task contract
+
+- Scope: approved Stage 2 task contract, config, and leakage policy for BNCI2014_009. No feature
+  extraction, xDAWN, scaling, model training, or artifact workflow was added.
+- Code deliverables: `experiments/bnci2014_009/__init__.py`,
+  `experiments/bnci2014_009/config.py`, `experiments/bnci2014_009/data.py`,
+  `confs/experiments/bnci2014_009.yaml`, and `tests/experiments/test_bnci2014_009_data.py`.
+- Config contract: dataset code `BNCI2014-009`, subjects 1-10, labels `Target` and `NonTarget`,
+  epoch interval `[0.0, 0.8]`, source sampling rate 256 Hz, dtype `float32`, and MOABB P300 filter
+  band `[1.0, 24.0]` Hz.
+- Dataset contract: `BNCI009EpochDataset` stores immutable `(epoch, channel, time)` arrays,
+  `int64` targets, deterministic metadata, class names, and unique sample keys
+  `(subject, session, run, epoch_index)`.
+- Split contract: primary protocol is leave-one-subject-out grouped by subject; split audits report
+  subject overlap, sample-key overlap, complete class counts, and target fractions.
+- Synthetic tests: focused tests cover config validation, deterministic metadata and target mapping,
+  metadata/label rejection, LOSO disjointness, class completeness, imbalance visibility, and leaky
+  split rejection.
+- Real two-subject smoke: `load_bnci009_epochs(load_bnci009_config(), subjects=(1, 2))` produced
+  `(3456, 16, 206)` `float32` epochs, two LOSO splits, no forbidden leakage, and per-held subject
+  counts of 288 `Target` and 1,440 `NonTarget`.
+- Real full-dataset smoke: `load_bnci009_epochs(load_bnci009_config())` produced
+  `(17280, 16, 206)` `float32` epochs for subjects 1-10, ten LOSO splits, no forbidden leakage,
+  both classes in every train/test fold, and identical held-out target fraction
+  `0.16666666666666666`.
+- Operational note: the first full smoke downloaded missing BNCI2014_009 subject `.mat` files to
+  the user's MNE cache under `~/mne_data`; raw data was not written to the repository.
+- Verification: `uv run pytest tests/experiments/test_bnci2014_009_data.py` passed with 5 tests;
+  `uv run ruff check .` and `git diff --check` passed.
+
+## 2026-06-22 - BNCI2014_009 Stage 3 ERP and xDAWN adapters
+
+- Scope: approved Stage 3 adapter layer for BNCI2014_009. No model evaluation, scaling,
+  hyperparameter search, or artifact workflow was added.
+- Code deliverables: `experiments/bnci2014_009/features.py`, updated package exports in
+  `experiments/bnci2014_009/__init__.py`, and
+  `tests/experiments/test_bnci2014_009_features.py`.
+- Smoke artifact: `artifacts/experiments/bnci2014_009/stage3_adapter_smoke.json`.
+- ERP adapter: `build_erp_feature_matrix(...)` emits immutable label-free rows aligned to dataset
+  sample keys. Default Stage 3 features combine decimated waveform samples at stride 4 with
+  mean-amplitude windows `[0.0, 0.2)`, `[0.2, 0.4)`, `[0.4, 0.6)`, and `[0.6, 0.8)`.
+- xDAWN/Riemannian adapter: `fit_transform_xdawn_tangent_space(...)` explicitly accepts
+  `X_train`, `y_train`, and `X_apply`, uses `pyriemann.estimation.XdawnCovariances` plus
+  `pyriemann.tangentspace.TangentSpace`, and is intended to be called only inside Stage 4 train
+  folds.
+- Real subject-1 smoke: ERP features over `(1728, 16, 206)` epochs produced shape `(1728, 896)`,
+  52 waveform time points, and 4 window-mean blocks, all finite.
+- Real subject-1 xDAWN/tangent smoke: sessions `0` and `1` were the fit side and session `2` was
+  the apply side; with `n_filters=2`, OAS covariance estimation, and Riemannian tangent mapping,
+  covariance shapes were `(1152, 8, 8)` and `(576, 8, 8)`, and tangent feature shapes were
+  `(1152, 36)` and `(576, 36)`, all finite.
+- Verification: `uv run pytest tests/experiments/test_bnci2014_009_data.py
+  tests/experiments/test_bnci2014_009_features.py` passed with 9 tests; `uv run ruff check .` and
+  `git diff --check` passed.
+
+## 2026-06-22 - BNCI2014_009 Stage 4 classical benchmark sweep
+
+- Scope: approved Stage 4 full-corpus classical benchmark on BNCI2014_009 with 17,280 MOABB P300
+  epochs, 10 leave-one-subject-out folds, and binary classes `Target` and `NonTarget`.
+- Artifact: `artifacts/experiments/bnci2014_009/classical-sweep/7b7a88206dd8d8a5/`.
+- Run hash: `7b7a88206dd8d8a5`; classical baseline version `3`.
+- Artifact payloads: `config.json`, `environment.json`, `split.json`, `evaluation.json`,
+  `predictions.json`, and `manifest.json`.
+- Models: `dummy-prior`, `erp-lda`, `erp-logreg`, `erp-linear-svm`, `erp-ridge`,
+  `xdawn-tangent-lda`, and `xdawn-tangent-logreg`.
+- ERP features: label-free decimated waveform stride 4 plus four mean-amplitude windows; scalers
+  and classifiers are fitted independently inside each train fold.
+- xDAWN/tangent models: xDAWN covariance and tangent-space transforms are fitted independently
+  inside each train fold before applying to held-out subject epochs.
+- Metrics: primary balanced accuracy; secondary macro F1, target recall, non-target recall,
+  confusion matrix, ROC-AUC, and PR-AUC using `Target` as the positive class.
+- Mean balanced accuracy by variant: `dummy-prior` `0.5`, `erp-lda` `0.6917708333333333`,
+  `erp-logreg` `0.7640624999999999`, `erp-linear-svm` `0.7284027777777778`, `erp-ridge`
+  `0.7605555555555557`, `xdawn-tangent-lda` `0.6532986111111111`, and
+  `xdawn-tangent-logreg` `0.7554861111111111`.
+- Best variant: `erp-logreg`, mean balanced accuracy `0.7640624999999999`, std
+  `0.058843103679993326`, mean macro F1 `0.7112603744390309`, mean target recall
+  `0.7003472222222222`, mean ROC-AUC `0.8506896219135804`, and mean PR-AUC
+  `0.5940665572712607`.
+- Other strong variants: `erp-ridge` with mean balanced accuracy `0.7605555555555557` and
+  `xdawn-tangent-logreg` with `0.7554861111111111`.
+- Operational note: two full-corpus attempts with sklearn `LinearSVC`/liblinear were interrupted
+  during `erp-linear-svm` for excessive runtime. The accepted run uses deterministic
+  `SGDClassifier(loss="hinge")` as the linear SVM-style baseline and records that behavior through
+  baseline version `3`.
+- Verification: `uv run pytest tests/experiments/test_bnci2014_009_data.py
+  tests/experiments/test_bnci2014_009_features.py
+  tests/experiments/test_bnci2014_009_classical.py` passed with 12 tests; `uv run ruff check .`,
+  `validate_classical_manifest(...)`, and `git diff --check` passed.
+
+## 2026-06-23 - BNCI2014_009 Stage 5 raw ERP deep-learning benchmark
+
+- Scope: approved Stage 5 full-corpus raw ERP deep-learning benchmark on BNCI2014_009 with 17,280
+  MOABB P300 epochs, 10 leave-one-subject-out folds, and binary classes `Target` and `NonTarget`.
+- Artifact: `artifacts/experiments/bnci2014_009/raw-erp-torch/7afe116a224e20e2/`.
+- Run hash: `7afe116a224e20e2`; raw Torch benchmark version `1`.
+- Code deliverables: `experiments/bnci2014_009/torch_raw.py`, updated package config/exports,
+  updated `confs/experiments/bnci2014_009.yaml`, and
+  `tests/experiments/test_bnci2014_009_torch_raw.py`.
+- Tensor contract: raw ERP tensors are `(epoch, 1, channel, time)` with default full-corpus shape
+  `(17280, 1, 16, 206)`. The `raw-cnn` model is a small direct CNN baseline; EEGNet, DeepConvNet,
+  and ShallowConvNet reuse the existing PyTorch backbone factory through the same tensor geometry.
+- Leakage controls: for every LOSO fold, validation is selected only from training subjects,
+  standardization and balanced class weights are fitted only on the train-fit partition, and
+  held-out probabilities are computed only after training.
+- Artifact payloads: `config.json`, `environment.json`, `evaluation.json`, `training.json`,
+  `comparison.json`, `manifest.json`, and NumPy arrays for test indices, labels, predictions, and
+  class probabilities.
+- Mean balanced accuracy by variant: `raw-cnn-raw-erp` `0.5795138888888889`,
+  `eegnet-raw-erp` `0.5494791666666666`, `deep-convnet-raw-erp` `0.6161458333333332`, and
+  `shallow-convnet-raw-erp` `0.5582986111111111`.
+- Best variant: `deep-convnet-raw-erp`, mean balanced accuracy `0.6161458333333332`, std
+  `0.061481330050920734`, mean macro F1 `0.5559368366368703`, mean target recall
+  `0.4993055555555556`, mean ROC-AUC `0.685292365933642`, and mean PR-AUC
+  `0.3479235240221919`.
+- Classical comparison: the best raw ERP deep model remains below Stage 4 `erp-logreg`
+  (`0.7640624999999999`) by about `0.1479166666666667` balanced-accuracy points.
+- Operational note: the run is intentionally compact and untuned with one seed, fixed architecture
+  settings, max 8 epochs, early stopping patience 3, batch size 512, AdamW, and balanced
+  cross-entropy. It should be interpreted as a baseline, not optimized neural P300 performance.
+- Verification: real 3-subject `raw-cnn`/`eegnet` smoke completed under `/tmp`; focused BNCI2014_009
+  tests passed with 18 tests; `uv run ruff check .`, full-corpus
+  `execute_raw_torch_benchmark(load_bnci009_config(), reuse_existing=True)`,
+  `validate_raw_torch_manifest(...)`, `uv run pytest` with 472 passed and 2 pre-existing
+  multiprocessing warnings, and `git diff --check` passed.
+
+## 2026-06-23 - BNCI2014_009 Stage 6 FFT spectral deep-learning benchmark
+
+- Scope: approved Stage 6 exploratory spectral benchmark on BNCI2014_009 with 17,280 MOABB P300
+  epochs, 10 leave-one-subject-out folds, and binary classes `Target` and `NonTarget`.
+- Artifact: `artifacts/experiments/bnci2014_009/spectral-torch/8d4c3434245e4841/`.
+- Run hash: `8d4c3434245e4841`; spectral Torch benchmark version `1`.
+- Code deliverables: `experiments/bnci2014_009/torch_spectral.py`, updated package config/exports,
+  updated `confs/experiments/bnci2014_009.yaml`, and
+  `tests/experiments/test_bnci2014_009_torch_spectral.py`.
+- Tensor contract: FFT log-power tensors are `(epoch, 1, channel, frequency)` with default
+  full-corpus shape `(17280, 1, 16, 39)`. The frequency grid is the existing project FFT
+  preprocessing grid, `2-40 Hz` at `1 Hz` resolution after resampling to `125 Hz`.
+- Leakage controls: for every LOSO fold, validation is selected only from training subjects,
+  standardization and balanced class weights are fitted only on the train-fit partition, and
+  held-out probabilities are computed only after training.
+- Deferred methods: `morlet`, `superlet`, and `stft` are recorded in `comparison.json` as deferred
+  because the current project time-frequency contracts were designed for longer epochs. A
+  P300-specific time-frequency tensor contract should be validated separately before training those
+  variants.
+- Artifact payloads: `config.json`, `environment.json`, `evaluation.json`, `training.json`,
+  `comparison.json`, `manifest.json`, and NumPy arrays for test indices, labels, predictions, and
+  class probabilities.
+- Stage 5 split alignment: `comparison.json` reports `matches_raw_test_indices=true`; raw and
+  spectral test-index SHA-256 values both equal
+  `a2b36f104aa15d719eede70d3ab72a36ef9c792681d8887f42e4f40177dbc3f8`.
+- Mean balanced accuracy by variant: `eegnet-fft-spectral` `0.5526736111111111`,
+  `deep-convnet-fft-spectral` `0.5504166666666668`, and `shallow-convnet-fft-spectral`
+  `0.5394097222222223`.
+- Best variant: `eegnet-fft-spectral`, mean balanced accuracy `0.5526736111111111`, std
+  `0.0452594676891947`, mean macro F1 `0.5406197169007092`, mean target recall
+  `0.19722222222222224`, mean ROC-AUC `0.5973115596064814`, and mean PR-AUC
+  `0.26806648174991377`.
+- Comparison: the best FFT spectral model remains below Stage 5 `deep-convnet-raw-erp`
+  (`0.6161458333333332`) by about `0.06347222222222215` balanced-accuracy points and below Stage 4
+  `erp-logreg` (`0.7640624999999999`) by about `0.2113888888888888`.
+- Operational note: the run is intentionally compact and untuned with one seed, fixed architecture
+  settings, max 8 epochs, early stopping patience 3, batch size 512, AdamW, and balanced
+  cross-entropy. It should be interpreted as an exploratory spectral check, not optimized neural
+  P300 performance.
+- Verification: real 3-subject `eegnet-fft` smoke completed under `/tmp`; focused BNCI2014_009
+  tests passed with 21 tests; `uv run ruff check .`, full-corpus
+  `execute_spectral_torch_benchmark(load_bnci009_config(), reuse_existing=True)`,
+  `validate_spectral_torch_manifest(...)`, `uv run pytest` with 475 passed and 2 pre-existing
+  multiprocessing warnings, and `git diff --check` passed.
+
+## 2026-06-23 - BNCI2014_009 Stage 7 final benchmark notebook
+
+- Scope: approved Stage 7 final read-only notebook/report over the Stage 1, Stage 4, Stage 5, and
+  Stage 6 BNCI2014_009 artifacts. No model training, refitting, or artifact mutation beyond the
+  Stage 7 summary JSON was performed.
+- Notebook: executed `notebooks/7.3-bnci2014-009-benchmark.ipynb` top-to-bottom with marker
+  `BNCI2014_009_BENCHMARK_VERIFIED`.
+- Summary artifact: `artifacts/experiments/bnci2014_009/stage7_benchmark_summary.json`.
+- Validation test: `tests/test_bnci2014_009_benchmark_notebook.py`.
+- Contract checks: class order `Target`, `NonTarget`; 10 LOSO folds; 17,280 total epochs; 1,728
+  test epochs per subject; 288 target and 1,440 non-target test epochs per fold; Stage 5 raw and
+  Stage 6 spectral test-index alignment.
+- Final ranking: best overall `erp-logreg`, mean balanced accuracy `0.7640624999999999`, std
+  `0.058843103679993326`, mean target recall `0.7003472222222222`, mean ROC-AUC
+  `0.8506896219135804`, and mean PR-AUC `0.5940665572712607`.
+- Best raw ERP deep model: `deep-convnet-raw-erp`, mean balanced accuracy
+  `0.6161458333333332`, which is `0.1479166666666667` below `erp-logreg`.
+- Best FFT spectral deep model: `eegnet-fft-spectral`, mean balanced accuracy
+  `0.5526736111111111`, which is `0.21138888888888874` below `erp-logreg` and
+  `0.06347222222222204` below the best raw ERP deep model.
+- Interpretation: the BNCI2014_009 pipeline is reproducible end to end for the planned classical,
+  raw ERP deep, and exploratory FFT spectral model families. Classical ERP Logistic Regression is
+  the strongest completed benchmark; neural results should be framed as compact untuned exploratory
+  baselines.
+- Limitations: the report is single-epoch P300 target detection, not character-level spelling
+  reconstruction; Morlet, Superlet, and STFT remain deferred pending a P300-specific
+  time-frequency tensor contract.
+- Verification: focused BNCI2014_009 tests plus notebook validation passed with 22 tests;
+  `uv run ruff check .`, executed notebook marker check, summary JSON parse check,
+  `uv run pytest` with 476 passed and 2 pre-existing multiprocessing warnings, and
+  `git diff --check` passed.
