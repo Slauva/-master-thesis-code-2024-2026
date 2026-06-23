@@ -2,6 +2,202 @@
 
 ## Current Focus
 
+Full imagery model-feature sweep staged plan:
+
+- Approved plan saved at `.codex/memory-bank/plans/2026-06-23-full-imagery-model-feature-sweep.md`.
+- Status: completed on 2026-06-24 after Stage 6 final memory handoff.
+- Scope: run the project 6x6 binary imagery reconstruction task on the full `Data_Pattern/patt`
+  corpus, including both `geometric` and `random` samples, across every available model and
+  feature-family combination with leakage-aware cross-subject and bidirectional cross-trial
+  protocols.
+- Full-corpus contract: 540 `Data_Pattern/patt` rows, including 360 `geometric` and 180 `random`,
+  spanning 33 subjects and 60 subject-trial pairs. Deterministic geometric pattern repeats are
+  allowed as repeated task labels and tracked via `overlapping_geometric_pattern_ids`; random image
+  fingerprint overlap, random seed overlap, sample-key overlap, and protocol-boundary violations
+  remain forbidden leakage.
+- Stage 1 completed the mixed geometric/random target contract and wrote
+  `artifacts/experiments/full-imagery/stage1_full_dataset_audit.json` with
+  `stage1_status="ready"`, no forbidden leakage, zero random image overlaps, and 13 expected
+  repeated geometric pattern IDs `0`-`12`.
+- Stage 2 completed the fixed classical matrix planner in `experiments/random_imagery/matrix.py`.
+  The matrix enumerates 10 model IDs x 9 feature families x 2 protocols = 180 protocol specs and
+  270 expected direction runs. Every spec sets `dataset.pattern_type=null`, exactly one
+  `feature_screening.candidates` value, and an artifact root under
+  `artifacts/experiments/full-imagery/classical/<model_id>/<feature_slug>/`.
+- Stage 3 deliverables: `execute_classical_matrix_sweep(...)`,
+  `random-imagery-models matrix-run`, summary artifact
+  `artifacts/experiments/full-imagery/stage3_classical_matrix_summary.json`, failure log
+  `artifacts/experiments/full-imagery/stage3_classical_matrix_failures.json`, and immutable
+  classical run directories under `artifacts/experiments/full-imagery/classical/`.
+- Stage 3 result: 167/180 protocol specs completed; 249 direction run directories were safely
+  reloaded and validated; schema counts were 27 schema-v2 Logistic Regression directories and 222
+  schema-v3 model directories.
+- Stage 3 explicit failures: 13 protocol specs are convergence-blocked and logged rather than
+  omitted: 5 `linear-svm-independent`, 6 `elastic-net-independent`, and 2
+  `elastic-net-multioutput` failures, concentrated on `time`, `spectral`, `time+spectral`,
+  `covariance`, and one `correlation` within-subject SVM case.
+- Stage 3 verification: safe artifact reload for all 249 completed direction runs passed;
+  `uv run ruff check .` passed; `uv run pytest` passed with 501 tests and 2 pre-existing
+  multiprocessing warnings; `git diff --check` passed.
+- Stage 3 approved by the user on 2026-06-23.
+- Stage 4 deliverables: `experiments/random_imagery_torch/matrix.py`,
+  `random-imagery-torch matrix-plan`, `random-imagery-torch matrix-run`, mixed
+  geometric/random support in `CropSpectralDataset`, summary artifact
+  `artifacts/experiments/full-imagery/stage4_torch_matrix_summary.json`, failure log
+  `artifacts/experiments/full-imagery/stage4_torch_matrix_failures.json`, and immutable Torch run
+  directories under `artifacts/experiments/full-imagery/torch/`.
+- Stage 4 result: all 24 planned Torch protocol specs completed, all 36 expected direction run
+  directories were safely reloaded and validated, and failure count is zero. A reuse pass over the
+  complete expected set succeeded with all specs reused.
+- Stage 4 runtime notes: immutable `training.json` files report about 5114.05 total training
+  seconds over 36 direction fits, with per-direction training seconds min `26.42`, median `123.86`,
+  and max `832.04`. The first full-corpus Superlet run dominated wall time because it materialized
+  much of the Superlet spectral cache.
+- Stage 4 descriptive leaders: best cross-subject mean balanced accuracy in the current Torch
+  summary is `eegnet-stft-multilabel` at `0.525845`; best within-subject combined mean balanced
+  accuracy is `deep-convnet-superlet-multilabel` at `0.509403`.
+- Stage 4 verification: focused Torch matrix/input/workflow tests passed with 18 tests; safe
+  artifact reload validated all 36 direction runs; `random-imagery-torch matrix-run --json`
+  succeeded as a reuse pass; `uv run ruff check .` passed; full `uv run pytest` passed with 508
+  tests and 2 pre-existing multiprocessing warnings; `git diff --check` passed.
+- Stage 4 limitation: the summary file reflects the final reuse-validation pass, so matrix
+  `duration_seconds` values are reuse validation durations; actual training times remain in each
+  immutable run's `training.json`.
+- Stage 4 approved by the user on 2026-06-24.
+- Stage 5 deliverables: `experiments/random_imagery/full_sweep_comparison.py`,
+  `notebooks/6.2-full-imagery-model-feature-sweep.ipynb`, summary artifact
+  `artifacts/experiments/full-imagery/stage5_comparison_summary.json`, six PNG figures under
+  `artifacts/experiments/full-imagery/stage5_figures/`, and focused comparison/notebook tests.
+- Stage 5 result: 191 completed learned protocol conditions were compared, split into 97
+  cross-subject and 94 within-subject conditions. Completed direction runs total 285, and all
+  completed conditions were paired-compatible with the protocol reference split by ordered test
+  sample keys, targets, and subject IDs.
+- Stage 5 descriptive leaders: cross-subject top condition is
+  `torch:eegnet-stft-multilabel:stft:cross-subject` with mean balanced accuracy `0.525845`,
+  pointwise paired delta `+0.036915` versus `logistic-regression-independent/lbp`; within-subject
+  top condition is `classical:pls-regression-multioutput:lgp:within-subject` with mean balanced
+  accuracy `0.511556`, pointwise paired delta `+0.015269` versus
+  `logistic-regression-independent/lbp`.
+- Stage 5 caveat: paired intervals are subject-clustered but pointwise and not
+  multiplicity-adjusted; near-chance balanced accuracy remains the core interpretation constraint;
+  cross-subject and within-subject scores must not be averaged.
+- Stage 5 verification: notebook execution passed with
+  `FULL_IMAGERY_SWEEP_COMPARISON_VERIFIED`; focused Stage 5 tests passed with 4 tests;
+  `uv run ruff check .` passed; full `uv run pytest` passed with 512 tests and 2 pre-existing
+  multiprocessing warnings; `git diff --check` passed.
+- Stage 6 final handoff: plan marked completed; primary thesis-use artifacts are
+  `notebooks/6.2-full-imagery-model-feature-sweep.ipynb`,
+  `artifacts/experiments/full-imagery/stage5_comparison_summary.json`, and figures under
+  `artifacts/experiments/full-imagery/stage5_figures/`.
+- Thesis-use guidance: use Stage 5 as the authoritative comparison layer; do not average
+  cross-subject and within-subject protocols; describe the paired intervals as pointwise and
+  exploratory unless a later multiplicity strategy is added; emphasize weak near-chance effects
+  and leakage-aware reproducibility over definitive model superiority.
+- Final Stage 6 verification: `git diff --check` passed and static conflict-marker/placeholder
+  checks over touched memory and Stage 5 files passed.
+- Next action: no further action remains for this full-imagery sweep plan unless the user requests
+  a revision, export, manuscript/table integration, or new experiment.
+
+Thesis defense presentation staged plan:
+
+- Approved plan saved at `.codex/memory-bank/plans/2026-06-23-thesis-defense-presentation.md`.
+- Current stage: Stage 5, Build, Layout QA, And Rehearsal Packet, awaiting review after implementation and
+  verification on 2026-06-23.
+- Scope: create a Russian thesis defense presentation for the master thesis on
+  reconstructing 6x6 binary visual stimuli from multichannel EEG, with a strict
+  leakage-aware evaluation narrative, honest near-chance result framing, reuse of existing
+  thesis figures, and a final buildable PDF.
+- Constraints: do not start Stage 1 until the user explicitly asks to proceed; do not run
+  new ML experiments; do not change the thesis text as part of this plan unless separately
+  approved; do not present BNCI2014-001/009 as direct external validation of the same
+  reconstruction task.
+- Stage 1 deliverable: `../notes/thesis-defense-presentation-outline.md`, a 12-slide
+  defense outline with narrative arc, key facts, assumptions, open questions,
+  slide-by-slide talking points, visual candidates, numeric claims, and source references.
+- Stage 1 verification: `rg` confirmed the key quantitative claims are present in the
+  thesis/review sources; `rg` found no unwanted internal markers in the outline; static
+  whitespace/conflict-marker checks passed; `git -C code diff --check` passed for the
+  code memory-bank files.
+- Stage 1 approved by the user on 2026-06-23.
+- Stage 2 deliverables: `../latex/presentation.tex`,
+  `../notes/thesis-defense-visual-inventory.md`, and
+  `../latex/output/presentation.pdf`.
+- Stage 2 verification: all referenced images exist; Docker/latexmk built the 12-page
+  16:9 PDF; `pdftotext` confirmed extractable Russian text; log search found no LaTeX
+  errors, missing image files, undefined references, overfull/underfull boxes, fatal
+  errors, or emergency stops; rendered previews for slides 1, 6, 9, and 10 were visually
+  inspected; `git -C latex diff --check -- presentation.tex` and static
+  whitespace/conflict-marker checks passed.
+- Stage 2 known limitation: the deck is a skeleton and still needs content polishing in
+  Stage 3/4; the log contains a non-fatal T2A sans-serif bold font substitution warning.
+- Stage 2 approved by the user on 2026-06-23.
+- Stage 3 deliverables: revised `../latex/presentation.tex` slides 2-8 with fuller
+  core thesis content and rebuilt `../latex/output/presentation.pdf`.
+- Stage 3 verification: slide claims were compared against introduction, methodology,
+  and experiments chapters; source support was verified for the main methodology/setup
+  numbers and model families; Docker/latexmk rebuilt the 12-page PDF; `pdftotext`
+  confirmed extractable Russian text; log search found no LaTeX errors, missing images,
+  undefined references, overfull/underfull boxes, fatal errors, or emergency stops;
+  stale internal-term search passed except for `experiment_pipeline.pdf` as an image
+  filename; rendered previews for slides 5-8 were visually inspected; `git -C latex
+  diff --check -- presentation.tex` and static whitespace/conflict-marker checks passed.
+- Stage 3 known limitation: Stage 4 still needs to polish result, limitation, BNCI, and
+  conclusion framing; the log still contains a non-fatal T2A sans-serif bold font
+  substitution warning.
+- Stage 3 approved by the user on 2026-06-23.
+- Stage 4 deliverables: revised `../latex/presentation.tex` slides 9-12 with careful
+  result framing, reconstruction examples, BNCI2014-001/009 contour checks, limitations,
+  conclusion, and future-work framing; rebuilt `../latex/output/presentation.pdf`.
+- Stage 4 verification: Stage 4 numerical claims were checked against experiments and
+  conclusion chapters; Docker/latexmk rebuilt the 12-page PDF; `pdfinfo` confirmed 12
+  pages and 16:9 page size; `pdftotext` confirmed extractable result/BNCI/conclusion
+  text; log search found no LaTeX errors, missing images, undefined references,
+  overfull/underfull boxes, fatal errors, or emergency stops; rendered previews for
+  slides 9-12 were visually inspected; stale internal-term search passed except for
+  `experiment_pipeline.pdf` as an image filename; `git -C latex diff --check --
+  presentation.tex` and static whitespace/conflict-marker checks passed.
+- Stage 4 known limitation: Stage 5 still needs final whole-deck QA and optional speaking
+  bullets; the log still contains a non-fatal T2A sans-serif bold font substitution
+  warning.
+- Stage 4 approved by the user on 2026-06-23.
+- Stage 5 deliverables: final rebuilt deck at `../latex/output/presentation.pdf`,
+  compact speaking/rehearsal bullets at `../notes/thesis-defense-speaking-bullets.md`,
+  and updated memory-bank files.
+- Stage 5 verification: final Docker/latexmk build reported the presentation target was
+  up to date; `pdfinfo` confirmed 12 pages and 16:9 page size; `pdftotext` confirmed all
+  12 slide titles are extractable; log search found no LaTeX errors, missing images,
+  undefined references, overfull/underfull boxes, fatal errors, or emergency stops; all
+  `\includegraphics` assets exist; all 12 slides were rendered to PNG and visually
+  inspected; stale internal-term search passed except for `experiment_pipeline.pdf` as an
+  image filename; `git -C latex diff --check -- presentation.tex`, `git -C code diff
+  --check`, and static whitespace/conflict-marker checks passed.
+- Stage 5 review revision: user requested a rework of slide 12; the final slide was
+  replaced with a defense-oriented conclusion covering what was done, what the data
+  showed, why the result matters, future work, and a final takeaway. The deck was rebuilt,
+  the new slide 12 was visually inspected, speaking bullets were updated, and log search
+  found no LaTeX errors, missing images, undefined references, overfull/underfull boxes,
+  fatal errors, or emergency stops after the revision.
+- Stage 5 script revision: user requested a 20-minute defense text. Created
+  `../notes/thesis-defense-20min-script.md`, a 2448-word Russian script aligned to the
+  then-current 12-slide deck, with a timing table, slide-by-slide speech text, and a
+  compact final phrase. Verified key numerical claims and checked for stale internal terms,
+  placeholders, trailing whitespace, and conflict markers.
+- Stage 5 content/language revision: user requested Russian proofreading, a broader
+  introduction, clearer problematics, and more detailed methodology. Revised
+  `../latex/presentation.tex`, expanded the deck to 15 slides, reused
+  `eeg_rhythms_frequency_bands.png`, added a literature-methodology problem slide, split
+  methodology into signal representations and concrete model/training settings, rebuilt
+  `../latex/output/presentation.pdf`, and verified clean LaTeX log/diff/static checks.
+  `pdfinfo` reports 15 pages; revised context, problematics, dataset, and methodology
+  slides were visually inspected. Also updated `../notes/thesis-defense-20min-script.md`
+  to align with the 15-slide deck; `wc -w` reports 2321 words, and stale-term/static
+  checks passed.
+- Stage 5 known limitation: the build log still contains a non-fatal T2A sans-serif bold
+  font substitution warning; ImageMagick `montage` was unavailable, so visual QA used
+  individually rendered PNG previews instead of a contact sheet.
+- Next action after user approval: mark Stage 5 completed and set the thesis defense
+  presentation staged plan to complete. Do not proceed without explicit approval.
+
 BNCI2014_009 P300 benchmark staged plan:
 
 - Approved plan saved at `.codex/memory-bank/plans/2026-06-22-bnci2014-009-p300-benchmark.md`.

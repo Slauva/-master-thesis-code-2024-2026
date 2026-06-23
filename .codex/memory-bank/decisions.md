@@ -1,5 +1,43 @@
 # Decisions
 
+## 2026-06-24
+
+- Treat `notebooks/6.2-full-imagery-model-feature-sweep.ipynb` and
+  `artifacts/experiments/full-imagery/stage5_comparison_summary.json` as the authoritative
+  comparison layer for the full `geometric+random` imagery sweep. Intermediate Stage 3/4 summaries
+  remain execution evidence, not the final comparison report.
+- Keep cross-subject and within-subject full-imagery results separate in thesis reporting. Do not
+  average them into a single headline score because they answer different generalization questions.
+- Interpret Stage 5 paired subject-cluster bootstrap intervals as exploratory pointwise intervals
+  unless a later multiplicity-adjusted analysis is explicitly added.
+- Frame the full-imagery sweep as weak near-chance evidence with leakage-aware reproducibility,
+  explicit convergence failures, and paired uncertainty, not as definitive model superiority.
+
+## 2026-06-23
+
+- For the full `Data_Pattern/patt` imagery sweep, allow repeated deterministic `geometric`
+  pattern payloads as repeated task labels/provenance. Continue to treat sample-key overlap,
+  subject/protocol violations, random-seed overlap, and random image fingerprint overlap as
+  forbidden leakage.
+- Track full image fingerprint overlaps diagnostically, split out forbidden random-image overlaps
+  as `overlapping_random_image_fingerprints`, and track expected deterministic geometric repeats as
+  `overlapping_geometric_pattern_ids`.
+- Enumerate the full classical imagery sweep as fixed `model_id x feature_family x protocol`
+  protocol specs. Each planned run must set exactly one `feature_screening.candidates` entry and
+  `dataset.pattern_type=null` for full `geometric+random` targets.
+- Use `random-imagery-models matrix-plan` as the Stage 2 enumeration bridge for the classical
+  sweep. It emits 180 protocol specs and 270 expected direction runs without executing model
+  training.
+- Treat full-matrix execution failures as explicit protocol outcomes. `random-imagery-models
+  matrix-run` writes a failure log and exits nonzero when any combination fails, instead of
+  silently omitting convergence-blocked SVM/ElasticNet runs or changing solver policy mid-sweep.
+- Extend the same full `geometric+random` contract to Torch spectral inputs. `CropSpectralDataset`
+  may receive `dataset_pattern_type=None` for full-corpus runs while still requiring `patt` records,
+  preserving sample keys, and fitting spectral normalization only on training rows.
+- Enumerate the full Torch imagery sweep as fixed `model_id x protocol` specs over the primary
+  architecture/method matrix. `random-imagery-torch matrix-run` writes a summary and failure log,
+  exits nonzero on failures, and supports a reuse pass over the complete immutable run set.
+
 ## 2026-06-10
 
 - Store project operating instructions in `Agent.md`.

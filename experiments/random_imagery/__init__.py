@@ -115,6 +115,10 @@ _LAZY_EXPORTS = {
         "experiments.random_imagery.artifacts",
         "LoadedModelRun",
     ),
+    "MatrixRunSpec": (
+        "experiments.random_imagery.matrix",
+        "MatrixRunSpec",
+    ),
     "LogisticRegressionBackend": (
         "experiments.random_imagery.logistic_backend",
         "LogisticRegressionBackend",
@@ -202,6 +206,18 @@ _LAZY_EXPORTS = {
     "build_model_backend": (
         "experiments.random_imagery.backends",
         "build_model_backend",
+    ),
+    "build_classical_matrix_plan": (
+        "experiments.random_imagery.matrix",
+        "build_classical_matrix_plan",
+    ),
+    "build_matrix_plan_payload": (
+        "experiments.random_imagery.matrix",
+        "build_matrix_plan_payload",
+    ),
+    "execute_classical_matrix_sweep": (
+        "experiments.random_imagery.matrix",
+        "execute_classical_matrix_sweep",
     ),
     "build_random_imagery_targets": (
         "experiments.random_imagery.shared",
@@ -316,6 +332,7 @@ __all__ = [
     "LinearSVMGridSearchConfig",
     "LoadedModelRun",
     "LogisticRegressionBackend",
+    "MatrixRunSpec",
     "ModelPrediction",
     "ModelProtocolWorkflowResult",
     "ModelSpec",
@@ -354,6 +371,9 @@ __all__ = [
     "build_random_imagery_targets",
     "evaluate_prediction_matrix",
     "compare_runs",
+    "build_classical_matrix_plan",
+    "build_matrix_plan_payload",
+    "execute_classical_matrix_sweep",
     "execute_model_protocol",
     "fit_calibrated_pixel_classifiers",
     "fit_independent_regression_models",

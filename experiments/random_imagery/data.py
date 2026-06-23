@@ -2,6 +2,7 @@
 
 import hashlib
 from collections.abc import Sequence
+from typing import Literal
 
 import numpy as np
 from sklearn.model_selection import GroupShuffleSplit
@@ -16,7 +17,10 @@ from experiments.logistic_regression.schemas import (
     SubjectSplit,
 )
 from experiments.random_imagery.config import SubjectSplitConfig
-from utils.datasets.schemas import RandomSample, Sample
+from utils.datasets.schemas import GeometricSample, RandomSample, Sample
+
+TargetSampleType = Literal["geometric", "random"]
+_NO_RANDOM_SEED = -1
 
 
 def build_random_imagery_targets(
@@ -24,33 +28,48 @@ def build_random_imagery_targets(
     *,
     image_rows: int = 6,
     image_columns: int = 6,
+    allowed_sample_types: tuple[TargetSampleType, ...] = ("random",),
 ) -> PixelTargetDataset:
     if not samples:
-        raise ValueError("At least one random imagery sample is required")
+        raise ValueError("At least one imagery sample is required")
     if image_rows < 1 or image_columns < 1:
         raise ValueError("Image dimensions must be positive")
+    if not allowed_sample_types:
+        raise ValueError("At least one target sample type must be allowed")
+    if len(set(allowed_sample_types)) != len(allowed_sample_types):
+        raise ValueError("Allowed target sample types must be unique")
 
     ordered = sorted(samples, key=lambda sample: (sample.subject_id, sample.trial_number, sample.block_index))
     images: list[np.ndarray] = []
     sample_keys: list[tuple[int, int, int]] = []
     seeds: list[int] = []
+    sample_types: list[str] = []
+    pattern_ids: list[int] = []
     fingerprints: list[str] = []
     for sample in ordered:
-        if not isinstance(sample, RandomSample):
-            raise TypeError("Pixel reconstruction targets require only RandomSample records")
+        if sample.type not in allowed_sample_types:
+            if allowed_sample_types == ("random",):
+                raise TypeError("Pixel reconstruction targets require only RandomSample records")
+            allowed = ", ".join(allowed_sample_types)
+            raise TypeError(
+                f"Pixel reconstruction target sample type {sample.type!r} is not allowed; "
+                f"expected one of: {allowed}"
+            )
         image = np.asarray(sample.img)
         if image.shape != (image_rows, image_columns):
             raise ValueError(
-                f"Random image for subject={sample.subject_id}, trial={sample.trial_number}, "
+                f"Image for subject={sample.subject_id}, trial={sample.trial_number}, "
                 f"block={sample.block_index} has shape {image.shape}, expected "
                 f"({image_rows}, {image_columns})"
             )
         if not np.isin(image, (0, 1)).all():
-            raise ValueError("Random imagery targets must contain only zero and one")
+            raise ValueError("Imagery targets must contain only zero and one")
         image = np.asarray(image, dtype=np.int8)
         images.append(image.reshape(-1))
         sample_keys.append((sample.subject_id, sample.trial_number, sample.block_index))
-        seeds.append(sample.seed)
+        seeds.append(sample.seed if isinstance(sample, RandomSample) else _NO_RANDOM_SEED)
+        sample_types.append(sample.type)
+        pattern_ids.append(sample.pattern_id if isinstance(sample, GeometricSample) else -1)
         fingerprints.append(hashlib.sha256(np.ascontiguousarray(image).tobytes()).hexdigest())
 
     y = np.stack(images).astype(np.int8, copy=False)
@@ -58,7 +77,8 @@ def build_random_imagery_targets(
     trial_numbers = np.asarray([key[1] for key in sample_keys], dtype=np.int64)
     block_indices = np.asarray([key[2] for key in sample_keys], dtype=np.int64)
     seed_array = np.asarray(seeds, dtype=np.int64)
-    for array in (y, subject_ids, trial_numbers, block_indices, seed_array):
+    pattern_id_array = np.asarray(pattern_ids, dtype=np.int64)
+    for array in (y, subject_ids, trial_numbers, block_indices, seed_array, pattern_id_array):
         array.setflags(write=False)
 
     pixel_names = tuple(
@@ -75,6 +95,8 @@ def build_random_imagery_targets(
         block_indices=block_indices,
         seeds=seed_array,
         image_fingerprints=tuple(fingerprints),
+        sample_types=tuple(sample_types),
+        pattern_ids=pattern_id_array,
     )
 
 
@@ -121,8 +143,21 @@ def audit_subject_split(
     test_keys = {targets.sample_keys[int(index)] for index in test}
     train_fingerprints = {targets.image_fingerprints[int(index)] for index in train}
     test_fingerprints = {targets.image_fingerprints[int(index)] for index in test}
-    train_seeds = {int(value) for value in targets.seeds[train]}
-    test_seeds = {int(value) for value in targets.seeds[test]}
+    train_seeds = _random_seed_set(targets.seeds[train])
+    test_seeds = _random_seed_set(targets.seeds[test])
+    overlapping_fingerprints = tuple(sorted(train_fingerprints & test_fingerprints))
+    overlapping_random_fingerprints = tuple(
+        sorted(
+            _image_fingerprint_set(targets, train, sample_type="random")
+            & _image_fingerprint_set(targets, test, sample_type="random")
+        )
+    )
+    overlapping_geometric_pattern_ids = tuple(
+        sorted(
+            _pattern_id_set(targets, train, sample_type="geometric")
+            & _pattern_id_set(targets, test, sample_type="geometric")
+        )
+    )
 
     train_positive_counts = targets.y[train].sum(axis=0, dtype=np.int64)
     test_positive_counts = targets.y[test].sum(axis=0, dtype=np.int64)
@@ -132,10 +167,12 @@ def audit_subject_split(
         overlapping_subjects=tuple(sorted(set(split.train_subjects) & set(split.test_subjects))),
         overlapping_sample_keys=tuple(sorted(train_keys & test_keys)),
         overlapping_seeds=tuple(sorted(train_seeds & test_seeds)),
-        overlapping_image_fingerprints=tuple(sorted(train_fingerprints & test_fingerprints)),
+        overlapping_image_fingerprints=overlapping_fingerprints,
         train_positive_counts=train_positive_counts,
         test_positive_counts=test_positive_counts,
         all_tasks_have_both_classes=bool(np.all(train_has_both & test_has_both)),
+        overlapping_random_image_fingerprints=overlapping_random_fingerprints,
+        overlapping_geometric_pattern_ids=overlapping_geometric_pattern_ids,
     )
 
 
@@ -318,14 +355,14 @@ def audit_evaluation_direction(
         overlapping_sample_keys=tuple(sorted(train_keys & test_keys)),
         overlapping_seeds=tuple(
             sorted(
-                {int(value) for value in targets.seeds[train]}
-                & {int(value) for value in targets.seeds[test]}
+                _random_seed_set(targets.seeds[train])
+                & _random_seed_set(targets.seeds[test])
             )
         ),
         overlapping_image_fingerprints=tuple(
             sorted(
-                {targets.image_fingerprints[int(index)] for index in train}
-                & {targets.image_fingerprints[int(index)] for index in test}
+                _image_fingerprint_set(targets, train)
+                & _image_fingerprint_set(targets, test)
             )
         ),
         overlapping_trial_numbers=overlapping_trials,
@@ -334,7 +371,51 @@ def audit_evaluation_direction(
         all_tasks_have_both_classes=bool(np.all(train_has_both & test_has_both)),
         subject_contract_satisfied=subject_contract_satisfied,
         trial_contract_satisfied=trial_contract_satisfied,
+        overlapping_random_image_fingerprints=tuple(
+            sorted(
+                _image_fingerprint_set(targets, train, sample_type="random")
+                & _image_fingerprint_set(targets, test, sample_type="random")
+            )
+        ),
+        overlapping_geometric_pattern_ids=tuple(
+            sorted(
+                _pattern_id_set(targets, train, sample_type="geometric")
+                & _pattern_id_set(targets, test, sample_type="geometric")
+            )
+        ),
     )
+
+
+def _random_seed_set(values: np.ndarray) -> set[int]:
+    return {int(value) for value in values if int(value) != _NO_RANDOM_SEED}
+
+
+def _image_fingerprint_set(
+    targets: PixelTargetDataset,
+    indices: np.ndarray,
+    *,
+    sample_type: TargetSampleType | None = None,
+) -> set[str]:
+    if sample_type is None:
+        return {targets.image_fingerprints[int(index)] for index in indices}
+    return {
+        targets.image_fingerprints[int(index)]
+        for index in indices
+        if targets.sample_types[int(index)] == sample_type
+    }
+
+
+def _pattern_id_set(
+    targets: PixelTargetDataset,
+    indices: np.ndarray,
+    *,
+    sample_type: TargetSampleType,
+) -> set[int]:
+    return {
+        int(targets.pattern_ids[int(index)])
+        for index in indices
+        if targets.sample_types[int(index)] == sample_type and int(targets.pattern_ids[int(index)]) >= 0
+    }
 
 
 def _validate_protocol_audit(

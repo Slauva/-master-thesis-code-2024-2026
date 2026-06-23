@@ -14,10 +14,16 @@ class DatasetSelectionConfig(BaseModel):
 
     dataset_dir: Path = Path("data/Data_Pattern")
     recording_family: Literal["patt"] = "patt"
-    pattern_type: Literal["random"] = "random"
+    pattern_type: Literal["geometric", "random"] | None = "random"
     image_rows: Literal[6] = 6
     image_columns: Literal[6] = 6
     feature_config_path: Path = Path("confs/features/default.yaml")
+
+    @property
+    def target_sample_types(self) -> tuple[Literal["geometric", "random"], ...]:
+        if self.pattern_type is None:
+            return ("geometric", "random")
+        return (self.pattern_type,)
 
 
 class SubjectSplitConfig(BaseModel):

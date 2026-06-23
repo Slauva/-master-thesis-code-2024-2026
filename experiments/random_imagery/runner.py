@@ -193,6 +193,7 @@ def _resolve_inputs(
         configured_dataset.samples,
         image_rows=config.dataset.image_rows,
         image_columns=config.dataset.image_columns,
+        allowed_sample_types=config.dataset.target_sample_types,
     )
     return configured_dataset, configured_targets
 

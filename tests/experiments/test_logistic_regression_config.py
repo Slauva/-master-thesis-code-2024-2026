@@ -71,6 +71,25 @@ def test_parses_dotted_omegaconf_overrides() -> None:
     assert config.artifacts.overwrite is False
 
 
+@pytest.mark.parametrize(
+    ("pattern_type", "expected_sample_types"),
+    [
+        ("geometric", ("geometric",)),
+        (None, ("geometric", "random")),
+    ],
+)
+def test_dataset_selection_accepts_full_imagery_pattern_modes(
+    pattern_type: str | None,
+    expected_sample_types: tuple[str, ...],
+) -> None:
+    config = load_logistic_regression_config(
+        overrides={"dataset": {"pattern_type": pattern_type}}
+    )
+
+    assert config.dataset.pattern_type == pattern_type
+    assert config.dataset.target_sample_types == expected_sample_types
+
+
 def test_rejects_invalid_dotted_override_syntax() -> None:
     with pytest.raises(ValueError, match="KEY=VALUE"):
         parse_dotted_overrides(("grid_search.n_jobs",))
@@ -80,7 +99,7 @@ def test_rejects_invalid_dotted_override_syntax() -> None:
     "overrides",
     [
         {"dataset": {"recording_family": "exec"}},
-        {"dataset": {"pattern_type": "geometric"}},
+        {"dataset": {"pattern_type": "checkerboard"}},
         {"split": {"test_size": 1.0}},
         {"split": {"group_by": "block"}},
         {"cross_validation": {"n_splits": 1}},

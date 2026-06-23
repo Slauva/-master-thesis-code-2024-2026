@@ -1,5 +1,174 @@
 # Experiments
 
+## 2026-06-24 - Full imagery Stage 5 comparison notebook and report
+
+- Code/report: `experiments/random_imagery/full_sweep_comparison.py`,
+  `notebooks/6.2-full-imagery-model-feature-sweep.ipynb`,
+  `tests/experiments/test_full_sweep_comparison.py`, and
+  `tests/test_full_imagery_sweep_comparison_notebook.py`.
+- Scope: comparison layer over completed Stage 3 classical and Stage 4 Torch full
+  `geometric+random` `Data_Pattern/patt` imagery reconstruction artifacts. The notebook never
+  averages cross-subject and within-subject protocols together.
+- Artifacts: summary JSON at
+  `artifacts/experiments/full-imagery/stage5_comparison_summary.json` and figures under
+  `artifacts/experiments/full-imagery/stage5_figures/`.
+- Coverage: 191 completed learned protocol conditions were compared: 97 cross-subject and 94
+  within-subject. Completed direction runs total 285, with 249 classical and 36 Torch direction
+  artifacts. The 13 classical convergence failures from Stage 3 remain explicit carried-forward
+  failures.
+- Pairing contract: every completed condition was compared only after validating identical ordered
+  test sample keys, targets, and subject IDs against the protocol reference
+  `logistic-regression-independent/lbp`. Paired uncertainty uses subject-cluster bootstrap draws
+  within protocol.
+- Descriptive cross-subject leader: `eegnet-stft-multilabel` with STFT input, mean balanced
+  accuracy `0.525845`, pointwise 95% subject-cluster interval `[0.497681, 0.556626]`, and paired
+  delta `+0.036915` versus `logistic-regression-independent/lbp` with pointwise interval
+  `[+0.005357, +0.067819]`.
+- Descriptive within-subject leader: `pls-regression-multioutput` with `lgp` features, mean
+  balanced accuracy `0.511556`, pointwise 95% subject-cluster interval `[0.501478, 0.521404]`,
+  and paired delta `+0.015269` versus `logistic-regression-independent/lbp` with pointwise interval
+  `[+0.001203, +0.028341]`.
+- Interpretation caveat: the paired intervals are exploratory pointwise intervals and are not
+  multiplicity-adjusted. Results remain near chance, so thesis language should emphasize protocol
+  validity, weak effects, uncertainty, and limitations rather than definitive model superiority.
+- Verification: notebook execution via Jupyter nbconvert passed and printed
+  `FULL_IMAGERY_SWEEP_COMPARISON_VERIFIED`; focused Stage 5 tests passed with 4 tests; `uv run
+  ruff check .` passed; full `uv run pytest` passed with 512 tests and 2 pre-existing
+  multiprocessing warnings; `git diff --check` passed.
+
+## 2026-06-23 - Full imagery Stage 4 Torch spectral sweep
+
+- Code: `experiments/random_imagery_torch/matrix.py`, `random-imagery-torch matrix-plan` and
+  `matrix-run` in `experiments/random_imagery_torch/cli.py`, mixed geometric/random support in
+  `experiments/random_imagery_torch/spectral_dataset.py` and schemas, plus focused Torch
+  matrix/input/CLI tests.
+- Scope: full `geometric+random` `Data_Pattern/patt` imagery reconstruction sweep for the primary
+  Torch spectral matrix. The executed matrix used 3 architectures (`eegnet`, `deep-convnet`,
+  `shallow-convnet`) x 4 spectral methods (`fft`, `morlet`, `superlet`, `stft`) x 2 protocols,
+  yielding 24 planned protocol specs and 36 expected direction runs.
+- Artifacts: summary JSON at
+  `artifacts/experiments/full-imagery/stage4_torch_matrix_summary.json`, failure log at
+  `artifacts/experiments/full-imagery/stage4_torch_matrix_failures.json`, immutable run roots under
+  `artifacts/experiments/full-imagery/torch/<model_id>/<run_hash>/`, and derived spectral cache
+  entries under `artifacts/preprocessed-imagery/Data_Pattern/patt/`.
+- Execution result: all 24 protocol specs completed and all 36 direction run directories were
+  safely reloaded. Failure count is zero. A reuse validation pass over the full expected matrix
+  succeeded with all specs reused.
+- Runtime: immutable `training.json` files report about 5114.05 total training seconds over 36
+  direction fits. Per-direction training seconds: min `26.42`, median `123.86`, max `832.04`. The
+  first `eegnet-superlet` cross-subject protocol had the largest wall-time segment because it
+  materialized much of the full-corpus Superlet cache.
+- Descriptive metrics: best cross-subject mean balanced accuracy in the Stage 4 summary is
+  `eegnet-stft-multilabel` at `0.525845`, followed by `eegnet-superlet-multilabel` at `0.516823`
+  and `eegnet-morlet-multilabel` at `0.513022`. Best within-subject combined mean balanced
+  accuracy is `deep-convnet-superlet-multilabel` at `0.509403`. Treat these as descriptive until
+  Stage 5 paired comparison and uncertainty analysis.
+- Operational note: the current summary file reflects the final reuse-validation pass, so matrix
+  `duration_seconds` values are reuse validation durations. Actual training and prediction seconds
+  are preserved in each immutable run's `training.json`.
+- Verification: focused Torch matrix/input/workflow tests passed with 18 tests; safe artifact reload
+  validated all 36 direction runs; `uv run python -m experiments.random_imagery_torch matrix-run
+  --json` succeeded as a reuse pass with 24 completed protocol specs and zero failures;
+  `uv run ruff check .` passed; full `uv run pytest` passed with 508 tests and 2 pre-existing
+  multiprocessing warnings; `git diff --check` passed.
+
+## 2026-06-23 - Full imagery Stage 3 classical model-feature sweep
+
+- Code: `execute_classical_matrix_sweep(...)` in `experiments/random_imagery/matrix.py`,
+  `random-imagery-models matrix-run` in `experiments/random_imagery/cli.py`, matrix exports in
+  `experiments/random_imagery/__init__.py`, and focused matrix/CLI/framework tests.
+- Scope: full `geometric+random` `Data_Pattern/patt` imagery reconstruction sweep for classical
+  tabular models. The executed matrix used 10 model IDs, 9 fixed feature families, and 2 protocols,
+  yielding 180 planned protocol specs and 270 expected direction runs.
+- Artifacts: summary JSON at
+  `artifacts/experiments/full-imagery/stage3_classical_matrix_summary.json`, failure log at
+  `artifacts/experiments/full-imagery/stage3_classical_matrix_failures.json`, and immutable run
+  roots under `artifacts/experiments/full-imagery/classical/<model_id>/<feature_slug>/`.
+- Execution result: 167 protocol specs completed. Completed specs produced 249 direction run
+  directories because cross-subject contributes one direction and within-subject contributes two
+  directions.
+- Safe validation: all 249 completed direction run directories were reloaded without trusting
+  persisted model objects by default. Schema counts were 27 schema-v2 Logistic Regression
+  directories and 222 schema-v3 model directories.
+- Explicit failures: 13 protocol specs failed with convergence warnings and were written to the
+  failure log. `linear-svm-independent` failed for `time` cross/within, `covariance` cross/within,
+  and `correlation` within. `elastic-net-independent` failed for `time` cross/within, `spectral`
+  within, `time+spectral` within, and `covariance` cross/within. `elastic-net-multioutput` failed
+  for `covariance` cross/within.
+- Operational note: `random-imagery-models matrix-run` exits with status code 1 whenever the
+  failure count is nonzero, even if the rest of the sweep completed. This keeps
+  convergence-blocked combinations visible instead of treating them as silently absent.
+- Verification: safe artifact reload validated all completed run directories; `uv run ruff check .`
+  passed; `uv run pytest` passed with 501 tests and 2 pre-existing multiprocessing warnings;
+  `git diff --check` passed.
+
+## 2026-06-23 - Full imagery Stage 2 fixed feature-matrix planner
+
+- Code: `experiments/random_imagery/matrix.py`, `random-imagery-models matrix-plan` in
+  `experiments/random_imagery/cli.py`, matrix exports in `experiments/random_imagery/__init__.py`,
+  `tests/experiments/test_random_imagery_matrix.py`, and focused CLI/framework tests.
+- Scope: structural planning only for the full classical `geometric+random` imagery sweep. No
+  model training, FIF array loading, feature extraction, or immutable run publication was
+  performed in this stage.
+- Matrix contract: 10 model IDs x 9 feature families x 2 protocols = 180 protocol specs. The
+  cross-subject protocol contributes one direction and the bidirectional within-subject protocol
+  contributes two directions, for 270 expected direction runs.
+- Model coverage: Logistic Regression reference bridge plus `linear-svm-independent`,
+  `ridge-classifier-independent`, `ridge-regression-independent`, `ridge-regression-multioutput`,
+  `elastic-net-independent`, `elastic-net-multioutput`, `random-forest-independent`,
+  `random-forest-multioutput`, and `pls-regression-multioutput`.
+- Feature coverage: `time`, `spectral`, `time+spectral`, `covariance`, `correlation`,
+  `log_covariance`, `lndp`, `lgp`, and `lbp`.
+- Full-dataset override: every emitted command sets `dataset.pattern_type=null`, so target
+  construction uses both `geometric` and `random` samples.
+- Fixed-feature override: every emitted command sets exactly one
+  `feature_screening.candidates` entry, making each run a fixed feature-family condition rather
+  than a hidden train-only selection over multiple families.
+- Artifact layout: planned roots are partitioned under
+  `artifacts/experiments/full-imagery/classical/<model_id>/<feature_slug>/` before the existing
+  immutable run hash directories.
+- CLI evidence: `uv run python -m experiments.random_imagery matrix-plan --json` reported
+  `run_count=180` and `expected_direction_run_count=270`. A representative command is
+  `logistic-regression run --protocol cross-subject --set dataset.pattern_type=null --set
+  feature_screening.candidates=[[time,spectral]] --set
+  artifacts.root=artifacts/experiments/full-imagery/classical/logistic-regression-independent/time+spectral`.
+- Verification: focused Stage 2 tests passed with 26 tests; focused ruff passed; `uv run ruff
+  check .` passed; full `uv run pytest` passed with 498 tests and 2 pre-existing multiprocessing
+  warnings.
+
+## 2026-06-23 - Full imagery Stage 1 dataset-contract audit
+
+- Artifact: `artifacts/experiments/full-imagery/stage1_full_dataset_audit.json`.
+- Code: `experiments/random_imagery/full_dataset_audit.py`, mixed target handling in
+  `experiments/random_imagery/data.py`, dataset selection updates in
+  `experiments/random_imagery/config.py`, updated workflow target-type propagation, and focused
+  config/data tests.
+- Scope: metadata-only audit for the proposed full `Data_Pattern/patt` imagery reconstruction
+  sweep. No model training, feature extraction, or FIF array loading was performed.
+- Target contract: `build_random_imagery_targets(...)` keeps the old random-only default, but can
+  explicitly accept both `geometric` and `random` samples. Full-corpus targets build as `(540, 36)`.
+  Samples without random seeds use a `-1` sentinel that is ignored by seed-leakage checks.
+- Corpus counts: 540 rows total, with 360 `geometric` and 180 `random` rows; 33 subjects; 60
+  subject-trial pairs; 13 unique geometric pattern IDs; 174 unique random seed values.
+- Cross-subject split: 423 train rows from 26 subjects and 117 test rows from subjects
+  `9, 10, 16, 18, 20, 28, 33`. Every pixel task has both classes in train/test.
+- Within-subject split: 27 eligible subjects, excluded subjects `14, 24, 27, 28, 29, 32`, and
+  243/243 rows in each cross-trial direction. Every pixel task has both classes in train/test.
+- Initial leakage blocker: cross-subject and both within-subject directions each contained 13
+  overlapping image fingerprints between train and test. These overlaps corresponded to
+  deterministic geometric patterns repeated across subjects/trials by dataset design. No
+  sample-key or random-seed overlap was found.
+- Correction after user approval on 2026-06-23: deterministic `geometric` pattern repeats are now
+  allowed as repeated task labels and tracked as `overlapping_geometric_pattern_ids`. Random image
+  fingerprint overlaps remain forbidden as `overlapping_random_image_fingerprints`, alongside
+  sample-key, random-seed, and protocol-boundary leakage checks.
+- Revised audit status: regenerated artifact reports `stage1_status="ready"`, no forbidden
+  leakage, zero random image overlaps, and 13 expected geometric pattern IDs `0`-`12`.
+- Verification: `uv run pytest tests/experiments/test_logistic_regression_config.py
+  tests/experiments/test_logistic_regression_data.py` passed with 29 tests; `uv run ruff check .`
+  passed; full `uv run pytest` passed with 481 tests and 2 pre-existing multiprocessing warnings
+  before the Stage 2 additions.
+
 ## 2026-06-22 - BNCI2014_001 Stage 6 exploratory FFT-CNN Torch pilot
 
 - Artifact: `artifacts/experiments/bnci2014_001/fft-cnn-pilot/b54f16eff24c0908/`.

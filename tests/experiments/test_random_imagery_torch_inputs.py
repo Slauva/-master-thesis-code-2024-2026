@@ -21,7 +21,7 @@ from experiments.random_imagery_torch import (
     normalize_spectral_sample,
 )
 from preprocessors import SpectralTransformResult, load_preprocessing_config
-from utils.datasets import NumpyDataset, RandomSample
+from utils.datasets import GeometricSample, NumpyDataset, RandomSample
 
 SpectralMethod = Literal["fft", "morlet", "superlet", "stft"]
 
@@ -103,6 +103,62 @@ def _source_dataset(dataset_dir: Path) -> NumpyDataset:
     )
 
 
+def _write_mixed_trial(
+    dataset_dir: Path,
+    *,
+    sfreq: float = 100.0,
+    duration_seconds: float = 16.0,
+) -> None:
+    trial_dir = dataset_dir / "S_1" / "Trial_1"
+    trial_dir.mkdir(parents=True)
+    image = (np.arange(36).reshape(6, 6) % 2).tolist()
+    (trial_dir / "labels.json").write_text(
+        json.dumps(
+            {
+                "blocks": [
+                    {
+                        "Exec_Block_Index": 1,
+                        "type": "geometric",
+                        "pattern_id": 7,
+                        "img": image,
+                    },
+                    {
+                        "Exec_Block_Index": 2,
+                        "type": "random",
+                        "seed": 123,
+                        "img": (1 - np.asarray(image)).tolist(),
+                    },
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    n_times = round(sfreq * duration_seconds)
+    time = np.arange(n_times, dtype=np.float64) / sfreq
+    eeg = np.stack(
+        (
+            np.sin(2.0 * np.pi * 10.0 * time),
+            np.cos(2.0 * np.pi * 20.0 * time),
+        )
+    )
+    eog = np.zeros((1, n_times), dtype=np.float64)
+    for block_index in (1, 2):
+        _save_raw(
+            trial_dir / f"patt_EEG_{block_index}.fif",
+            data=eeg + block_index / 10.0,
+            channel_names=["Fz", "Cz"],
+            channel_type="eeg",
+            sfreq=sfreq,
+        )
+        _save_raw(
+            trial_dir / f"patt_EOG_{block_index}.fif",
+            data=eog,
+            channel_names=["VEOG"],
+            channel_type="eog",
+            sfreq=sfreq,
+        )
+
+
 def _fake_fft_transform(
     eeg: np.ndarray,
     *,
@@ -163,6 +219,46 @@ def test_crop_is_applied_before_transform_and_full_recording_cache_is_separate(
     assert sample.eeg_power.shape == (2, 39)
     assert "preprocessed-imagery" not in str(tmp_path / "crop-cache")
     assert dataset.config_hash
+
+
+def test_crop_spectral_dataset_accepts_full_geometric_random_corpus(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    dataset_dir = tmp_path / "Data_Pattern"
+    _write_mixed_trial(dataset_dir)
+    source = NumpyDataset(
+        dataset_dir,
+        dataset_step_type="patt",
+        dataset_pattern_type=None,
+        cache_policy=None,
+    )
+    monkeypatch.setitem(
+        __import__(
+            "experiments.random_imagery_torch.spectral_dataset",
+            fromlist=["_TRANSFORMS"],
+        )._TRANSFORMS,
+        "fft",
+        _fake_fft_transform,
+    )
+
+    dataset = CropSpectralDataset(
+        source,
+        method="fft",
+        cache_dir=tmp_path / "crop-cache",
+    )
+    geometric = dataset[0]
+    random = dataset[1]
+    targets = build_random_imagery_targets(
+        dataset.samples,
+        allowed_sample_types=("geometric", "random"),
+    )
+
+    assert isinstance(geometric.sample, GeometricSample)
+    assert isinstance(random.sample, RandomSample)
+    assert geometric.sample_key == (1, 1, 1)
+    assert random.sample_key == (1, 1, 2)
+    assert targets.y.shape == (2, 36)
 
 
 def test_crop_cache_hits_before_source_loading_and_rebuilds_corruption(

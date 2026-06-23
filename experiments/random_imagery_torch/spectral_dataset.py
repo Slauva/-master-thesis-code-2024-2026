@@ -23,7 +23,7 @@ from preprocessors.stft import compute_stft_psd
 from preprocessors.superlet import compute_superlet_power
 from utils.datasets.base import SampleKey
 from utils.datasets.numpy_dataset import NumpyDataset
-from utils.datasets.schemas import LoadedSample, RandomSample
+from utils.datasets.schemas import LoadedSample, Sample
 
 _TRANSFORMS = {
     "fft": compute_fft_psd,
@@ -56,12 +56,13 @@ class CropSpectralDataset:
             raise TypeError("`source_dataset` must be a NumpyDataset")
         if source_dataset.dataset_step_type != "patt":
             raise ValueError("Random-imagery spectral inputs require dataset_step_type='patt'")
-        if source_dataset.dataset_pattern_type != "random":
-            raise ValueError("Random-imagery spectral inputs require dataset_pattern_type='random'")
-        if not source_dataset.samples or any(
-            not isinstance(sample, RandomSample) for sample in source_dataset.samples
-        ):
-            raise TypeError("Random-imagery spectral inputs require only RandomSample records")
+        if source_dataset.dataset_pattern_type not in ("geometric", "random", None):
+            raise ValueError(
+                "Random-imagery spectral inputs require dataset_pattern_type to select "
+                "geometric, random, or both"
+            )
+        if not source_dataset.samples:
+            raise TypeError("Random-imagery spectral inputs require at least one labeled sample")
         if preprocessing_config is not None and preprocessing_config_overrides is not None:
             raise ValueError("Pass either `preprocessing_config` or overrides, not both")
         resolved_preprocessing = preprocessing_config or load_preprocessing_config(
@@ -86,8 +87,6 @@ class CropSpectralDataset:
 
     def __getitem__(self, key: int | SampleKey) -> CropSpectralSample:
         sample = self.source_dataset._get_sample(key)
-        if not isinstance(sample, RandomSample):
-            raise TypeError("Crop spectral samples require RandomSample metadata")
         if self._uses_disk_cache:
             cached = self._load_disk_cache(sample)
             if cached is not None:
@@ -108,8 +107,8 @@ class CropSpectralDataset:
             yield self[index]
 
     @property
-    def samples(self) -> tuple[RandomSample, ...]:
-        return self.source_dataset.samples  # type: ignore[return-value]
+    def samples(self) -> tuple[Sample, ...]:
+        return self.source_dataset.samples
 
     @property
     def sample_keys(self) -> tuple[SampleKey, ...]:
@@ -229,7 +228,7 @@ class CropSpectralDataset:
             "input_config": self.input_config.model_dump(mode="json"),
         }
 
-    def _load_disk_cache(self, sample: RandomSample) -> CropSpectralSample | None:
+    def _load_disk_cache(self, sample: Sample) -> CropSpectralSample | None:
         entry_dir = self.get_cache_entry_path(
             (sample.subject_id, sample.trial_number, sample.block_index)
         )
@@ -317,7 +316,7 @@ class CropSpectralDataset:
     def _manifest_matches_sample(
         self,
         manifest: dict[str, Any],
-        sample: RandomSample,
+        sample: Sample,
     ) -> bool:
         return (
             manifest.get("schema_version") == self.CACHE_SCHEMA_VERSION

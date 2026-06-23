@@ -25,6 +25,8 @@ class PixelTargetDataset:
     block_indices: NDArray[np.int64]
     seeds: NDArray[np.int64]
     image_fingerprints: tuple[str, ...]
+    sample_types: tuple[str, ...] | None = None
+    pattern_ids: NDArray[np.int64] | None = None
 
     def __post_init__(self) -> None:
         if self.y.ndim != 2:
@@ -51,6 +53,18 @@ class PixelTargetDataset:
                 raise TypeError(f"`{name}` must be an int64 vector matching the target rows")
         if len(self.image_fingerprints) != n_samples:
             raise ValueError("Image fingerprints must match the target rows")
+        if self.sample_types is None:
+            object.__setattr__(self, "sample_types", ("random",) * n_samples)
+        if len(self.sample_types) != n_samples:
+            raise ValueError("Sample types must match the target rows")
+        if any(sample_type not in {"geometric", "random"} for sample_type in self.sample_types):
+            raise ValueError("Sample types must be 'geometric' or 'random'")
+        if self.pattern_ids is None:
+            pattern_ids = np.full(n_samples, -1, dtype=np.int64)
+            pattern_ids.setflags(write=False)
+            object.__setattr__(self, "pattern_ids", pattern_ids)
+        if self.pattern_ids.shape != (n_samples,) or self.pattern_ids.dtype != np.dtype(np.int64):
+            raise TypeError("`pattern_ids` must be an int64 vector matching the target rows")
 
 
 @dataclass(frozen=True, slots=True)
@@ -167,6 +181,8 @@ class ProtocolLeakageAudit:
     all_tasks_have_both_classes: bool
     subject_contract_satisfied: bool
     trial_contract_satisfied: bool
+    overlapping_random_image_fingerprints: tuple[str, ...] = ()
+    overlapping_geometric_pattern_ids: tuple[int, ...] = ()
 
     def __post_init__(self) -> None:
         if self.train_positive_counts.ndim != 1 or self.train_positive_counts.dtype != np.dtype(np.int64):
@@ -182,7 +198,7 @@ class ProtocolLeakageAudit:
         return bool(
             self.overlapping_sample_keys
             or self.overlapping_seeds
-            or self.overlapping_image_fingerprints
+            or self.overlapping_random_image_fingerprints
             or not self.subject_contract_satisfied
             or not self.trial_contract_satisfied
         )
@@ -232,6 +248,8 @@ class LeakageAudit:
     train_positive_counts: NDArray[np.int64]
     test_positive_counts: NDArray[np.int64]
     all_tasks_have_both_classes: bool
+    overlapping_random_image_fingerprints: tuple[str, ...] = ()
+    overlapping_geometric_pattern_ids: tuple[int, ...] = ()
 
     @property
     def has_leakage(self) -> bool:
@@ -240,7 +258,7 @@ class LeakageAudit:
                 self.overlapping_subjects,
                 self.overlapping_sample_keys,
                 self.overlapping_seeds,
-                self.overlapping_image_fingerprints,
+                self.overlapping_random_image_fingerprints,
             )
         )
 

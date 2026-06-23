@@ -7,12 +7,12 @@ from numpy.typing import NDArray
 
 from preprocessors.config import PreprocessingMethod, SpectralScaling
 from utils.datasets.base import SampleKey
-from utils.datasets.schemas import RandomSample
+from utils.datasets.schemas import Sample
 
 
 @dataclass(frozen=True, slots=True)
 class CropSpectralSample:
-    sample: RandomSample
+    sample: Sample
     eeg_power: NDArray[np.floating[Any]]
     frequencies: NDArray[np.floating[Any]]
     times: NDArray[np.floating[Any]] | None

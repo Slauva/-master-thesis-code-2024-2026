@@ -1,7 +1,10 @@
 import numpy as np
 import pytest
 
-from experiments.logistic_regression import run_evaluation_protocol
+from experiments.logistic_regression import (
+    load_logistic_regression_config,
+    run_evaluation_protocol,
+)
 from experiments.logistic_regression.config import (
     CrossValidationConfig as LogisticCrossValidationConfig,
 )
@@ -205,3 +208,38 @@ def test_common_runner_materializes_test_features_only_after_fit(
     )
 
     assert events == ["fit", "test-features", "predict"]
+
+
+def test_common_runner_trains_on_single_fixed_feature_family() -> None:
+    dataset, targets = _protocol_inputs()
+    config = load_logistic_regression_config(
+        overrides={
+            "split": {"test_size": 0.25},
+            "cross_validation": {"n_splits": 3},
+            "feature_screening": {
+                "select_k": 2,
+                "max_iter": 1000,
+                "candidates": [["spectral"]],
+            },
+            "grid_search": {
+                "select_k": [2],
+                "c_values": [1.0],
+                "penalties": ["l2"],
+                "class_weights": ["balanced"],
+                "max_iter": 1000,
+                "n_jobs": 1,
+            },
+            "bootstrap_iterations": 10,
+        }
+    )
+
+    result = run_model_evaluation_protocol(
+        "cross-subject",
+        config=config,
+        backend=LogisticRegressionBackend(),
+        dataset=dataset,
+        targets=targets,
+    )
+
+    assert len(result.directions) == 1
+    assert result.directions[0].fitted_model.selected_block_names == ("spectral",)
